@@ -349,7 +349,16 @@
 <script>
 const SUPABASE_URL = "https://ksknozrgkdfuldbvnzse.supabase.co";
 const SUPABASE_KEY = "sb_publishable_uLq0UNKBQ2ZD6Gw_rCKKsQ_Oo39KWOF";   // คีย์สาธารณะ · สิทธิ์แอดมินตรวจฝั่งเซิร์ฟเวอร์ (RLS + ฟังก์ชัน)
-const sb = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
+// รับเซสชันต่อจากหน้าเกม (แอดมินกดปุ่มในเกม → ไม่ต้องล็อกอินซ้ำ)
+const HANDOFF = (() => {
+  const h = new URLSearchParams(location.hash.slice(1)), a = h.get("at"), r = h.get("rt");
+  if (!a || !r) return null;
+  history.replaceState(null, "", location.pathname + location.search);   // ลบโทเคนออกจาก URL ทันที
+  return { a, r };
+})();
+// โหมดรับช่วง: ไม่บันทึกเซสชันลงเครื่อง และไม่รีเฟรชโทเคนเอง (กันไปชนโทเคนของหน้าเกม)
+const sb = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, HANDOFF ? { auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false } } : undefined) : null;
+const signOutLocal = () => sb.auth.signOut(HANDOFF ? { scope: "local" } : undefined);   // ออกแค่หน้านี้ ไม่ถีบหน้าเกมหลุด
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const fmtDate = d => d ? new Date(d).toLocaleString("th-TH", { dateStyle: "medium", timeStyle: "short" }) : "–";
@@ -384,7 +393,7 @@ const lgMsg = (m, ok = false) => { $("lgMsg").textContent = m; $("lgMsg").classN
 async function enter(user) {
   const { data: prof } = await sb.from("profiles").select("*").eq("id", user.id).maybeSingle();
   if (!prof || !prof.is_admin) {
-    await sb.auth.signOut();
+    await signOutLocal();
     $("loginView").style.display = "flex"; $("appView").style.display = "none";
     return lgMsg("⛔ บัญชีนี้ไม่ใช่แอดมิน");
   }
@@ -393,7 +402,7 @@ async function enter(user) {
   $("loginView").style.display = "none"; $("appView").style.display = "block";
   loadUsers(); loadContent();
 }
-async function logout() { await sb.auth.signOut(); me = null; location.reload(); }
+async function logout() { await signOutLocal(); me = null; location.reload(); }
 for (const id of ["lgUser", "lgPass"]) $(id).addEventListener("keydown", e => { if (e.key === "Enter") doLogin(); });
 
 // ---------- รายชื่อผู้เล่น ----------
@@ -1541,7 +1550,14 @@ async function saveSkill() {
 }
 
 // ล็อกอินค้างอยู่ → เข้าเลย
-if (sb) sb.auth.getSession().then(({ data }) => { if (data.session) enter(data.session.user); });
+if (sb && HANDOFF) {
+  lgMsg("กำลังเข้าสู่ระบบจากหน้าเกม…", true);
+  sb.auth.setSession({ access_token: HANDOFF.a, refresh_token: HANDOFF.r }).then(({ data, error }) => {
+    if (error || !data.session) lgMsg("เซสชันจากหน้าเกมหมดอายุ กรุณาล็อกอินอีกครั้ง");
+    else enter(data.session.user);
+  });
+}
+else if (sb) sb.auth.getSession().then(({ data }) => { if (data.session) enter(data.session.user); });
 else lgMsg("เชื่อมต่อเซิร์ฟเวอร์ไม่ได้ ตรวจอินเทอร์เน็ตแล้วรีเฟรช");
 </script>
 </body>

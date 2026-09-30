@@ -971,7 +971,7 @@
     <div id="authBox"></div>
     <div class="hint">คลิกเพื่อเดิน · คลิกศัตรูเพื่อโจมตี · ปุ่ม 1–6 ใช้วิชาและยา</div>
   </div>
-  <a class="btn adminLink" href="admin.html" target="_blank" rel="noopener" data-tip="หน้าจัดการผู้เล่น (เฉพาะแอดมิน)">🛡️ หลังบ้าน</a>
+  <a class="btn adminLink" id="adminLinkBtn" style="display:none" href="admin.html" onclick="openAdmin(event)" data-tip="หน้าจัดการผู้เล่น (เฉพาะแอดมิน)">🛡️ หลังบ้าน</a>
 </div>
 
 <script>
@@ -6902,13 +6902,26 @@ function openBook(id) { if (id === "adminWin" && !isAdmin) return; if (!isOpen(i
 function applyAdminUI() {   // แท็บแอดมินโผล่เฉพาะบัญชีแอดมิน (การป้องกันจริงอยู่ที่ RPC/RLS ฝั่งเซิร์ฟเวอร์)
   document.querySelectorAll(".adminTab").forEach(b => { b.style.display = isAdmin ? "" : "none"; });
   if (!isAdmin && $("adminWin")) $("adminWin").style.display = "none";
+  const lb = $("adminLinkBtn"); if (lb) lb.style.display = isAdmin ? "" : "none";
+}
+async function openAdmin(ev) {   // เปิดหลังบ้านพร้อมส่งเซสชันไปให้ ไม่ต้องล็อกอินซ้ำ
+  if (ev) ev.preventDefault();
+  if (!isAdmin) return;
+  const w = window.open("", "_blank");   // เปิดหน้าต่างก่อน (ไม่ให้ป๊อปอัปโดนบล็อก) แล้วค่อยใส่ URL
+  let url = "admin.html";
+  try {
+    const { data } = await sb.auth.getSession();
+    const ss = data && data.session;
+    if (ss) url += "#at=" + encodeURIComponent(ss.access_token) + "&rt=" + encodeURIComponent(ss.refresh_token);
+  } catch (e) {}
+  if (w) w.location.href = url; else location.href = url;
 }
 let admStats = null;
 async function renderAdmin() {
   if (!isAdmin) return;
   const el = $("adminBody");
   el.innerHTML = `<div class="admBox"><div class="admStats" id="admStats"><div><b>…</b>ผู้เล่น</div><div><b>…</b>แอดมิน</div><div><b>…</b>ถูกแบน</div><div><b>…</b>ไม่มีตัวละคร</div></div></div>
-  <div class="admBox">🛡️ เข้าสู่ระบบในชื่อ <b>${currentUser}</b><br><div style="margin-top:8px"><a class="btn" href="admin.html" target="_blank" rel="noopener" style="display:inline-block;text-decoration:none;padding:6px 14px">เปิดหน้าหลังบ้านเต็ม ↗</a> <button class="btn" onclick="admStats=null;renderAdmin()">🔄 รีเฟรช</button></div></div>`;
+  <div class="admBox">🛡️ เข้าสู่ระบบในชื่อ <b>${currentUser}</b><br><div style="margin-top:8px"><a class="btn" href="admin.html" onclick="openAdmin(event)" style="display:inline-block;text-decoration:none;padding:6px 14px">เปิดหน้าหลังบ้านเต็ม ↗</a> <button class="btn" onclick="admStats=null;renderAdmin()">🔄 รีเฟรช</button></div></div>`;
   try {
     if (!admStats) { const { data, error } = await sb.rpc("admin_list_users"); if (error) throw error; admStats = data || []; }
     const u = admStats;
