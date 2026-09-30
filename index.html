@@ -252,6 +252,14 @@
   #bigMap { display: block; border-radius: 8px; border: 2px solid #5a4420; cursor: crosshair; }
   .bmLegend { font-size: 12px; color: var(--muted); margin-top: 6px; text-align: center; }
   #craftWin { left: 50%; top: 60px; transform: translateX(-50%); width: 440px; max-width: calc(100vw - 32px); }
+  #adminWin { left: 50%; top: 20px; transform: translateX(-50%); width: 620px; max-width: calc(100vw - 32px); }
+  #adminWin .tabBody { max-height: min(66vh, 560px); }
+
+  .wtabs button.adminTab { background: linear-gradient(180deg, #d9c2ff, #9b6fd6); color: #2a1246; }
+  .wtabs button.adminTab.on { background: linear-gradient(180deg, #f0dcff, #b98af0); }
+  .admBox { background: rgba(0,0,0,.28); border: 2px solid #2e1a0a; padding: 10px 12px; margin-bottom: 10px; }
+  .admStats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; text-align: center; }
+  .admStats b { display: block; font-size: 20px; color: var(--gold-l, #ffe89a); }
   #codexWin { left: 50%; top: 20px; transform: translateX(-50%); width: 620px; max-width: calc(100vw - 32px); }
   #codexWin .tabBody { max-height: min(66vh, 560px); }
   .cxFilter { display: flex; gap: 6px; margin: 6px 0; flex-wrap: wrap; }
@@ -582,13 +590,13 @@
     .ageTabs button { font-size: 11px !important; }
   }
   /* ===== 3 หน้า (ตัวละคร / วิชา / สมุด) ขนาดเท่ากันทุกหน้า · เนื้อหายาวเลื่อนในกรอบ หัวแท็บติดด้านบน ===== */
-  #charWin, #skillWin, #codexWin {
+  #charWin, #skillWin, #codexWin, #adminWin {
     left: 50%; top: 16px; transform: translateX(-50%); width: 800px; max-width: calc(100vw - 20px);
     height: min(640px, calc(100vh - 146px)); overflow-y: auto; overflow-x: hidden;
   }
-  #charWin .title.wtabs, #skillWin .title.wtabs, #codexWin .title.wtabs { position: sticky; top: 0; z-index: 6; }
+  #charWin .title.wtabs, #skillWin .title.wtabs, #codexWin .title.wtabs, #adminWin .title.wtabs { position: sticky; top: 0; z-index: 6; }
   #charWin .charCols { max-height: none; overflow: visible; }
-  #skillWin .tabBody, #codexWin .tabBody { max-height: none; }
+  #skillWin .tabBody, #codexWin .tabBody, #adminWin .tabBody { max-height: none; }
   /* หน้าตัวละคร: หน้าต่างไม่เลื่อน · เลื่อนได้เฉพาะช่องย่าม */
   #charWin { overflow: hidden !important; }
   #charWin .charCols { height: calc(100% - 42px); max-height: none !important; overflow: hidden !important; }
@@ -935,14 +943,15 @@
   <button class="btn red" onclick="logoutFromGame()" data-tip="ออกจากระบบ (บันทึกเกมให้อัตโนมัติ)">⏻</button>
 </div>
 
-<div id="charWin" class="panel win gameui"><div class="title wtabs"><button class="on" onclick="openBook('charWin')">👤 ตัวละคร (S)</button><button class="" onclick="openBook('skillWin')">✨ วิชา (K)</button><button class="" onclick="openBook('codexWin')">📖 สมุดอุปกรณ์ (J)</button><span class="x" onclick="toggleWin('charWin')">✕</span></div>
+<div id="charWin" class="panel win gameui"><div class="title wtabs"><button class="on" onclick="openBook('charWin')">👤 ตัวละคร (S)</button><button class="" onclick="openBook('skillWin')">✨ วิชา (K)</button><button class="" onclick="openBook('codexWin')">📖 สมุดอุปกรณ์ (J)</button><button class="adminTab" style="display:none" onclick="openBook('adminWin')">🛡️ แอดมิน</button><span class="x" onclick="toggleWin('charWin')">✕</span></div>
   <div class="charCols"><div class="body" id="statusBody"></div><div class="body" id="invBody"></div></div></div>
-<div id="skillWin" class="panel win gameui"><div class="title wtabs"><button class="" onclick="openBook('charWin')">👤 ตัวละคร (S)</button><button class="on" onclick="openBook('skillWin')">✨ วิชา (K)</button><button class="" onclick="openBook('codexWin')">📖 สมุดอุปกรณ์ (J)</button><span class="x" onclick="toggleWin('skillWin')">✕</span></div><div class="body tabBody" id="skillBody"></div></div>
+<div id="skillWin" class="panel win gameui"><div class="title wtabs"><button class="" onclick="openBook('charWin')">👤 ตัวละคร (S)</button><button class="on" onclick="openBook('skillWin')">✨ วิชา (K)</button><button class="" onclick="openBook('codexWin')">📖 สมุดอุปกรณ์ (J)</button><button class="adminTab" style="display:none" onclick="openBook('adminWin')">🛡️ แอดมิน</button><span class="x" onclick="toggleWin('skillWin')">✕</span></div><div class="body tabBody" id="skillBody"></div></div>
+<div id="adminWin" class="panel win gameui"><div class="title wtabs"><button class="" onclick="openBook('charWin')">👤 ตัวละคร (S)</button><button class="" onclick="openBook('skillWin')">✨ วิชา (K)</button><button class="" onclick="openBook('codexWin')">📖 สมุดอุปกรณ์ (J)</button><button class="adminTab on" onclick="openBook('adminWin')">🛡️ แอดมิน</button><span class="x" onclick="toggleWin('adminWin')">✕</span></div><div class="body tabBody" id="adminBody"></div></div>
 <div id="smithWin" class="panel win gameui"><div class="title">โรงตีเหล็ก<span class="x" onclick="toggleWin('smithWin')">✕</span></div><div class="body" id="smithBody"></div></div>
 <div id="autoWin" class="panel win gameui"><div class="title">ตั้งค่าออโต้<span class="x" onclick="toggleWin('autoWin')">✕</span></div><div class="body" id="autoBody"></div></div>
 
 <div id="craftWin" class="panel win gameui"><div class="title"><span id="craftTitle">ร้านคราฟ</span><span class="x" onclick="toggleWin('craftWin')">✕</span></div><div class="body" id="craftBody"></div></div>
-<div id="codexWin" class="panel win gameui"><div class="title wtabs"><button class="" onclick="openBook('charWin')">👤 ตัวละคร (S)</button><button class="" onclick="openBook('skillWin')">✨ วิชา (K)</button><button class="on" onclick="openBook('codexWin')">📖 สมุดอุปกรณ์ (J)</button><span class="x" onclick="toggleWin('codexWin')">✕</span></div><div class="body" id="codexBody"></div></div>
+<div id="codexWin" class="panel win gameui"><div class="title wtabs"><button class="" onclick="openBook('charWin')">👤 ตัวละคร (S)</button><button class="" onclick="openBook('skillWin')">✨ วิชา (K)</button><button class="on" onclick="openBook('codexWin')">📖 สมุดอุปกรณ์ (J)</button><button class="adminTab" style="display:none" onclick="openBook('adminWin')">🛡️ แอดมิน</button><span class="x" onclick="toggleWin('codexWin')">✕</span></div><div class="body" id="codexBody"></div></div>
 <div id="shopWin" class="panel win gameui"><div class="title">ร้านนายมั่น<span class="x" onclick="toggleWin('shopWin')">✕</span></div><div class="body" id="shopBody"></div></div>
 <div id="dialog" class="panel win">
   <div class="title" id="dlgName"></div>
@@ -1553,7 +1562,7 @@ const MAX_CHARS = 3;
 // DB = สำเนาข้อมูลของบัญชีที่ล็อกอินอยู่ (โหลดจาก Supabase)
 let DB = { users: {} }, LOCAL_DB = { users: {} };
 try { LOCAL_DB = JSON.parse(localStorage.getItem(ACC_KEY)) || LOCAL_DB; } catch (e) {}
-let currentUser = null, currentUid = null, currentSlot = -1;
+let currentUser = null, currentUid = null, currentSlot = -1, isAdmin = false;
 // ลิงก์ในอีเมล (ยืนยันสมัคร / ตั้งรหัสใหม่) พากลับมาหน้านี้
 const AUTH_REDIRECT = location.protocol.startsWith("http") ? location.origin + location.pathname : undefined;
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
@@ -1577,7 +1586,7 @@ async function loadAccount(user) {   // โหลดโปรไฟล์ + ต�
   const name = (prof && prof.username) || (user.user_metadata && user.user_metadata.username) || "ผู้เล่น";
   const chars = Array(MAX_CHARS).fill(null);
   for (const r of rows || []) if (r.slot >= 0 && r.slot < MAX_CHARS) chars[r.slot] = r.data;
-  currentUser = name; currentUid = user.id;
+  currentUser = name; currentUid = user.id; isAdmin = !!(prof && prof.is_admin); applyAdminUI();
   DB = { users: { [name]: { chars } } };
   // ย้ายตัวละครจากบัญชีแบบเก่าในเครื่องนี้ (ชื่อเดียวกัน) ขึ้นเซิร์ฟเวอร์ครั้งแรก
   const old = LOCAL_DB.users[name];
@@ -5611,10 +5620,10 @@ function drawObstacle(o) {
     case "post": drawPost(x, y); break;
     case "gate": {  // ประตูชัย: เสาสองต้น + คานหลังคาทรงไทย (วางตามแนวเฉียง)
       const a = iso(o.x1, o.y1), b = iso(o.x2, o.y2), mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
+      drawPost(b.x, b.y);   // เสาขวาวาดก่อน = อยู่หลังหลังคา/คาน
       drawPost(a.x, a.y);
       ctx.beginPath(); ctx.moveTo(a.x, a.y - 66); ctx.lineTo(b.x, b.y - 66); ctx.lineTo(b.x, b.y - 56); ctx.lineTo(a.x, a.y - 56); ctx.closePath(); fs("#f1e8d6", 1.2);
       thaiRoof(mx, my - 64, Math.abs(b.x - a.x) + 30, 28, "#9b2a22");
-      drawPost(b.x, b.y);
       textOutline("ประตูชัย", mx, my - 44, "#f3d98b", 11, 700);
       break;
     }
@@ -6884,12 +6893,29 @@ function sellEtc() {
 }
 
 const isOpen = id => $(id).style.display === "block";
-const BOOK_WINS = ["charWin", "skillWin", "codexWin"];   // ตัวละคร / วิชา / สมุด = หน้าต่างเดียวกัน สลับแท็บ
+const BOOK_WINS = ["charWin", "skillWin", "codexWin", "adminWin"];   // ตัวละคร / วิชา / สมุด = หน้าต่างเดียวกัน สลับแท็บ
 function openWin(id) {
   if (BOOK_WINS.includes(id)) for (const w of BOOK_WINS) if (w !== id) $(w).style.display = "none";
   $(id).style.display = "block"; refreshWindows();
 }
-function openBook(id) { if (!isOpen(id)) openWin(id); }
+function openBook(id) { if (id === "adminWin" && !isAdmin) return; if (!isOpen(id)) openWin(id); }
+function applyAdminUI() {   // แท็บแอดมินโผล่เฉพาะบัญชีแอดมิน (การป้องกันจริงอยู่ที่ RPC/RLS ฝั่งเซิร์ฟเวอร์)
+  document.querySelectorAll(".adminTab").forEach(b => { b.style.display = isAdmin ? "" : "none"; });
+  if (!isAdmin && $("adminWin")) $("adminWin").style.display = "none";
+}
+let admStats = null;
+async function renderAdmin() {
+  if (!isAdmin) return;
+  const el = $("adminBody");
+  el.innerHTML = `<div class="admBox"><div class="admStats" id="admStats"><div><b>…</b>ผู้เล่น</div><div><b>…</b>แอดมิน</div><div><b>…</b>ถูกแบน</div><div><b>…</b>ไม่มีตัวละคร</div></div></div>
+  <div class="admBox">🛡️ เข้าสู่ระบบในชื่อ <b>${currentUser}</b><br><div style="margin-top:8px"><a class="btn" href="admin.html" target="_blank" rel="noopener" style="display:inline-block;text-decoration:none;padding:6px 14px">เปิดหน้าหลังบ้านเต็ม ↗</a> <button class="btn" onclick="admStats=null;renderAdmin()">🔄 รีเฟรช</button></div></div>`;
+  try {
+    if (!admStats) { const { data, error } = await sb.rpc("admin_list_users"); if (error) throw error; admStats = data || []; }
+    const u = admStats;
+    $("admStats").innerHTML = [[u.length, "ผู้เล่น"], [u.filter(x => x.is_admin).length, "แอดมิน"], [u.filter(x => x.banned).length, "ถูกแบน"], [u.filter(x => !x.char_count).length, "ไม่มีตัวละคร"]]
+      .map(([n, t]) => `<div><b>${n}</b>${t}</div>`).join("");
+  } catch (e) { $("admStats").innerHTML = `<div style="grid-column:1/-1;color:#ff9b8a">โหลดข้อมูลไม่สำเร็จ (ใช้หน้าหลังบ้านแทนได้)</div>`; }
+}
 function toggleWin(id) { isOpen(id) ? ($(id).style.display = "none") : openWin(id); }
 function refreshWindows() {
   if (isOpen("charWin")) { renderStatus(); renderInv(); }
@@ -6898,6 +6924,7 @@ function refreshWindows() {
   if (isOpen("smithWin")) renderSmith();
   if (isOpen("skillWin")) renderSkills();
   if (isOpen("codexWin")) renderCodex();
+  if (isOpen("adminWin")) renderAdmin();
   if (isOpen("craftWin")) renderCraftWin();
   if (isOpen("bigMapWin")) { sizeBigMap(); drawBigMap(); }
 
@@ -7265,7 +7292,7 @@ addEventListener("keydown", e => {
 
   else if (k === "a") toggleAuto();
   else if (k === "escape") {
-    for (const id of ["charWin", "shopWin", "smithWin", "autoWin", "skillWin", "codexWin", "craftWin", "bigMapWin"]) $(id).style.display = "none";
+    for (const id of ["charWin", "shopWin", "smithWin", "autoWin", "skillWin", "codexWin", "adminWin", "craftWin", "bigMapWin"]) $(id).style.display = "none";
     P.target = null; P.queued = null;
   }
 });
@@ -7423,7 +7450,7 @@ async function login(user, msg = "") {
 }
 async function logout() {
   if (lastSave) await lastSave.catch(() => {});   // รอเซฟล่าสุดเสร็จก่อนออก
-  currentUser = null; currentUid = null; DB = { users: {} };
+  currentUser = null; currentUid = null; isAdmin = false; applyAdminUI(); DB = { users: {} };
   if (sb) await sb.auth.signOut();
   showLogin("login");
 }
@@ -7729,7 +7756,7 @@ async function startGame(slot, isNew = false) {   // รอข้อมูลข
 function backToSelect() {   // กลับหน้าเลือกตัวละคร (จากในเกม)
   flushSave();
   netLeave(); closeChat();
-  for (const id of ["charWin", "shopWin", "smithWin", "autoWin", "skillWin", "codexWin", "craftWin", "bigMapWin", "dialog"]) $(id).style.display = "none";
+  for (const id of ["charWin", "shopWin", "smithWin", "autoWin", "skillWin", "codexWin", "adminWin", "craftWin", "bigMapWin", "dialog"]) $(id).style.display = "none";
   if (AUTO.on) toggleAuto(false);
   currentSlot = -1;
   document.body.classList.add("title");
