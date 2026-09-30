@@ -618,14 +618,25 @@ const CAP_FIELDS = [
   ["maxLevel", "เลเวลสูงสุด", 99], ["max_str", "STR สูงสุด", 99], ["max_int", "INT สูงสุด", 99],
   ["max_agi", "AGI สูงสุด", 99], ["max_dex", "DEX สูงสุด", 99], ["max_vit", "VIT สูงสุด", 99], ["max_luk", "LUK สูงสุด", 99],
 ];
+// สมดุลเกม: ตัวคูณรวม (1 = ตามค่าในตารางมอน) · ค่าเริ่มต้นตรงกับใน index.html
+const BAL_FIELDS = [
+  ["expRate", "EXP ที่ได้ (เท่า)", 0.8, 0.05, 20], ["dropRate", "อัตราดรอปของทั่วไป (เท่า)", 0.65, 0, 20],
+  ["rareDropRate", "อัตราดรอปของหายาก ≤5% (เท่า)", 0.5, 0, 20], ["zenyRate", "เบี้ยจากมอน (เท่า)", 0.75, 0, 20],
+  ["mobHp", "HP มอนสเตอร์ (เท่า)", 1.4, 0.1, 20], ["mobAtk", "ATK มอนสเตอร์ (เท่า)", 1.2, 0.1, 20],
+  ["respawn", "เวลามอนเกิดใหม่ (เท่า)", 1.5, 0.1, 20], ["statPts", "แต้มสถานะต่อเลเวล", 3, 0, 50],
+  ["noEquipLvl", "มอนเลเวลไม่เกินนี้ไม่ดรอปอุปกรณ์ (0 = ปิด)", 8, 0, 999],
+];
 function renderSettings() {
-  const s = gameSettings, v = k => s[k] ?? [...SETTING_FIELDS, ...CAP_FIELDS].find(f => f[0] === k)[2];
+  const s = gameSettings, v = k => s[k] ?? [...SETTING_FIELDS, ...CAP_FIELDS, ...BAL_FIELDS].find(f => f[0] === k)[2];
   const ex = [0, 1, 2, 3].map(i => (v("bagPrice") + v("bagPriceStep") * i).toLocaleString()).join(" → ");
   $("settingsForm").innerHTML = `<h2>⚙️ ตั้งค่าเกม</h2>
     <div class="sub">🎒 ขยายย่าม</div>
     <div class="grid">${SETTING_FIELDS.map(([k, l]) => `<div><label>${l}</label><input id="gs_${k}" type="number" min="0" value="${v(k)}" oninput="settingsHint()"></div>`).join("")}</div>
     <div class="hint" id="gs_hint">ราคาแต่ละครั้ง: ${ex} … เบี้ย</div>
     <div class="hint">ค่าล้างแต้มวิชา = ค่าครูที่หมอผีเฒ่าจันทร์เก็บต่อครั้ง · ล้างแต้มสถานะใช้ธูปเทียนแพ (แก้ราคาในหน้าไอเท็ม)</div>
+    <div class="sub">⚖️ สมดุลเกม (ความยากการเก็บเลเวล / ฟาร์ม)</div>
+    <div class="grid">${BAL_FIELDS.map(([k, l, , lo, hi]) => `<div><label>${l}</label><input id="gs_${k}" type="number" step="${k === "statPts" || k === "noEquipLvl" ? 1 : 0.05}" min="${lo}" max="${hi}" value="${v(k)}"></div>`).join("")}</div>
+    <div class="hint">ตัวคูณคูณทับค่าของมอนแต่ละตัว: EXP/เบี้ย/ดรอป น้อยกว่า 1 = ได้น้อยลง · HP/ATK/เวลาเกิดใหม่ มากกว่า 1 = ยากขึ้น · ของที่ดรอป 100% (เช่นชิ้นส่วนบอส) ไม่ถูกลด · แก้แล้วมีผลกับมอนที่เกิดอยู่ทันทีเมื่อผู้เล่นโหลดเกมใหม่</div>
     <div class="sub">🎚️ เพดานผู้เล่น</div>
     <div class="grid">${CAP_FIELDS.map(([k, l]) => `<div><label>${l}</label><input id="gs_${k}" type="number" min="1" max="999" value="${v(k)}"></div>`).join("")}</div>
     <div class="hint">ช่วงที่ตั้งได้ 1–999 · เพดานสเตตัสนับเฉพาะแต้มที่ผู้เล่นแจกเอง (ไม่รวมโบนัสจากอุปกรณ์/วิชา) · ถ้าลดเพดานต่ำกว่าค่าที่ผู้เล่นมีอยู่ ผู้เล่นจะไม่ถูกลดค่า แต่เพิ่มต่อไม่ได้</div>
@@ -635,6 +646,7 @@ function settingsHint() { const p = numv("gs_bagPrice"), st = numv("gs_bagPriceS
 async function saveSettings() {
   const d = {}; for (const [k] of SETTING_FIELDS) d[k] = numv("gs_" + k);
   for (const [k, l] of CAP_FIELDS) { const n = numv("gs_" + k); if (!(n >= 1 && n <= 999)) return toast(l + " ต้องอยู่ระหว่าง 1–999", true); d[k] = Math.round(n); }
+  for (const [k, l, , lo, hi] of BAL_FIELDS) { const n = numv("gs_" + k, NaN); if (!(n >= lo && n <= hi)) return toast(l + " ต้องอยู่ระหว่าง " + lo + "–" + hi, true); d[k] = (k === "statPts" || k === "noEquipLvl") ? Math.round(n) : n; }
   if (d.bagLimit < d.bagBase) return toast("ช่องสูงสุดต้องไม่น้อยกว่าช่องเริ่มต้น", true);
   if (await saveContent("map", "game_settings", d)) renderSettings();
 }

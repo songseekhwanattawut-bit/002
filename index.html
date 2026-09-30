@@ -1280,6 +1280,16 @@ const buyPrice = id => Math.ceil(ITEMS[id].price * (1 - skillLv("discount") * 0.
 // โอกาสตีบวกสำเร็จ (วิชา "ช่างฝีมือ" ช่วยเฉพาะขั้นที่เสี่ยงแตก)
 const refineRate = n => REFINE_RATE[n] >= 100 ? 100 : Math.min(100, REFINE_RATE[n] + skillLv("craft") * 2);
 
+// ---------- ค่าสมดุลเกม (แอดมินปรับได้ที่หลังบ้าน > ตั้งค่า > สมดุลเกม) ----------
+const BAL = { expRate: 0.8, dropRate: 0.65, rareDropRate: 0.5, zenyRate: 0.75, mobHp: 1.4, mobAtk: 1.2, respawn: 1.5, statPts: 3, noEquipLvl: 8 };
+const BAL_DEFAULT = { ...BAL };
+// โอกาสดรอปจริง: ของที่โอกาสพื้นฐาน ≤ 5% (อาวุธ/เกราะ/ตำรา) ใช้ rareDropRate · ที่เหลือใช้ dropRate · ของที่ดรอป 100% (เช่นชิ้นส่วนบอส) ไม่ลด
+const dropChance = base => base >= 1 ? 1 : Math.min(1, base * (base <= 0.05 ? BAL.rareDropRate : BAL.dropRate));
+const balExp = n => Math.max(1, Math.round(n * BAL.expRate));
+// มอนเลเวลต่ำ (lvl ≤ BAL.noEquipLvl, ไม่ใช่บอส) ไม่ดรอปอุปกรณ์ (อาวุธ/เกราะ/เครื่องประดับ) · ยังดรอปวัตถุดิบ ยา ตำรา · ตั้ง 0 = ปิดกฎนี้
+const dropList = def => (BAL.noEquipLvl > 0 && !def.boss && (def.lvl || 1) <= BAL.noEquipLvl)
+  ? def.drops.filter(([id]) => !(ITEM_BASE[id] && isEquip(ITEM_BASE[id]))) : def.drops;
+
 const MOBS = {
   pig:     { name: "หมูป่าน้อย", lvl: 1,  hp: 40,   atk: [3, 6],   def: 0,  flee: 2,  exp: 10,   zeny: [1, 5],      speed: 55,  aggro: false, r: 14, aspd: 1600,
              drops: [["pigfang", 0.65], ["banana", 0.25], ["red", 0.08], ["book_slash", 0.008], ["book_focus", 0.002]], respawn: 8 },
@@ -1437,7 +1447,7 @@ const SKILLS = {
 // เกรดของวิชา (ใช้กับกรอบไอคอน/คัมภีร์): ขั้นพื้นฐาน C · ขั้นกลาง B · ขั้นสูง A · ult ตามที่กำหนด
 for (const sk of Object.values(SKILLS)) if (!sk.rare) sk.rare = sk.tier === 0 ? 2 : sk.tier === 1 ? 3 : 4;
 const MAX_JOB = 50;
-const jobNeed = l => Math.floor(12 * Math.pow(l, 1.55)) + 8;
+const jobNeed = l => Math.floor(15 * Math.pow(l, 1.6)) + 10;   // (ปรับสมดุล: เดิม 12·l^1.55+8)
 // ไอคอนวิชา (ภาพฝังในไฟล์ สร้างจาก icons/*.jpg โดยสคริปต์)
 const SKILL_IMG = {};   // (เลิกใช้ภาพวาด ไอคอนวิชาวาดด้วยโค้ดแทน)
 const skillIcon = (id, cls = "") => `<img class="skImg ${cls}" src="${skillIconCanvas(id).url}" alt="">`;
@@ -1486,7 +1496,7 @@ const QUESTS = [
     done: "เจ้าทำได้! พญานาคสงบลงแล้ว แผ่นดินกลับคืนสู่ความสงบสุข\nด้วยความดีความชอบนี้ ขอประกาศให้เจ้าเป็น \"ขุนพลนาคราช\"" },
 ];
 
-const expNeed = l => Math.floor(20 * Math.pow(l, 1.75)) + 10;
+const expNeed = l => Math.floor(28 * Math.pow(l, 1.9)) + 15;   // (ปรับสมดุล: เดิม 20·l^1.75+10 → เลเวลสูงยิ่งขึ้นช้า)
 
 // =====================================================================
 //  ผู้เล่น
@@ -2527,7 +2537,7 @@ const SPAWN_ZONES = [
 function spawnMob(type, x, y, zone) {
   const def = (zone && zone.defs && zone.defs[type]) || MOBS[type];   // โซนกำหนดมอนรุ่นเก่งกว่าได้
   const m = {
-    type, def, x, y, hx: x, hy: y, hp: def.hp, r: def.r, zone,
+    type, def, x, y, hx: x, hy: y, hp: Math.round(def.hp * BAL.mobHp), maxHp: Math.round(def.hp * BAL.mobHp), r: def.r, zone,
     wanderT: rand(0, 3), tx: x, ty: y, atkCd: 0, phase: Math.random() * 6, dir: Math.random() < .5 ? 1 : -1,
     hitFlash: 0, aggro: false, returning: false, summonT: 8, dead: false, moving: false, lunge: 0,
   };
@@ -2964,6 +2974,7 @@ async function loadContent() {
     for (const p of PORTALS) if (p.to === "valley") { p.ax = num(sp.x, 250); p.ay = num(sp.y, 960); }
   }
   for (const id of Object.keys(MAPS)) applyLinks(id);   // แผนที่ที่สร้างไว้แล้ว (แผนที่หลัก)
+  rebalanceMobs();
   if (mode === "play") { refreshWindows(); buildHotbar(); }
 }
 function checkPortals() {
@@ -3150,34 +3161,34 @@ function killMob(m) {
   m.dead = true;
   mobs = mobs.filter(x => x !== m);
   if (P.target && P.target.ref === m) { P.target = null; P.queued = null; }
-  const def = m.def, z = Math.round(randi(def.zeny[0], def.zeny[1]) * (1 + skillLv("greed") * 0.08));
-  const jexp = Math.ceil(def.exp * 0.75);
+  const def = m.def, z = Math.round(randi(def.zeny[0], def.zeny[1]) * BAL.zenyRate * (1 + skillLv("greed") * 0.08));
+  const gexp = balExp(def.exp), jexp = Math.ceil(gexp * 0.75);
   P.zeny += z;
-  log(`ปราบ ${def.name} ได้ ${def.exp} EXP · ${jexp} Job EXP · ${z} เบี้ย`, "#ffe38a");
+  log(`ปราบ ${def.name} ได้ ${gexp} EXP · ${jexp} Job EXP · ${z} เบี้ย`, "#ffe38a");
   effect("poof", m.x, { y: m.y, h: m.r }, "#fff", 0.5);
   const dropMul = 1 + skillLv("luckydrop") * 0.05;
-  for (const [id, chance] of def.drops) if (Math.random() < chance * dropMul) groundItems.push({ id, x: m.x + rand(-18, 18), y: m.y + rand(-12, 12), t: 0, life: 60 });
+  for (const [id, chance] of dropList(def)) if (Math.random() < dropChance(chance) * dropMul) groundItems.push({ id, x: m.x + rand(-18, 18), y: m.y + rand(-12, 12), t: 0, life: 60 });
   gainJobExp(jexp);
   if (def.boss) log(`★ ท่านปราบ ${def.name} สำเร็จ! ★`, "#ffb3e6");
-  if (m.zone) respawnQueue.push({ type: m.type, zone: m.zone, t: def.respawn });
+  if (m.zone) respawnQueue.push({ type: m.type, zone: m.zone, t: def.respawn * BAL.respawn });
   const q = P.quest, Q = QUESTS[q.i];
   if (Q && q.state === "active" && Q.mob === m.type && !def.custom) {
     q.count++;
     if (q.count >= Q.need) { q.state = "done"; log(`📜 ภารกิจ "${Q.title}" สำเร็จ! กลับไปรายงานขุนศึกเพชร`, "#7dffb2"); floatText(P.x, { y: P.y, h: 70 }, "ภารกิจสำเร็จ!", "#7dffb2", 20, true); }
     updateQuest();
   }
-  gainExp(def.exp);
+  gainExp(gexp);
 }
 function gainExp(n) {
   if (P.lvl >= SETTINGS.maxLevel) return;
   P.exp += n;
   while (P.exp >= expNeed(P.lvl) && P.lvl < SETTINGS.maxLevel) {
     P.exp -= expNeed(P.lvl);
-    P.lvl++; P.points += 5;
+    P.lvl++; P.points += BAL.statPts;
     const d = D(); P.hp = d.maxHp; P.sp = d.maxSp;
     effect("levelup", P.x, P.y, "#ffe066", 1.5);
     floatText(P.x, { y: P.y, h: 64 }, "เลเวลอัป!", "#ffe066", 26, true);
-    log(`✨ เลเวลอัป! ตอนนี้ Lv ${P.lvl} ได้แต้มสถานะ +5 (กด S เพื่อเพิ่ม)`, "#7dffb2");
+    log(`✨ เลเวลอัป! ตอนนี้ Lv ${P.lvl} ได้แต้มสถานะ +${BAL.statPts} (กด S เพื่อเพิ่ม)`, "#7dffb2");
     saveGame();
   }
   refreshWindows();
@@ -3199,7 +3210,7 @@ function mobAttack(m, d) {
   const chance = clamp(90 + m.def.lvl * 4 - d.flee, 5, 95);
   m.lunge = 0.18;
   if (Math.random() * 100 >= chance) { floatText(P.x, { y: P.y, h: 54 }, "หลบ", "#9ee7ff", 16); return; }
-  takeDamage(Math.max(1, randi(m.def.atk[0], m.def.atk[1]) - d.def));
+  takeDamage(Math.max(1, Math.round(randi(m.def.atk[0], m.def.atk[1]) * BAL.mobAtk) - d.def));
 }
 // รับดาเมจ (จากมอนหรือผู้เล่น) ผ่านบัฟป้องกัน · คืนค่าดาเมจที่โดนจริง
 function takeDamage(dmg, killer = null) {
@@ -3542,6 +3553,28 @@ function applySettings(d) {
   SETTINGS.skillReset = n(d.skillReset, 3000, 0, 1e9);
   SETTINGS.maxLevel = n(d.maxLevel, 99, 1, 999);
   for (const k of STAT_ORDER) SETTINGS.statMax[k] = n(d["max_" + k], 99, 1, 999);
+  const f = (v, def, lo, hi) => { v = Number(v); return v !== null && Number.isFinite(v) && d && v !== "" ? Math.min(hi, Math.max(lo, v)) : def; };
+  const has = k => d[k] !== undefined && d[k] !== null && d[k] !== "";
+  BAL.expRate = has("expRate") ? f(d.expRate, BAL_DEFAULT.expRate, 0.05, 20) : BAL_DEFAULT.expRate;
+  BAL.dropRate = has("dropRate") ? f(d.dropRate, BAL_DEFAULT.dropRate, 0, 20) : BAL_DEFAULT.dropRate;
+  BAL.rareDropRate = has("rareDropRate") ? f(d.rareDropRate, BAL_DEFAULT.rareDropRate, 0, 20) : BAL_DEFAULT.rareDropRate;
+  BAL.zenyRate = has("zenyRate") ? f(d.zenyRate, BAL_DEFAULT.zenyRate, 0, 20) : BAL_DEFAULT.zenyRate;
+  BAL.mobHp = has("mobHp") ? f(d.mobHp, BAL_DEFAULT.mobHp, 0.1, 20) : BAL_DEFAULT.mobHp;
+  BAL.mobAtk = has("mobAtk") ? f(d.mobAtk, BAL_DEFAULT.mobAtk, 0.1, 20) : BAL_DEFAULT.mobAtk;
+  BAL.respawn = has("respawn") ? f(d.respawn, BAL_DEFAULT.respawn, 0.1, 20) : BAL_DEFAULT.respawn;
+  BAL.noEquipLvl = has("noEquipLvl") ? Math.round(f(d.noEquipLvl, BAL_DEFAULT.noEquipLvl, 0, 999)) : BAL_DEFAULT.noEquipLvl;
+  BAL.statPts = has("statPts") ? Math.round(f(d.statPts, BAL_DEFAULT.statPts, 0, 50)) : BAL_DEFAULT.statPts;
+  rebalanceMobs();
+}
+// ปรับ HP มอนที่เกิดอยู่แล้วให้ตรงกับตัวคูณล่าสุด (รักษาสัดส่วนเลือดเดิม)
+function rebalanceMobs() {
+  const all = new Set(mobs);
+  for (const st of Object.values(MAPS)) for (const m of (st.mobs || [])) all.add(m);
+  for (const m of all) {
+    const nm = Math.max(1, Math.round(m.def.hp * BAL.mobHp));
+    if (m.maxHp && m.maxHp !== nm) m.hp = Math.max(1, Math.round(m.hp * nm / m.maxHp));
+    m.maxHp = nm;
+  }
 }
 const bagMax = () => clamp(P.bagMax || SETTINGS.bagBase, SETTINGS.bagBase, SETTINGS.bagLimit);
 const bagCost = () => SETTINGS.bagPrice + SETTINGS.bagPriceStep * Math.max(0, Math.round((bagMax() - SETTINGS.bagBase) / SETTINGS.bagStep));
@@ -3621,14 +3654,15 @@ function talkGuard(n) {
     P.zeny += r.zeny;
     for (const [id, c] of Object.entries(r.items)) addItem(id, c);
     const itemsText = Object.entries(r.items).map(([id, c]) => `${ITEMS[id].icon} ${ITEMS[id].name} x${c}`).join(", ");
-    log(`🎁 รางวัล: ${r.exp} EXP, ${r.zeny} เบี้ย${itemsText ? ", " + itemsText : ""}`, "#ffe38a");
+    log(`🎁 รางวัล: ${balExp(r.exp)} EXP, ${r.zeny} เบี้ย${itemsText ? ", " + itemsText : ""}`, "#ffe38a");
     q.i++; q.state = "none"; q.count = 0;
     if (q.i >= QUESTS.length) { P.title = "ขุนพลนาคราช"; }
-    gainExp(r.exp);
-    const jr = Math.floor(r.exp * 0.6);
+    const qexp = balExp(r.exp);
+    gainExp(qexp);
+    const jr = Math.floor(qexp * 0.6);
     gainJobExp(jr);
     updateQuest(); saveGame();
-    showDialog(n.name, Q.done + `\n\nรางวัล: ${r.exp} EXP · ${jr} Job EXP · ${r.zeny} เบี้ย${itemsText ? " · " + itemsText : ""}`,
+    showDialog(n.name, Q.done + `\n\nรางวัล: ${balExp(r.exp)} EXP · ${jr} Job EXP · ${r.zeny} เบี้ย${itemsText ? " · " + itemsText : ""}`,
       [{ label: q.i < QUESTS.length ? "ภารกิจต่อไป" : "ปิด", fn: () => { if (q.i < QUESTS.length) talkGuard(n); } }], n);
   }
 }
@@ -3895,7 +3929,7 @@ function updateMob(m, dt, d) {
   if (!canSee) m.aggro = false;
   if (m.aggro && Math.hypot(m.x - m.hx, m.y - m.hy) > 450) { m.aggro = false; m.returning = true; }
   if (m.returning) {
-    m.hp = Math.min(def.hp, m.hp + def.hp * 0.4 * dt);
+    m.hp = Math.min(m.maxHp || def.hp, m.hp + (m.maxHp || def.hp) * 0.4 * dt);
     if (moveToward(m, m.hx, m.hy, def.speed * 1.6 * dt, true)) m.returning = false;
     return;
   }
@@ -5324,11 +5358,11 @@ function drawMobBody(m) {   // ตัวมอน (วาดที่จุด 0
 }
 function drawMobInfo(m, x, y) {   // หลอดเลือด + ชื่อมอน
   const isTarget = P.target && P.target.ref === m, isHover = hover && hover.ref === m;
-  if (isTarget || isHover || m.hp < m.def.hp) {
+  if (isTarget || isHover || m.hp < (m.maxHp || m.def.hp)) {
     const top = y - mobTop(m).h + 6;
-    if (m.hp < m.def.hp && !m.def.boss) {
+    if (m.hp < (m.maxHp || m.def.hp) && !m.def.boss) {
       ctx.fillStyle = "rgba(15,8,4,.85)"; ctx.fillRect(Math.round(x - 15), Math.round(top - 4), 30, 5);   // หลอดเลือดเล็กแบบพิกเซล
-      ctx.fillStyle = "#e03131"; ctx.fillRect(Math.round(x - 14), Math.round(top - 3), Math.round(28 * Math.max(0, m.hp) / m.def.hp), 3);
+      ctx.fillStyle = "#e03131"; ctx.fillRect(Math.round(x - 14), Math.round(top - 3), Math.round(28 * Math.max(0, m.hp) / (m.maxHp || m.def.hp)), 3);
     }
     // ชื่อมอน: โชว์ตอนชี้จากระยะไกล หรือ 1.5 วิหลังกดเล็ง · ตอนตีประชิดซ่อนไว้ ไม่บังท่าโจมตี
     if ((isHover || m.tagUntil > now) && Math.hypot(P.x - m.x, P.y - m.y) > 80) {
@@ -5901,8 +5935,8 @@ function drawBossBar() {
   pRR(x - 6, y - 6, w + 12, 36, 8); fs("rgba(20,10,6,.85)", 0); ctx.strokeStyle = "#d4af37"; ctx.lineWidth = 1; ctx.stroke();
   pRR(x, y + 12, w, 12, 6); fs("#3a0d0d", 0);
   const g = ctx.createLinearGradient(0, y + 12, 0, y + 24); g.addColorStop(0, "#ff6b6b"); g.addColorStop(1, "#a3231b");
-  pRR(x, y + 12, w * Math.max(0, boss.hp) / boss.def.hp, 12, 6); fs(g, 0);
-  textOutline(`${boss.def.name}  ${Math.max(0, Math.ceil(boss.hp))} / ${boss.def.hp}`, SW / 2, y + 7, "#f3d98b", 13, 700);
+  pRR(x, y + 12, w * Math.max(0, boss.hp) / (boss.maxHp || boss.def.hp), 12, 6); fs(g, 0);
+  textOutline(`${boss.def.name}  ${Math.max(0, Math.ceil(boss.hp))} / ${boss.maxHp || boss.def.hp}`, SW / 2, y + 7, "#f3d98b", 13, 700);
 }
 
 // ---------- แสงสีตามโซน ----------
@@ -7091,11 +7125,11 @@ function itemSources(id) {   // [{ text, chance }] เรียงจากโ�
   if (SHOP_LIST.includes(id)) out.push({ text: `🛒 ร้านนายมั่นในเมือง · ${ITEMS[id].price.toLocaleString()} เบี้ย`, chance: 2 });
   const luck = 1 + skillLv("luckydrop") * 0.05;   // รวมโบนัสวิชาโชคลาภของตัวละครแล้ว
   const add = (def, where) => {
-    const d = def.drops.find(([x]) => x === id);
+    const d = dropList(def).find(([x]) => x === id);
     if (!d) return;
-    const kills = Math.max(1, Math.round(1 / Math.min(1, d[1] * luck)));   // จำนวนตัวที่ต้องล่าโดยเฉลี่ย
+    const kills = Math.max(1, Math.round(1 / Math.min(1, dropChance(d[1]) * luck)));   // จำนวนตัวที่ต้องล่าโดยเฉลี่ย
     const need = kills === 1 ? `<b style="color:#7dffb2">ได้ทุกครั้ง</b>` : `ล่าประมาณ <b style="color:#ffe38a">${kills.toLocaleString()} ${def.boss ? "ครั้ง" : "ตัว"}</b> ได้ 1 ชิ้น`;
-    const time = def.boss ? ` <small style="color:var(--muted)">(บอสเกิดใหม่ทุก ${Math.round(def.respawn / 60)} นาที)</small>` : "";
+    const time = def.boss ? ` <small style="color:var(--muted)">(บอสเกิดใหม่ทุก ${Math.round(def.respawn * BAL.respawn / 60)} นาที)</small>` : "";
     out.push({ text: `${def.name} Lv${def.lvl}${def.boss ? " (บอส)" : ""} · ${where} — ${need}${time}`, chance: d[1] });
   };
   for (const [type, def] of Object.entries(MOBS)) if (!def.disabled) add(def, MOB_WHERE[type] || "");
@@ -7151,15 +7185,15 @@ function renderCodexMobs(h) {
   const sel = list.find(x => x[0] === codexMobSel);
   if (sel) {
     const [key, type, def, where] = sel, luck = 1 + skillLv("luckydrop") * 0.05;
-    const drops = (def.drops || []).filter(([id]) => ITEMS[id]).sort((a, b) => b[1] - a[1]);
+    const drops = dropList(def).filter(([id]) => ITEMS[id]).sort((a, b) => b[1] - a[1]);
     const none = `<span class="none">ไม่ดรอปของ</span>`;
     h += `<div class="cxInfo" style="--rc:${def.boss ? "#ffcf40" : "#9aa6b8"}">
       <div class="cxTop"><img class="mobBig" src="${mobThumb(key, type, def)}" alt=""><div><div class="nm" style="color:${def.boss ? "#ffcf40" : "#fff1c4"}">${def.name}</div><div class="st">Lv ${def.lvl}${def.boss ? " · 👑 บอส" : ""}${def.aggro ? " · โจมตีก่อน" : ""}</div></div></div>
-      <div class="cxMobStats"><span>HP <b>${def.hp.toLocaleString()}</b></span><span>ATK <b>${def.atk[0]}–${def.atk[1]}</b></span><span>DEF <b>${def.def}</b></span><span>หลบ <b>${def.flee}</b></span>
-        <span>EXP <b>${def.exp.toLocaleString()}</b></span><span>เบี้ย <b>${def.zeny[0]}–${def.zeny[1]}</b></span><span>ตีทุก <b>${(def.aspd / 1000).toFixed(1)} วิ</b></span><span>เกิดใหม่ <b>${def.respawn >= 60 ? Math.round(def.respawn / 60) + " นาที" : def.respawn + " วิ"}</b></span></div>
+      <div class="cxMobStats"><span>HP <b>${Math.round(def.hp * BAL.mobHp).toLocaleString()}</b></span><span>ATK <b>${Math.round(def.atk[0] * BAL.mobAtk)}–${Math.round(def.atk[1] * BAL.mobAtk)}</b></span><span>DEF <b>${def.def}</b></span><span>หลบ <b>${def.flee}</b></span>
+        <span>EXP <b>${balExp(def.exp).toLocaleString()}</b></span><span>เบี้ย <b>${Math.round(def.zeny[0] * BAL.zenyRate)}–${Math.round(def.zeny[1] * BAL.zenyRate)}</b></span><span>ตีทุก <b>${(def.aspd / 1000).toFixed(1)} วิ</b></span><span>เกิดใหม่ <b>${def.respawn * BAL.respawn >= 60 ? Math.round(def.respawn * BAL.respawn / 60) + " นาที" : Math.round(def.respawn * BAL.respawn) + " วิ"}</b></span></div>
       <div class="cxSrcT">พบที่</div><div class="src"><div>📍 ${where || "—"}</div></div>
       <div class="cxSrcT">ของที่ดรอป</div>
-      <div class="src">${drops.length ? drops.map(([id, ch]) => `<div class="dropRow"><span class="miniIco">${cleanIco(id, 18)}</span> ${ITEMS[id].name} <b style="color:#ffe38a">${+(Math.min(1, ch * luck) * 100).toFixed(2)}%</b></div>`).join("") : none}</div></div>`;
+      <div class="src">${drops.length ? drops.map(([id, ch]) => `<div class="dropRow"><span class="miniIco">${cleanIco(id, 18)}</span> ${ITEMS[id].name} <b style="color:#ffe38a">${+(Math.min(1, dropChance(ch) * luck) * 100).toFixed(2)}%</b></div>`).join("") : none}</div></div>`;
   }
   $("codexBody").innerHTML = h + `</div>`;
 }
