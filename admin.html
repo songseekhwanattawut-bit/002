@@ -143,6 +143,7 @@
   .skCell { height: 52px; border-radius: 8px; border: 2px dashed #5a3a1a; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 18px; cursor: pointer; background: rgba(0,0,0,.18); }
   .skKind { padding: 7px 10px; background: var(--field, #2a180c); border: 2px solid #1f120a; font-family: Mitr; }
   .skCell small { font-size: 12px; color: #f1e4c6 !important; white-space: normal !important; text-align: center; line-height: 1.2; color: var(--muted); max-width: 100%; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; padding: 0 3px; }
+  .skCell img { width: 24px; height: 24px; object-fit: contain; image-rendering: pixelated; }
   .skCell:hover { border-color: var(--gold); }
   .skCell.used { border-style: solid; cursor: not-allowed; opacity: .55; }
   .skCell.me { border: 2px solid #7dffb2; background: rgba(125,255,178,.12); }
@@ -739,7 +740,7 @@ function imgField(kind, cur, max, hint) {
     <div class="row" style="max-width:520px">
       <div id="${kind}_imgPrev" class="imgPrev">${thumb(cur) || "ไม่มีรูป"}</div>
       <label class="btn sm" style="cursor:pointer">📁 เลือกรูป<input type="file" accept="image/*" style="display:none" onchange="pickImage('${kind}', this.files[0], ${max})"></label>
-      <button class="btn sm ghost" onclick="pickedImg.${kind}=null;$('${kind}_imgPrev').innerHTML='ไม่มีรูป'">ลบรูป</button>
+      <button class="btn sm ghost" onclick="pickedImg.${kind}=null;$('${kind}_imgPrev').innerHTML='ไม่มีรูป';if('${kind}'==='skill'&&$('sk_grid'))drawSkillGrid()">ลบรูป</button>
     </div><div class="hint">PNG พื้นหลังโปร่งใสจะดูดีที่สุด · ระบบย่อรูปให้อัตโนมัติ</div>${promptBox(kind)}</div>`;
 }
 // ---------- พรอมต์ JSON สำหรับเอาไปเจนรูปด้วย AI ให้เข้าธีมเกม (พิกเซลอาร์ต ไทยโบราณ) ----------
@@ -774,12 +775,13 @@ function genPrompt(kind) {
       pixel_rules: GEN_PIXEL, colors: "EDIT: main colors", canvas: `square ${boss ? 384 : 256}x${boss ? 384 : 256}, character fills about 85% of height, centered`,
       background: "fully transparent PNG, no ground, no shadow, no scenery", avoid: GEN_AVOID + ", multiple characters" };
   }
-  return { task: "animated skill effect (VFX) sprite for a game, export as GIF", ...base,
-      subject: `DESCRIBE IN ENGLISH (e.g. ${SKILL_LINE_EN[val("sk_line")] || "hero"} skill: slash arc / fireball burst / holy light pillar / poison cloud)`,
-      style: "pixel art game VFX, 16-bit SNES RPG style, ancient Thai magic theme (yantra symbols, lotus, naga fire)",
-      color: `main color ${val("sk_color") || "#ffb627"} with white hot core`, animation: "8-12 frames, plays once (burst → peak → fade out), centered, effect grows from the middle",
-      pixel_rules: "crisp pixels, no anti-aliasing, limited palette 4-6 colors, glow made of solid pixel rings (no soft blur)",
-      canvas: "each frame square 128x128, same position every frame", background: "fully transparent GIF, no character, no ground", avoid: "realistic, 3D, smoke photo, text, watermark, frame border" };
+  // skill: ไอคอนวิชา
+  return { task: "skill icon for a game skill window", ...base,
+      subject: `DESCRIBE IN ENGLISH (e.g. ${SKILL_LINE_EN[val("sk_line")] || "hero"} skill: slash arc / fireball / holy lotus / poison fang)`,
+      style: GEN_STYLE.replace("cute chibi ", "") + ", skill icon", composition: "single symbol, centered, fills about 85% of the canvas",
+      pixel_rules: GEN_PIXEL, colors: `main color ${val("sk_color") || "#ffb627"} with a light highlight`,
+      canvas: "square 64x64 pixel grid (export 256x256 upscaled with nearest neighbor)",
+      background: "fully transparent PNG, no frame", avoid: GEN_AVOID };
 }
 function promptBox(kind) {
   return `<details class="genBox" ontoggle="if(this.open)$('gp_${kind}').value=JSON.stringify(genPrompt('${kind}'),null,2)">
@@ -799,6 +801,7 @@ async function pickImage(kind, file, max) {
     const d = await resizeImage(file, max);
     pickedImg[kind] = d;
     $(kind + "_imgPrev").innerHTML = `<img src="${d}" alt="">`;
+    if (kind === "skill" && $("sk_grid")) drawSkillGrid();
   } catch (e) { toast(e.message, true); }
 }
 
@@ -1333,19 +1336,22 @@ function builtinSkillDefaults(id) {
   return { fx: "original", name: b[4], icon: b[5], line: b[1], tier: b[2], row: b[3], max, cd, grade: rare, weapons: w, reqId: r ? r[0] : "", reqLv: r ? r[1] : 1, spBase, spPer, kindOrig: kind };
 }
 let curSkill = null, skPos = { tier: 0, row: 0 };
+// ไอคอนวิชามี 2 แบบมาตรฐาน: แอคทีฟ (กดใช้) / พาสซีฟ (ติดตัว) · ถ้าอัปโหลดรูปจะใช้รูปแทน
+const SK_KIND_ICON = { act: "⚡", pas: "🔰" };
+const kindIcon = pas => pas ? SK_KIND_ICON.pas : SK_KIND_ICON.act;
+const skIcon = (img, pas) => thumb(img) || kindIcon(pas);
 function renderSkillList() {
   const ids = Object.keys(content.skill).filter(id => !isBuiltinSkill(id)).sort();
-  $("skillList").innerHTML = ids.length ? ids.map(id => { const d = content.skill[id], ln = SKILL_LINES.find(l => l[0] === d.line) || SKILL_LINES[0]; return `<div class="li ${curSkill === id ? "on" : ""}" onclick="editSkill('${id}')"><span class="ic">${kindIcon(d.fx === "passive")}</span><span class="t">${esc(d.name)}<small>${ln[2]} สาย${ln[1]} · ${(SKILL_FX[d.fx] || [""])[0].slice(3)}</small></span></div>`; }).join("")
+  $("skillList").innerHTML = ids.length ? ids.map(id => { const d = content.skill[id], ln = SKILL_LINES.find(l => l[0] === d.line) || SKILL_LINES[0]; return `<div class="li ${curSkill === id ? "on" : ""}" onclick="editSkill('${id}')"><span class="ic">${skIcon(d.img, d.fx === "passive")}</span><span class="t">${esc(d.name)}<small>${ln[2]} สาย${ln[1]} · ${(SKILL_FX[d.fx] || [""])[0].slice(3)}${d.mode === "stance" ? " · 🥋 ท่า" : ""}</small></span></div>`; }).join("")
     : `<div class="empty" style="padding:14px">ยังไม่มี</div>`;
   $("builtinSkills").innerHTML = SKILL_LINES.map(([ln, lname, lic]) => `<div class="muted" style="font-size:12px;margin:8px 0 2px">${lic} สาย${lname}</div>` +
-    BUILTIN_SKILLS.filter(s => s[1] === ln).map(([id, , , , n, ic]) => { const o = content.skill[id], d = o && !o.deleted ? o : null; return `<div class="li ${curSkill === id ? "on" : ""}" style="cursor:pointer" onclick="editSkill('${id}')"><span class="ic">${kindIcon(BUILTIN_SKILL_INFO[id] && BUILTIN_SKILL_INFO[id][0] === "passive")}</span><span class="t">${esc((d && d.name) || n)} ${statusTag(o)}</span></div>`; }).join("")).join("");
+    BUILTIN_SKILLS.filter(s => s[1] === ln).map(([id, , , , n, ic]) => { const o = content.skill[id], d = o && !o.deleted ? o : null; return `<div class="li ${curSkill === id ? "on" : ""}" style="cursor:pointer" onclick="editSkill('${id}')"><span class="ic">${skIcon(d && d.img, BUILTIN_SKILL_INFO[id] && BUILTIN_SKILL_INFO[id][0] === "passive")}</span><span class="t">${esc((d && d.name) || n)} ${statusTag(o)}</span></div>`; }).join("")).join("");
 }
 function editSkill(id) {
   curSkill = id; renderSkillList();
   const bi = !!(id && isBuiltinSkill(id)), ov = id && content.skill[id];
-  const d = ov && !ov.deleted ? { ...(bi ? builtinSkillDefaults(id) : {}), ...ov } : bi ? builtinSkillDefaults(id) : id ? content.skill[id] : { fx: "strike", line: "sword", max: 5, base: 150, per: 30, spBase: 10, spPer: 2, cd: 1.5, grade: 2, icon: "✨", intMul: 1, statusChance: 30, dur: 30, stats: {} };
+  const d = ov && !ov.deleted ? { ...(bi ? builtinSkillDefaults(id) : {}), ...ov } : bi ? builtinSkillDefaults(id) : id ? content.skill[id] : { fx: "strike", line: "sword", max: 5, base: 150, per: 30, spBase: 10, spPer: 2, cd: 1.5, grade: 2, icon: "✨", intMul: 1, statusChance: 30, dur: 30, stats: {}, mode: "normal" };
   skPos = { tier: d.tier ?? 0, row: d.row ?? nextFreeRow(d.line || "sword", id) };
-  pickedSheet = d.vfxImg ? { vfxImg: d.vfxImg, vfxFrames: d.vfxFrames, vfxFw: d.vfxFw, vfxFh: d.vfxFh, vfxDur: d.vfxDur, vfxSize: d.vfxSize, vfxAnchor: d.vfxAnchor } : null;
   if (!id) skPos.row = nextFreeRow(d.line, null);
   $("skillForm").innerHTML = `<h2>${bi ? "แก้ไขวิชาเดิมในเกม" : id ? "แก้ไขวิชา" : "สร้างวิชาใหม่"}</h2>
     ${builtinBanner("skill", id, bi, ov, d.name)}
@@ -1354,10 +1360,11 @@ function editSkill(id) {
       <div><label>ชื่อวิชา</label><input id="sk_name" maxlength="24" value="${esc(d.name || "")}"></div>
       <input id="sk_icon" type="hidden" value="${esc(d.icon || "⚡")}">
       <input id="sk_grade" type="hidden" value="${d.grade || 2}">
-      <div><label>ไอคอน</label><div id="sk_kind" class="skKind"></div></div>
+      <div><label>ชนิดไอคอนมาตรฐาน</label><div id="sk_kind" class="skKind"></div></div>
       <div><label>เลเวลสูงสุด</label><input id="sk_max" type="number" min="1" max="10" value="${d.max ?? 5}"></div>
       <div><label>สีเอฟเฟกต์</label><input id="sk_color" type="color" value="${esc(d.color || "#ffb627")}"></div>
     </div>
+    ${imgField("skill", d.img, 96, "รูปไอคอนวิชา (ไม่ใส่ = ใช้ไอคอนมาตรฐาน ⚡ / 🔰)")}
 
     <div class="sub">อยู่ในหน้าวิชาสายไหน</div>
     <div class="row" style="max-width:360px"><select id="sk_line" onchange="skPos.row=nextFreeRow(this.value,curSkill);skPos.tier=0;drawSkillGrid()">${SKILL_LINES.map(([k, n, ic]) => opt(k, `${ic} สาย${n}`, d.line)).join("")}</select></div>
@@ -1380,11 +1387,8 @@ function editSkill(id) {
     </div>`;
   drawSkillGrid(); skillFxChanged(d);
 }
-const allSkills = () => [...BUILTIN_SKILLS.filter(([id]) => !(content.skill[id] && content.skill[id].deleted)).map(([id, line, tier, row, name, icon]) => { const o = content.skill[id]; const pas = BUILTIN_SKILL_INFO[id] && BUILTIN_SKILL_INFO[id][0] === "passive"; return o ? { id, line: o.line ?? line, tier: o.tier ?? tier, row: o.row ?? row, name: o.name || name, icon: o.icon || icon, pas } : { id, line, tier, row, name, icon, pas }; }),
-  ...Object.entries(content.skill).filter(([id]) => !isBuiltinSkill(id)).map(([id, d]) => ({ id, line: d.line, tier: d.tier, row: d.row, name: d.name, icon: d.icon, pas: d.fx === "passive", custom: true }))];
-// ไอคอนวิชามีแค่ 2 แบบ: แอคทีฟ (กดใช้) / พาสซีฟ (ติดตัว)
-const SK_KIND_ICON = { act: "⚡", pas: "🔰" };
-const kindIcon = pas => pas ? SK_KIND_ICON.pas : SK_KIND_ICON.act;
+const allSkills = () => [...BUILTIN_SKILLS.filter(([id]) => !(content.skill[id] && content.skill[id].deleted)).map(([id, line, tier, row, name, icon]) => { const o = content.skill[id]; const pas = BUILTIN_SKILL_INFO[id] && BUILTIN_SKILL_INFO[id][0] === "passive"; return o ? { id, line: o.line ?? line, tier: o.tier ?? tier, row: o.row ?? row, name: o.name || name, icon: o.icon || icon, img: o.img, pas } : { id, line, tier, row, name, icon, pas }; }),
+  ...Object.entries(content.skill).filter(([id]) => !isBuiltinSkill(id)).map(([id, d]) => ({ id, line: d.line, tier: d.tier, row: d.row, name: d.name, icon: d.icon, img: d.img, pas: d.fx === "passive", custom: true }))];
 function curSkillPassive() { const fx = val("sk_fx"); return fx === "original" ? !!(BUILTIN_SKILL_INFO[curSkill] && BUILTIN_SKILL_INFO[curSkill][0] === "passive") : fx === "passive"; }
 function nextFreeRow(line, self) {
   const used = allSkills().filter(s => s.line === line && s.id !== self && s.tier === 0).map(s => s.row);
@@ -1396,8 +1400,8 @@ function drawSkillGrid() {
   let h = "";
   for (let r = 0; r < rows; r++) for (let t = 0; t < 4; t++) {
     const s = list.find(x => x.tier === t && x.row === r), me = skPos.tier === t && skPos.row === r;
-    h += s ? `<div class="skCell used" title="${esc(s.name)}">${kindIcon(s.pas)}<small>${esc(s.name)}</small></div>`
-      : `<div class="skCell ${me ? "me" : ""}" onclick="skPos={tier:${t},row:${r}};drawSkillGrid()">${me ? kindIcon(curSkillPassive()) + "<small>วิชานี้</small>" : ""}</div>`;
+    h += s ? `<div class="skCell used" title="${esc(s.name)}">${skIcon(s.img, s.pas)}<small>${esc(s.name)}</small></div>`
+      : `<div class="skCell ${me ? "me" : ""}" onclick="skPos={tier:${t},row:${r}};drawSkillGrid()">${me ? skIcon(pickedImg.skill, curSkillPassive()) + "<small>วิชานี้</small>" : ""}</div>`;
   }
   $("sk_grid").innerHTML = h;
 }
@@ -1409,19 +1413,9 @@ function skillFxChanged(d) {
   const vfx = `<div class="sub">เอฟเฟกต์</div><div class="grid"><div><label>เอฟเฟกต์ตอนใช้วิชา</label><select id="sk_vfx">${Object.entries(VFX_NAMES).map(([k, l]) => opt(k, l, d.vfx || "")).join("")}</select></div>
       ${fx === "magic" ? `<div><label>ลูกพลัง</label><select id="sk_proj">${Object.entries(PROJ_NAMES).map(([k, l]) => opt(k, l, d.proj || "orb")).join("")}</select></div>` : ""}
       <div style="align-self:end"><button class="btn sm ghost" onclick="previewVfx()">👁 ดูตัวอย่าง</button></div></div>
-    <div class="fld"><label>หรือใช้เอฟเฟกต์จากไฟล์ GIF (ใส่แล้วจะใช้แทนเอฟเฟกต์ด้านบน)</label>
-      <div class="row" style="max-width:560px;flex-wrap:wrap">
-        <div id="sk_sheetInfo" class="muted" style="font-size:12px;min-width:150px">${pickedSheet ? `มีไฟล์แล้ว · ${pickedSheet.vfxFrames} เฟรม · ${pickedSheet.vfxDur.toFixed(1)} วิ` : "ยังไม่มีไฟล์"}</div>
-        <label class="btn sm" style="cursor:pointer">📁 เลือกไฟล์ GIF<input type="file" accept="image/gif,image/webp,image/png" style="display:none" onchange="pickSheet(this.files[0])"></label>
-        <button class="btn sm ghost" onclick="pickedSheet=null;$('sk_sheetInfo').textContent='ยังไม่มีไฟล์'">ลบไฟล์</button>
-      </div>
-      <div class="grid" style="margin-top:6px"><div><label>ขนาดในเกม (20–400)</label><input id="sk_vfxSize" type="number" min="20" max="400" value="${(pickedSheet && pickedSheet.vfxSize) || 90}"></div>
-        <div><label>ตำแหน่ง</label><select id="sk_vfxAnchor">${opt("center", "ลอยกลางตัวเป้าหมาย", pickedSheet && pickedSheet.vfxAnchor)}${opt("ground", "ตั้งบนพื้น (เช่น เสาไฟ)", pickedSheet && pickedSheet.vfxAnchor)}</select></div></div>
-      <div class="hint">GIF ขยับได้ ระบบแยกเป็นเฟรมให้อัตโนมัติ (สูงสุด 30 เฟรม) · แนะนำไฟล์พื้นหลังโปร่งใส</div>${promptBox("skill")}</div>
     <canvas id="sk_vfxPrev" width="260" height="170" style="border-radius:10px;border:2px solid var(--edge);background:#3f7a36;display:none"></canvas>`;
   const n = (k, label, def, extra = "") => `<div><label>${label}</label><input id="sk_${k}" type="number" value="${d[k] ?? def}" ${extra}></div>`;
   const status = `<div><label>สถานะที่ทำให้ศัตรู</label><select id="sk_status">${Object.entries(SK_STATUS).map(([k, l]) => opt(k, l, d.status || "")).join("")}</select></div>${n("statusChance", "โอกาสติดสถานะ %", 30, 'min="0" max="100"')}`;
-  const cost = fx === "passive" ? "" : `<div class="sub">ค่าใช้</div><div class="grid">${n("spBase", "SP พื้นฐาน", 10, 'min="0"')}${n("spPer", "SP เพิ่มต่อเลเวล", 2, 'min="0"')}${n("cd", "คูลดาวน์ (วินาที)", 1.5, 'min="0" step="0.1"')}</div>`;
   const stats = `<div class="grid">${STATS.map(k => `<div><label>${k.toUpperCase()} ต่อเลเวล</label><input id="sk_st_${k}" type="number" min="0" step="0.5" value="${st[k] || 0}"></div>`).join("")}
       ${n("atkPct", "ATK % ต่อเลเวล", 0, 'min="0" step="0.5"')}${n("defAdd", "DEF ต่อเลเวล", 0, 'min="0" step="0.5"')}</div>`;
   let h = "";
@@ -1433,70 +1427,23 @@ function skillFxChanged(d) {
   else if (fx === "buff") h = `<div class="hint">ค่าด้านล่างคูณด้วยเลเวลวิชา เช่น STR 2 ต่อเลเวล → Lv3 ได้ STR +6</div>${stats}<div class="grid">${n("dur", "นาน (วินาที)", 30, 'min="1" max="600"')}</div>`;
   else if (fx === "passive") h = `<div class="hint">ค่าด้านล่างคูณด้วยเลเวลวิชา และทำงานตลอดเวลา</div>${stats}`;
   const passiveNow = fx === "passive" || (fx === "original" && info && info[0] === "passive");
+  // รูปแบบการใช้: สกิลปกติ (กดใช้ทีละครั้ง) หรือ สกิลท่า (เปิดค้าง ตีธรรมดาออกเป็นท่านี้)
+  const modeBlock = passiveNow ? "" : `<div class="sub">รูปแบบการใช้</div>
+    <div class="row" style="max-width:520px"><select id="sk_mode">
+      ${opt("normal", "⚡ สกิลปกติ (กดใช้ทีละครั้ง มีคูลดาวน์)", d.mode || "normal")}
+      ${opt("stance", "🥋 สกิลท่า (เปิดค้างไว้ ตีปกติจะออกเป็นท่านี้)", d.mode || "normal")}
+    </select></div>
+    <div class="hint">สกิลท่า: กดเปิดแล้วการตีธรรมดาทุกครั้งจะออกเป็นสกิลนี้ และหัก SP ต่อครั้ง · กดซ้ำเพื่อปิด</div>`;
   const costNow = passiveNow ? "" : `<div class="sub">ค่าใช้</div><div class="grid">${n("spBase", "SP พื้นฐาน", 10, 'min="0"')}${n("spPer", "SP เพิ่มต่อเลเวล", 2, 'min="0"')}${n("cd", "คูลดาวน์ (วินาที)", 1.5, 'min="0" step="0.1"')}</div>`;
-  $("sk_fxFields").innerHTML = h + costNow + (passiveNow ? "" : vfx);
+  $("sk_fxFields").innerHTML = h + modeBlock + costNow + (passiveNow ? "" : vfx);
   if ($("sk_grid")) drawSkillGrid();   // ไอคอนในตารางเปลี่ยนตามแอคทีฟ/พาสซีฟ
   if ($("sk_kind")) $("sk_kind").innerHTML = curSkillPassive() ? "🔰 พาสซีฟ (ติดตัว)" : "⚡ แอคทีฟ (กดใช้)";
-}
-// ---------- เอฟเฟกต์จากไฟล์ GIF → แผ่นเฟรมเรียงแนวนอน (เกมเล่นทีละเฟรมบนแคนวาส) ----------
-let pickedSheet = null, sheetImg = null;
-async function gifToSheet(file) {
-  const frames = [];
-  if ("ImageDecoder" in window && /gif|webp|png/.test(file.type)) {
-    const dec = new ImageDecoder({ data: await file.arrayBuffer(), type: file.type });
-    await dec.tracks.ready;
-    const n = dec.tracks.selectedTrack.frameCount || 1, step = Math.max(1, Math.ceil(n / 30));
-    for (let i = 0; i < n; i += step) {
-      const { image } = await dec.decode({ frameIndex: i });
-      frames.push({ img: image, w: image.displayWidth, h: image.displayHeight, dur: ((image.duration || 100000) / 1e6) * step });
-    }
-  } else {   // เบราว์เซอร์ที่แยกเฟรมไม่ได้: ใช้เป็นภาพนิ่ง
-    const url = URL.createObjectURL(file), im = new Image();
-    await new Promise((ok, bad) => { im.onload = ok; im.onerror = bad; im.src = url; });
-    frames.push({ img: im, w: im.width, h: im.height, dur: 0.8 });
-    toast("เบราว์เซอร์นี้แยกเฟรม GIF ไม่ได้ จะใช้เป็นภาพนิ่ง (แนะนำ Chrome / Edge)", true);
-  }
-  const total = Math.min(6, Math.max(0.2, frames.reduce((s, f) => s + f.dur, 0)));
-  for (let max = 128; max >= 40; max = Math.round(max * 0.8)) {
-    const s = Math.min(1, max / Math.max(frames[0].w, frames[0].h)), fw = Math.max(1, Math.round(frames[0].w * s)), fh = Math.max(1, Math.round(frames[0].h * s));
-    const c = document.createElement("canvas"); c.width = fw * frames.length; c.height = fh;
-    const g = c.getContext("2d");
-    frames.forEach((f, i) => g.drawImage(f.img, i * fw, 0, fw, fh));
-    let src = c.toDataURL("image/webp", 0.8);
-    if (!src.startsWith("data:image/webp")) src = c.toDataURL("image/png");
-    if (src.length < 450000) { frames.forEach(f => f.img.close && f.img.close()); return { vfxImg: src, vfxFrames: frames.length, vfxFw: fw, vfxFh: fh, vfxDur: total }; }
-  }
-  throw new Error("ไฟล์ใหญ่หรือยาวเกินไป ลองไฟล์ที่เล็กลง");
-}
-async function pickSheet(file) {
-  if (!file) return;
-  try {
-    $("sk_sheetInfo").textContent = "กำลังแปลงไฟล์…";
-    pickedSheet = { ...await gifToSheet(file), vfxSize: numv("sk_vfxSize", 90), vfxAnchor: val("sk_vfxAnchor") };
-    $("sk_sheetInfo").textContent = `มีไฟล์แล้ว · ${pickedSheet.vfxFrames} เฟรม · ${pickedSheet.vfxDur.toFixed(1)} วิ`;
-    previewVfx();
-  } catch (e) { $("sk_sheetInfo").textContent = "ยังไม่มีไฟล์"; toast(e.message, true); }
 }
 // ตัวอย่างเอฟเฟกต์ (วาดแบบเดียวกับในเกม)
 let vfxAnim = 0;
 function previewVfx() {
   const cv = $("sk_vfxPrev"); if (!cv) return;
   cv.style.display = "block";
-  if (pickedSheet) {   // เล่นไฟล์ GIF ที่แปลงแล้ว
-    const s = pickedSheet, im = new Image(), id = ++vfxAnim, t0 = performance.now(), g = cv.getContext("2d");
-    im.src = s.vfxImg;
-    const size = Math.min(150, numv("sk_vfxSize", 90) * 1.2), W = size * s.vfxFw / s.vfxFh, ground = val("sk_vfxAnchor") === "ground";
-    const frame = () => {
-      if (id !== vfxAnim) return;
-      const el = (performance.now() - t0) / 1000, p = Math.min(1, el / s.vfxDur), fi = Math.min(s.vfxFrames - 1, Math.floor(p * s.vfxFrames));
-      g.globalAlpha = 1; g.fillStyle = "#3f7a36"; g.fillRect(0, 0, 260, 170);
-      g.fillStyle = "#8a5a3b"; g.beginPath(); g.ellipse(130, 103, 18, 12, 0, 0, 7); g.fill();
-      if (im.complete) g.drawImage(im, fi * s.vfxFw, 0, s.vfxFw, s.vfxFh, 130 - W / 2, ground ? 115 - size : 103 - size / 2, W, size);
-      if (el < s.vfxDur + 0.3) requestAnimationFrame(frame);
-    };
-    im.onload = frame;
-    return;
-  }
   const g = cv.getContext("2d"), kind = val("sk_vfx") || ({ strike: "slash", magic: "ring", blast: "ring", heal: "heal", buff: "pillar" }[val("sk_fx")] || "ring");
   const col = val("sk_color") || "#ffb627", proj = val("sk_proj");
   const life = { ring: .5, burst: .55, pillar: .9, vortex: .9, sparkle: .9, quake: .8, zap: .35, slash: .3, heal: 1 }[kind] || .6;
@@ -1540,14 +1487,14 @@ function collectSkill() {
     line: val("sk_line"), tier: skPos.tier, row: skPos.row, fx: val("sk_fx") };
   for (const k of ["base", "per", "radius", "range", "intMul", "statusChance", "spBase", "spPer", "cd", "dur", "atkPct", "defAdd"]) if ($("sk_" + k)) d[k] = numv("sk_" + k);
   if ($("sk_vfx")) d.vfx = val("sk_vfx");
-  if (pickedSheet) Object.assign(d, pickedSheet, { vfxSize: numv("sk_vfxSize", 90), vfxAnchor: val("sk_vfxAnchor") });
   if ($("sk_proj")) d.proj = val("sk_proj");
   if ($("sk_status")) d.status = val("sk_status");
   if ($("sk_magic")) d.magic = $("sk_magic").checked;
   if ($("sk_st_str")) { d.stats = {}; for (const k of STATS) { const n = numv("sk_st_" + k); if (n) d.stats[k] = n; } }
+  d.mode = $("sk_mode") ? val("sk_mode") : "normal";   // normal = สกิลปกติ · stance = สกิลท่า
   d.weapons = [...document.querySelectorAll(".sk_w:checked")].map(x => x.value);
   d.reqId = val("sk_req"); d.reqLv = numv("sk_reqLv", 1);
-  if (pickedImg.skill) d.img = pickedImg.skill;
+  if (pickedImg.skill) d.img = pickedImg.skill;   // รูปไอคอนวิชา (ไม่ใส่ = ใช้ไอคอนมาตรฐาน)
   return d;
 }
 async function saveSkill() {
