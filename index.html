@@ -7,7 +7,7 @@
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' shape-rendering='crispEdges'%3E%3Crect x='0' y='0' width='16' height='16' rx='3' fill='%23e6b422'/%3E%3Crect x='1' y='1' width='14' height='14' rx='2' fill='%234a1a24'/%3E%3Crect x='2' y='2' width='12' height='12' rx='1' fill='%236a2430'/%3E%3Crect x='13' y='2' width='1' height='1' fill='%23ffffff'/%3E%3Crect x='12' y='3' width='1' height='1' fill='%23ffffff'/%3E%3Crect x='11' y='4' width='1' height='1' fill='%23ffffff'/%3E%3Crect x='10' y='5' width='1' height='1' fill='%23ffffff'/%3E%3Crect x='9' y='6' width='1' height='1' fill='%23ffffff'/%3E%3Crect x='8' y='7' width='1' height='1' fill='%23ffffff'/%3E%3Crect x='14' y='2' width='1' height='1' fill='%239aa6bc'/%3E%3Crect x='13' y='3' width='1' height='1' fill='%239aa6bc'/%3E%3Crect x='12' y='4' width='1' height='1' fill='%239aa6bc'/%3E%3Crect x='11' y='5' width='1' height='1' fill='%239aa6bc'/%3E%3Crect x='10' y='6' width='1' height='1' fill='%239aa6bc'/%3E%3Crect x='9' y='7' width='1' height='1' fill='%239aa6bc'/%3E%3Crect x='14' y='3' width='1' height='1' fill='%235a6278'/%3E%3Crect x='13' y='4' width='1' height='1' fill='%235a6278'/%3E%3Crect x='12' y='5' width='1' height='1' fill='%235a6278'/%3E%3Crect x='11' y='6' width='1' height='1' fill='%235a6278'/%3E%3Crect x='10' y='7' width='1' height='1' fill='%235a6278'/%3E%3Crect x='5' y='7' width='1' height='1' fill='%23ffd84a'/%3E%3Crect x='6' y='8' width='1' height='1' fill='%23ffd84a'/%3E%3Crect x='7' y='9' width='1' height='1' fill='%23ffd84a'/%3E%3Crect x='8' y='10' width='1' height='1' fill='%23ffd84a'/%3E%3Crect x='6' y='7' width='1' height='1' fill='%23b8860b'/%3E%3Crect x='7' y='8' width='1' height='1' fill='%23b8860b'/%3E%3Crect x='8' y='9' width='1' height='1' fill='%23b8860b'/%3E%3Crect x='9' y='10' width='1' height='1' fill='%23b8860b'/%3E%3Crect x='7' y='10' width='1' height='1' fill='%23d8402f'/%3E%3Crect x='5' y='12' width='1' height='1' fill='%23d8402f'/%3E%3Crect x='6' y='11' width='1' height='1' fill='%238a1e1e'/%3E%3Crect x='4' y='13' width='1' height='1' fill='%238a1e1e'/%3E%3Crect x='6' y='10' width='1' height='1' fill='%23d8402f'/%3E%3Crect x='5' y='11' width='1' height='1' fill='%23d8402f'/%3E%3Crect x='4' y='12' width='1' height='1' fill='%23d8402f'/%3E%3Crect x='2' y='13' width='1' height='1' fill='%23ffd84a'/%3E%3Crect x='3' y='14' width='1' height='1' fill='%23ffd84a'/%3E%3Crect x='3' y='13' width='1' height='1' fill='%23b8860b'/%3E%3Crect x='2' y='14' width='1' height='1' fill='%23b8860b'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Mitr:wght@400;500;600&family=Sarabun:wght@400;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/game.css">
+<link rel="stylesheet" href="game.css">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body class="title">
@@ -30,9 +30,12 @@
   </div>
 </div>
 
-<div id="minimapBox" class="panel gameui"><canvas id="mm"></canvas><button class="mmBig" onclick="toggleWin('bigMapWin')" data-tip="ขยายแผนที่ (กด N)">🔍</button><div class="zone" id="zoneText"></div></div>
+<div id="minimapBox" class="panel gameui"><canvas id="mm"></canvas><button class="mmBig" onclick="toggleWin('bigMapWin')" data-tip="ขยายแผนที่ (กด N)">🔍</button><button class="mmBig mmWorld" onclick="toggleWin('worldWin')" data-tip="แผนที่โลก (กด M)">🌏</button><div class="zone" id="zoneText"></div></div>
 <div id="bigMapWin" class="panel win gameui"><div class="title"><span id="bigMapTitle">แผนที่</span><span class="x" onclick="toggleWin('bigMapWin')">✕</span></div>
-  <div class="body"><canvas id="bigMap"></canvas><div class="bmLegend">⚪ ท่าน · 🔵 ผู้เล่นอื่น · 🟦 NPC · 🟣 ประตูมิติ · 🔴 มอนสเตอร์ · คลิกบนแผนที่เพื่อเดินไป</div></div></div>
+  <div class="body"><canvas id="bigMap"></canvas><div class="bmLegend">⚪ ท่าน · 🔵 ผู้เล่นอื่น · 🟦 NPC · 🟣 ประตูมิติ · 🔴 มอนสเตอร์ · คลิกบนแผนที่เพื่อเดินไป · <a onclick="toggleWin('bigMapWin'); openWin('worldWin')">🌏 แผนที่โลก (M)</a></div></div></div>
+<div id="worldWin" class="panel win gameui"><div class="title">🌏 แผนที่โลก — แดนมนตรา<span class="x" onclick="toggleWin('worldWin')">✕</span></div>
+  <div class="body" style="position:relative"><canvas id="worldMap"></canvas><div id="worldTip"></div>
+    <div class="bmLegend">🏯 เมืองหลวง · 🌳 แผนที่ที่เปิดแล้ว · 🔒 เร็ว ๆ นี้ · เส้นทอง = ประตูมิติเชื่อมกัน · <span id="worldCount"></span></div></div></div>
 <div id="questBox" class="panel gameui"><div class="title">ภารกิจ</div><div class="body" id="questBody"></div></div>
 <div id="log" class="panel gameui"></div>
 <div id="orbs" class="panel gameui">
@@ -43,6 +46,7 @@
 <div id="onlineCount" class="gameui" data-tip="ผู้เล่นที่อยู่ในแผนที่ตอนนี้ · กด Enter เพื่อแชต"></div>
 <div id="chatBox" class="gameui"><input id="chatInput" maxlength="80" placeholder="พิมพ์ข้อความ แล้วกด Enter (Esc = ยกเลิก)" autocomplete="off"></div>
 <div id="menuBtns" class="panel gameui">
+  <button class="btn" id="sndBtn" onclick="toggleSound()" data-tip="เปิด/ปิดเสียง">🔊</button>
   <button class="btn" id="autoBtn" onclick="toggleAuto()">⚔<span class="albl"> ออโต้</span><span class="mhide"> (A)</span></button>
   <button class="btn" onclick="toggleWin('autoWin')" data-tip="ตั้งค่าออโต้: เลือกมอนที่จะล่า">⚙</button>
   <button class="btn" onclick="toggleWin('charWin')" data-tip="ตัวละคร · วิชา · สมุดอุปกรณ์ (กด S / K / J)">📜<span class="mhide"> ตัวละคร &amp; วิชา</span></button>
@@ -83,6 +87,8 @@
   <a class="btn adminLink" id="adminLinkBtn" style="display:none" href="admin.html" onclick="openAdmin(event)" data-tip="หน้าจัดการผู้เล่น (เฉพาะแอดมิน)">🛡️ หลังบ้าน</a>
 </div>
 
-<script src="js/game.js"></script>
+<script src="game.js"></script>
+<script src="world.js"></script>
+<script src="sound.js"></script>
 </body>
 </html>
