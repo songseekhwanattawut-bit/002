@@ -3,11 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>หลังบ้านมนตราดาบ</title>
+<title>หลังบ้านยันตราพิภพ</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' shape-rendering='crispEdges'%3E%3Crect x='0' y='0' width='16' height='16' rx='3' fill='%23e6b422'/%3E%3Crect x='1' y='1' width='14' height='14' rx='2' fill='%234a1a24'/%3E%3Crect x='2' y='2' width='12' height='12' rx='1' fill='%236a2430'/%3E%3Crect x='13' y='2' width='1' height='1' fill='%23ffffff'/%3E%3Crect x='12' y='3' width='1' height='1' fill='%23ffffff'/%3E%3Crect x='11' y='4' width='1' height='1' fill='%23ffffff'/%3E%3Crect x='10' y='5' width='1' height='1' fill='%23ffffff'/%3E%3Crect x='9' y='6' width='1' height='1' fill='%23ffffff'/%3E%3Crect x='8' y='7' width='1' height='1' fill='%23ffffff'/%3E%3Crect x='14' y='2' width='1' height='1' fill='%239aa6bc'/%3E%3Crect x='13' y='3' width='1' height='1' fill='%239aa6bc'/%3E%3Crect x='12' y='4' width='1' height='1' fill='%239aa6bc'/%3E%3Crect x='11' y='5' width='1' height='1' fill='%239aa6bc'/%3E%3Crect x='10' y='6' width='1' height='1' fill='%239aa6bc'/%3E%3Crect x='9' y='7' width='1' height='1' fill='%239aa6bc'/%3E%3Crect x='14' y='3' width='1' height='1' fill='%235a6278'/%3E%3Crect x='13' y='4' width='1' height='1' fill='%235a6278'/%3E%3Crect x='12' y='5' width='1' height='1' fill='%235a6278'/%3E%3Crect x='11' y='6' width='1' height='1' fill='%235a6278'/%3E%3Crect x='10' y='7' width='1' height='1' fill='%235a6278'/%3E%3Crect x='5' y='7' width='1' height='1' fill='%23ffd84a'/%3E%3Crect x='6' y='8' width='1' height='1' fill='%23ffd84a'/%3E%3Crect x='7' y='9' width='1' height='1' fill='%23ffd84a'/%3E%3Crect x='8' y='10' width='1' height='1' fill='%23ffd84a'/%3E%3Crect x='6' y='7' width='1' height='1' fill='%23b8860b'/%3E%3Crect x='7' y='8' width='1' height='1' fill='%23b8860b'/%3E%3Crect x='8' y='9' width='1' height='1' fill='%23b8860b'/%3E%3Crect x='9' y='10' width='1' height='1' fill='%23b8860b'/%3E%3Crect x='7' y='10' width='1' height='1' fill='%23d8402f'/%3E%3Crect x='5' y='12' width='1' height='1' fill='%23d8402f'/%3E%3Crect x='6' y='11' width='1' height='1' fill='%238a1e1e'/%3E%3Crect x='4' y='13' width='1' height='1' fill='%238a1e1e'/%3E%3Crect x='6' y='10' width='1' height='1' fill='%23d8402f'/%3E%3Crect x='5' y='11' width='1' height='1' fill='%23d8402f'/%3E%3Crect x='4' y='12' width='1' height='1' fill='%23d8402f'/%3E%3Crect x='2' y='13' width='1' height='1' fill='%23ffd84a'/%3E%3Crect x='3' y='14' width='1' height='1' fill='%23ffd84a'/%3E%3Crect x='3' y='13' width='1' height='1' fill='%23b8860b'/%3E%3Crect x='2' y='14' width='1' height='1' fill='%23b8860b'/%3E%3C/svg%3E">
 <meta name="robots" content="noindex">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Mitr:wght@400;500;600&family=Sarabun:wght@400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Mitr:wght@400;500;600&family=Prompt:wght@300;400;500;600;700&family=Sarabun:wght@400;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link rel="stylesheet" href="admin.css">
 </head>
@@ -15,7 +15,7 @@
 
 <div id="loginView">
   <div class="loginCard panel">
-    <h1>🛡️ หลังบ้านมนตราดาบ</h1>
+    <h1>🛡️ หลังบ้านยันตราพิภพ</h1>
     <p>สำหรับผู้ดูแลเกมเท่านั้น · ใช้บัญชีเดียวกับในเกม</p>
     <input id="lgUser" type="email" placeholder="อีเมล" autocomplete="email">
     <input id="lgPass" type="password" placeholder="รหัสผ่าน" autocomplete="current-password">
@@ -26,7 +26,7 @@
 
 <div id="appView">
   <header class="panel">
-    <h1>🛡️ หลังบ้านมนตราดาบ</h1>
+    <h1>🛡️ หลังบ้านยันตราพิภพ <span class="gmBadge">GM Admin</span></h1>
     <span class="who" id="who"></span>
     <button class="btn ghost" onclick="refreshAll()">↻ รีเฟรช</button>
     <button class="btn red" onclick="logout()">ออกจากระบบ</button>
@@ -134,6 +134,7 @@
     <div class="note">แจ้งรหัสใหม่ให้ผู้เล่นทางช่องทางส่วนตัว แล้วให้เขาเปลี่ยนเองภายหลัง</div>
   </div>
 </div>
+<footer class="admFoot panel"><span>🟢 เซิร์ฟเวอร์: <b>ยันตราพิภพ-01</b></span><span>หลังบ้านผู้ดูแลเกม</span></footer>
 <div id="toast"></div>
 
 <script src="admin.js"></script>

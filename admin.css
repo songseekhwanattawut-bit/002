@@ -213,3 +213,33 @@
 table.statRate { min-width: 760px; }
 table.statRate th, table.statRate td { padding: 3px 4px; text-align: center; font-size: 12px; white-space: nowrap; }
 table.statRate input { width: 62px; padding: 3px 4px; text-align: center; }
+
+  /* ===== RPG dashboard theme (wood + parchment + gold) ===== */
+  body { font-family: Prompt, Sarabun, sans-serif; background: radial-gradient(circle at 50% 30%, #3a2414 0%, #1a1612 75%); }
+  .panel { background: linear-gradient(180deg, #5c3a23 0%, #3d2313 100%); border: 4px solid #281409; border-radius: 12px; box-shadow: inset 0 0 10px #1a0a03, 0 8px 20px rgba(0,0,0,.6); }
+  header.panel { padding: 12px 18px; }
+  header h1 { font-family: Prompt; font-weight: 700; color: #fde3a7; display: flex; align-items: center; gap: 10px; }
+  .gmBadge { font-size: 11px; font-weight: 600; background: #7a1a1a; color: #ffd0d0; border: 1px solid #ff6b6b; border-radius: 6px; padding: 2px 8px; }
+  .mainTabs { gap: 4px; border-bottom: 3px solid #281409; padding: 0 6px; }
+  .mainTabs button { font-family: Prompt; font-weight: 500; border: 2px solid #9e6b42; border-bottom: none; border-radius: 10px 10px 0 0; background: linear-gradient(180deg, #7a4f2e, #4a2d18); color: #d1b89d; padding: 8px 18px; box-shadow: none; transition: transform .15s; }
+  .mainTabs button.on { background: linear-gradient(180deg, #f3d498, #c89547); border-color: #fff1be; color: #4a2306; font-weight: 700; transform: translateY(-3px); box-shadow: 0 -2px 10px rgba(255,215,0,.3); }
+  .btn { font-family: Prompt; font-weight: 600; border: 2px solid #ffe899; border-radius: 8px; background: linear-gradient(180deg, #e69d37, #a85813); color: #fff; text-shadow: 1px 1px 2px #3d1700; box-shadow: 0 4px 0 #592d07, inset 0 2px 2px rgba(255,255,255,.4); }
+  .btn:hover { filter: none; background: linear-gradient(180deg, #f7b048, #ba671c); transform: translateY(-1px); }
+  .btn:active { transform: translateY(3px); box-shadow: 0 1px 0 #592d07; }
+  .btn.red { background: linear-gradient(180deg, #e63737, #a81313); border-color: #ff9999; box-shadow: 0 4px 0 #590707; color: #fff; }
+  .btn.green { background: linear-gradient(180deg, #37e657, #13a82f); border-color: #99ffaa; box-shadow: 0 4px 0 #075914; color: #fff; }
+  .btn.ghost { background: linear-gradient(180deg, #37a8e6, #135da8); border-color: #99d2ff; box-shadow: 0 4px 0 #072759; color: #fff; }
+  input, select, textarea { background: #1e130c; border: 2px solid #6b4324; color: #ffe6c7; border-radius: 6px; font-family: Prompt, Sarabun, sans-serif; }
+  input:focus, select:focus, textarea:focus { border-color: #e2a85c; box-shadow: 0 0 6px rgba(226,168,92,.5); outline: none; }
+  .listHead { background: linear-gradient(180deg, #fbf3db, #ebd7b5); border: 3px solid #8c5d35; border-radius: 10px; padding: 8px 10px; }
+  .listHead b { color: #3d2b1f; font-family: Prompt; font-weight: 700; }
+  .formBox h2, .formBox > h2 { background: linear-gradient(180deg, #fbf3db, #ebd7b5); color: #3d2b1f; border: 3px solid #8c5d35; border-radius: 10px; padding: 8px 12px; margin-top: 0; }
+  .sub { color: #fcd34d; border-top: 1px solid rgba(146,64,14,.6); }
+  .grid > div, .fld { background: rgba(0,0,0,.18); border: 1px solid rgba(146,64,14,.45); border-radius: 6px; padding: 6px; }
+  .grid label, .fld label { color: rgba(253,230,138,.8); font-size: 11px; }
+  #itemList > *, #builtinItems > *, #mobList > *, #builtinMobs > *, #skillList > *, #builtinSkills > *, #mapList > *, #builtinMaps > * { border-radius: 8px; }
+  .stat.panel .n { color: #fde68a; } .stat.panel .l { color: #d6b98a; }
+  details.builtin summary { color: #fcd34d; cursor: pointer; }
+  .admFoot { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; padding: 8px 16px; margin-top: 14px; font-size: 12px; color: rgba(252,211,77,.8); }
+  ::-webkit-scrollbar { width: 10px; height: 10px; } ::-webkit-scrollbar-track { background: #2d1e18; border-radius: 4px; }
+  ::-webkit-scrollbar-thumb { background: #8b5a2b; border: 2px solid #e2a85c; border-radius: 4px; }

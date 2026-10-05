@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>มนตราดาบ</title>
+<title>ยันตราพิภพ</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' shape-rendering='crispEdges'%3E%3Crect x='0' y='0' width='16' height='16' rx='3' fill='%23e6b422'/%3E%3Crect x='1' y='1' width='14' height='14' rx='2' fill='%234a1a24'/%3E%3Crect x='2' y='2' width='12' height='12' rx='1' fill='%236a2430'/%3E%3Crect x='13' y='2' width='1' height='1' fill='%23ffffff'/%3E%3Crect x='12' y='3' width='1' height='1' fill='%23ffffff'/%3E%3Crect x='11' y='4' width='1' height='1' fill='%23ffffff'/%3E%3Crect x='10' y='5' width='1' height='1' fill='%23ffffff'/%3E%3Crect x='9' y='6' width='1' height='1' fill='%23ffffff'/%3E%3Crect x='8' y='7' width='1' height='1' fill='%23ffffff'/%3E%3Crect x='14' y='2' width='1' height='1' fill='%239aa6bc'/%3E%3Crect x='13' y='3' width='1' height='1' fill='%239aa6bc'/%3E%3Crect x='12' y='4' width='1' height='1' fill='%239aa6bc'/%3E%3Crect x='11' y='5' width='1' height='1' fill='%239aa6bc'/%3E%3Crect x='10' y='6' width='1' height='1' fill='%239aa6bc'/%3E%3Crect x='9' y='7' width='1' height='1' fill='%239aa6bc'/%3E%3Crect x='14' y='3' width='1' height='1' fill='%235a6278'/%3E%3Crect x='13' y='4' width='1' height='1' fill='%235a6278'/%3E%3Crect x='12' y='5' width='1' height='1' fill='%235a6278'/%3E%3Crect x='11' y='6' width='1' height='1' fill='%235a6278'/%3E%3Crect x='10' y='7' width='1' height='1' fill='%235a6278'/%3E%3Crect x='5' y='7' width='1' height='1' fill='%23ffd84a'/%3E%3Crect x='6' y='8' width='1' height='1' fill='%23ffd84a'/%3E%3Crect x='7' y='9' width='1' height='1' fill='%23ffd84a'/%3E%3Crect x='8' y='10' width='1' height='1' fill='%23ffd84a'/%3E%3Crect x='6' y='7' width='1' height='1' fill='%23b8860b'/%3E%3Crect x='7' y='8' width='1' height='1' fill='%23b8860b'/%3E%3Crect x='8' y='9' width='1' height='1' fill='%23b8860b'/%3E%3Crect x='9' y='10' width='1' height='1' fill='%23b8860b'/%3E%3Crect x='7' y='10' width='1' height='1' fill='%23d8402f'/%3E%3Crect x='5' y='12' width='1' height='1' fill='%23d8402f'/%3E%3Crect x='6' y='11' width='1' height='1' fill='%238a1e1e'/%3E%3Crect x='4' y='13' width='1' height='1' fill='%238a1e1e'/%3E%3Crect x='6' y='10' width='1' height='1' fill='%23d8402f'/%3E%3Crect x='5' y='11' width='1' height='1' fill='%23d8402f'/%3E%3Crect x='4' y='12' width='1' height='1' fill='%23d8402f'/%3E%3Crect x='2' y='13' width='1' height='1' fill='%23ffd84a'/%3E%3Crect x='3' y='14' width='1' height='1' fill='%23ffd84a'/%3E%3Crect x='3' y='13' width='1' height='1' fill='%23b8860b'/%3E%3Crect x='2' y='14' width='1' height='1' fill='%23b8860b'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Mitr:wght@400;500;600&family=Sarabun:wght@400;600;700&display=swap" rel="stylesheet">
@@ -15,7 +15,7 @@
 <canvas id="cvText"></canvas>
 
 <div id="uiBar" class="panel gameui"></div>
-<div id="hud" class="panel gameui">
+<div id="hud" class="panel gameui"><div class="hudPic"><canvas id="hudPic" width="96" height="96"></canvas><b id="hudLvBadge">Lv 1</b></div>
   <div class="body">
     <div style="display:flex;justify-content:space-between;align-items:baseline">
       <span class="name" id="hudName">ทหารกล้า</span><span class="name" id="hudLv">Lv 1</span>
@@ -30,6 +30,7 @@
   </div>
 </div>
 
+<div id="topIcons" class="gameui"><button id="topAutoBtn" onclick="openAutoPanel()"><i>⚔️</i><span>ออโต้</span></button><button onclick="toggleWin('charWin')"><i>🎒</i><span>กระเป๋า</span></button><button onclick="openRank()"><i>🏆</i><span>อันดับ</span></button><button onclick="toggleWin('setWin')"><i>⚙️</i><span>ตั้งค่า</span></button></div>
 <div id="minimapBox" class="panel gameui"><canvas id="mm"></canvas><button class="mmBig" onclick="toggleWin('bigMapWin')" data-tip="ขยายแผนที่ (กด N)">🔍</button><button class="mmBig mmWorld" onclick="toggleWin('worldWin')" data-tip="แผนที่โลก (กด M)">🌏</button><div class="zone" id="zoneText"></div></div>
 <div id="bigMapWin" class="panel win gameui"><div class="title"><span id="bigMapTitle">แผนที่</span><span class="x" onclick="toggleWin('bigMapWin')">✕</span></div>
   <div class="body"><canvas id="bigMap"></canvas><div class="bmLegend">⚪ ท่าน · 🔵 ผู้เล่นอื่น · 🟦 NPC · 🟣 ประตูมิติ · 🔴 มอนสเตอร์ · คลิกบนแผนที่เพื่อเดินไป · <a onclick="toggleWin('bigMapWin'); openWin('worldWin')">🌏 แผนที่โลก (M)</a></div></div></div>
@@ -37,30 +38,34 @@
   <div class="body" style="position:relative"><canvas id="worldMap"></canvas><div id="worldTip"></div>
     <div class="bmLegend">🏯 เมืองหลวง · 🌳 แผนที่ที่เปิดแล้ว · 🔒 เร็ว ๆ นี้ · เส้นทอง = ประตูมิติเชื่อมกัน · <span id="worldCount"></span></div></div></div>
 <div id="questBox" class="panel gameui"><div class="title">ภารกิจ</div><div class="body" id="questBody"></div></div>
+<div id="rankBox" class="panel gameui"><div class="title" onclick="toggleRank()">🏆 ผู้เล่นอันดับสูงสุด <span id="rankArrow">▾</span></div><div class="body" id="rankBody">กำลังโหลด…</div></div>
+<div id="rankWin" class="panel win gameui"><div class="title">🏆 ผู้เล่นอันดับสูงสุด<span class="x" onclick="toggleWin('rankWin')">✕</span></div><div class="body" id="rankWinBody">กำลังโหลด…</div></div>
 <div id="log" class="panel gameui"></div>
 <div id="orbs" class="panel gameui">
-  <div class="orb" id="hpOrb" data-tip="พลังชีวิต (HP)"><div class="fill" id="hpOrbFill"></div><div class="shine"></div><div class="lbl"><b>✚</b><span id="hpOrbText"></span></div></div>
-  <div class="orb" id="spOrb" data-tip="พลังวิชา (SP)"><div class="fill" id="spOrbFill"></div><div class="shine"></div><div class="lbl">SP<span id="spOrbText"></span></div></div>
+  <div class="orb" id="hpOrb" data-tip="พลังชีวิต (HP)"><div class="fill" id="hpOrbFill"></div><div class="shine"></div><div class="lbl"><b>ชีวิต</b><span id="hpOrbText"></span></div></div>
+  <div class="orb" id="spOrb" data-tip="พลังวิชา (SP)"><div class="fill" id="spOrbFill"></div><div class="shine"></div><div class="lbl">พลัง<span id="spOrbText"></span></div></div><div class="orb" id="expOrb" data-tip="ค่าประสบการณ์ (EXP)"><div class="fill" id="expOrbFill"></div><div class="shine"></div><div class="lbl">ประสบการณ์<span id="expOrbText"></span></div></div><div class="orb" id="jobOrb" data-tip="Job Level"><div class="fill" id="jobOrbFill"></div><div class="shine"></div><div class="lbl">ความสามารถ<span id="jobOrbText"></span></div></div>
 </div>
 <div id="hotbar" class="panel gameui"></div>
 <div id="onlineCount" class="gameui" data-tip="ผู้เล่นที่อยู่ในแผนที่ตอนนี้ · กด Enter เพื่อแชต"></div>
 <div id="chatBox" class="gameui"><input id="chatInput" maxlength="80" placeholder="พิมพ์ข้อความ แล้วกด Enter (Esc = ยกเลิก)" autocomplete="off"></div>
-<div id="menuBtns" class="panel gameui">
-  <button class="btn" id="sndBtn" onclick="toggleSound()" data-tip="เปิด/ปิดเสียง">🔊</button>
-  <button class="btn" id="autoBtn" onclick="toggleAuto()">⚔<span class="albl"> ออโต้</span><span class="mhide"> (A)</span></button>
-  <button class="btn" onclick="toggleWin('autoWin')" data-tip="ตั้งค่าออโต้: เลือกมอนที่จะล่า">⚙</button>
-  <button class="btn" onclick="toggleWin('charWin')" data-tip="ตัวละคร · วิชา · สมุดอุปกรณ์ (กด S / K / J)">📜<span class="mhide"> ตัวละคร &amp; วิชา</span></button>
+<div id="chatDock" class="gameui">
   <button class="btn" onclick="openChat()" data-tip="พิมพ์แชต (กด Enter)">💬</button>
   <button class="btn" id="micBtn" onclick="toggleMic()" data-tip="ไมค์: คนที่อยู่ใกล้ประมาณ 10 ช่องจะได้ยินเสียง (ยิ่งใกล้ยิ่งดัง)">🎤</button>
+</div>
+<div id="menuBtns" class="panel gameui">
+  <button class="btn" id="autoBtn" onclick="openAutoPanel()" data-tip="ออโต้: เลือกมอนแล้วกดเริ่ม (ปุ่ม A = เปิด/ปิดทันที)">⚔<span class="albl"> ออโต้</span><span class="mhide"> (A)</span></button>
+  <button class="btn" onclick="toggleWin('charWin')" data-tip="ตัวละคร · วิชา · สมุดอุปกรณ์ (กด S / K / J)">📜<span class="mhide"> ตัวละคร &amp; วิชา</span></button>
 
-  <button class="btn red" onclick="logoutFromGame()" data-tip="ออกจากระบบ (บันทึกเกมให้อัตโนมัติ)">⏻</button>
+
 </div>
 
 <div id="charWin" class="panel win gameui"><div class="title wtabs"><button class="on" onclick="openBook('charWin')">👤 ตัวละคร (S)</button><button class="" onclick="openBook('skillWin')">✨ วิชา (K)</button><button class="" onclick="openBook('codexWin')">📖 สมุดอุปกรณ์ (J)</button><button class="adminTab" style="display:none" onclick="openBook('adminWin')">🛡️ แอดมิน</button><span class="x" onclick="toggleWin('charWin')">✕</span></div>
-  <div class="charCols"><div class="body" id="statusBody"></div><div class="body" id="invBody"></div></div></div>
+  <div class="charCols"><div class="body leftCol"><div id="charCard"></div><div id="statusBody"></div></div><div class="body" id="invBody"></div></div></div>
 <div id="skillWin" class="panel win gameui"><div class="title wtabs"><button class="" onclick="openBook('charWin')">👤 ตัวละคร (S)</button><button class="on" onclick="openBook('skillWin')">✨ วิชา (K)</button><button class="" onclick="openBook('codexWin')">📖 สมุดอุปกรณ์ (J)</button><button class="adminTab" style="display:none" onclick="openBook('adminWin')">🛡️ แอดมิน</button><span class="x" onclick="toggleWin('skillWin')">✕</span></div><div class="body tabBody" id="skillBody"></div></div>
 <div id="adminWin" class="panel win gameui"><div class="title wtabs"><button class="" onclick="openBook('charWin')">👤 ตัวละคร (S)</button><button class="" onclick="openBook('skillWin')">✨ วิชา (K)</button><button class="" onclick="openBook('codexWin')">📖 สมุดอุปกรณ์ (J)</button><button class="adminTab on" onclick="openBook('adminWin')">🛡️ แอดมิน</button><span class="x" onclick="toggleWin('adminWin')">✕</span></div><div class="body tabBody" id="adminBody"></div></div>
 <div id="smithWin" class="panel win gameui"><div class="title">โรงตีเหล็ก<span class="x" onclick="toggleWin('smithWin')">✕</span></div><div class="body" id="smithBody"></div></div>
+<div id="guardWin" class="panel win gameui"><div class="title">🛡️ จ้างทหารองครักษ์<span class="x" onclick="toggleWin('guardWin')">✕</span></div><div class="body" id="guardBody"></div></div>
+<div id="setWin" class="panel win gameui"><div class="title">⚙️ ตั้งค่า<span class="x" onclick="toggleWin('setWin')">✕</span></div><div class="body" id="setBody"><div class="setSec">เสียงและการแสดงผล</div><button class="setBtn" onclick="toggleSound()"><i class="setIco"><span id="sndBtn">🔊</span></i><span class="setTx">เสียงในเกม<small>เปิด / ปิดเสียงประกอบและเพลง</small></span><b class="setGo">›</b></button><div class="setSec">บัญชี</div><button class="setBtn red" onclick="logoutFromGame()"><i class="setIco">⏻</i><span class="setTx">ออกจากระบบ<small>บันทึกเกมให้อัตโนมัติ</small></span><b class="setGo">›</b></button><div class="setFoot">ยันตราพิภพ · Yantraveil</div></div></div>
 <div id="autoWin" class="panel win gameui"><div class="title">ตั้งค่าออโต้<span class="x" onclick="toggleWin('autoWin')">✕</span></div><div class="body" id="autoBody"></div></div>
 
 <div id="craftWin" class="panel win gameui"><div class="title"><span id="craftTitle">ร้านคราฟ</span><span class="x" onclick="toggleWin('craftWin')">✕</span></div><div class="body" id="craftBody"></div></div>
@@ -77,8 +82,8 @@
 
 <div id="titleScreen">
   <div class="ts">
-    <div class="eng">MANTRA BLADE</div>
-    <h1>มนตราดาบ</h1>
+    <div class="eng">YANTRAVEIL</div>
+    <h1>ยันตราพิภพ</h1>
     <div class="orn">❖ ━━━━━ ✦ ━━━━━ ❖</div>
     <p>ตำนานนักรบผู้ถือดาบต้องมนตร์</p>
     <div id="authBox"></div>

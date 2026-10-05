@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="th"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Fastwork Promo</title>
+<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  body { margin: 0; background: #14101f; color: #fff; font-family: Kanit, sans-serif; display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 16px; }
+  canvas { width: min(1200px, 100%); height: auto; border-radius: 8px; box-shadow: 0 8px 30px #000a; }
+  button { font: 600 18px Kanit, sans-serif; padding: 10px 26px; border: 0; border-radius: 10px; background: #ffc83d; color: #2a1606; cursor: pointer; }
+</style></head>
+<body>
+<canvas id="c" width="1200" height="800"></canvas>
+<button onclick="dl()">⬇ ดาวน์โหลดรูป PNG</button>
+<script>
+// โปสเตอร์รับทำเกม · วาดเองทั้งหมด (ฟอนต์ Kanit = OFL ใช้เชิงพาณิชย์ได้)
+const c = document.getElementById("c"), g = c.getContext("2d"), W = 1200, H = 800;
+const R = (x, y, w, h, col) => { g.fillStyle = col; g.fillRect(x, y, w, h); };
+function txt(s, x, y, size, col, weight = 800, align = "left", stroke = "#1a0e2a", sw = 8) {
+  g.font = `${weight} ${size}px Kanit`; g.textAlign = align; g.lineJoin = "round";
+  if (sw) { g.strokeStyle = stroke; g.lineWidth = sw; g.strokeText(s, x, y); }
+  g.fillStyle = col; g.fillText(s, x, y);
+}
+function draw() {
+  // ฟ้ายามค่ำ + ดาว
+  const bg = g.createLinearGradient(0, 0, 0, H); bg.addColorStop(0, "#2a1650"); bg.addColorStop(.6, "#5a2a6a"); bg.addColorStop(1, "#c8643a");
+  g.fillStyle = bg; g.fillRect(0, 0, W, H);
+  for (let i = 0; i < 90; i++) { const x = (i * 137.5) % W, y = (i * 71.3) % 380; R(x, y, i % 7 ? 2 : 4, i % 7 ? 2 : 4, "#fff6"); }
+  // ดวงจันทร์
+  g.fillStyle = "#ffe9b0"; g.beginPath(); g.arc(1040, 120, 60, 0, 7); g.fill(); g.fillStyle = "#ffe9b033"; g.beginPath(); g.arc(1040, 120, 95, 0, 7); g.fill();
+  // เจดีย์/วัดเงาดำ (รูปทรงพื้นฐาน ไม่อิงสถานที่จริง)
+  g.fillStyle = "#1e1030";
+  const chedi = (cx, by, s) => { [[44, 8], [36, 8], [28, 8], [22, 10], [16, 10], [12, 12], [8, 14], [4, 20], [2, 14]].reduce((y, [w, h]) => { g.fillRect(cx - w * s / 2, by - (y + h) * s, w * s, h * s); return y + h; }, 0); };
+  chedi(120, 700, 3.2); chedi(330, 700, 2); chedi(960, 700, 2.4);
+  g.fillRect(0, 690, W, 110);
+  for (let x = 0; x < W; x += 16) R(x, 682 + (x % 48 ? 0 : -6), 16, 12, "#2e1a40");
+  // หญ้าพิกเซล
+  for (let x = 0; x < W; x += 8) R(x, 740 + ((x * 7) % 3) * 4, 8, 60, x % 16 ? "#2f6a32" : "#3a7d3a");
+
+  // ===== ฝั่งซ้าย: หัวข้อ + จุดเด่น =====
+  txt("รับทำเกมออนไลน์", 60, 130, 84, "#ffd23f");
+  txt("RPG / MMO บนเว็บ  เล่นได้ทั้งมือถือและคอม", 64, 185, 32, "#ffffff", 600, "left", "#1a0e2a", 6);
+  const feats = [["⚔️", "ระบบต่อสู้ สกิลพร้อมเอฟเฟกต์ แยกสายอาชีพ"], ["🌐", "ออนไลน์จริง เล่นพร้อมกันหลายคน + PvP"], ["🛠️", "หลังบ้านแอดมิน แก้ไอเท็ม / มอน / แผนที่ได้เอง"],
+    ["⚒️", "คราฟ · ตีบวก · ตลาดซื้อขาย · บอสเซิร์ฟเวอร์"], ["☁️", "สมัครสมาชิก ล็อกอิน เซฟข้อมูลบนคลาวด์"]];
+  feats.forEach(([ic, s], i) => {
+    const y = 255 + i * 66; g.fillStyle = "#00000055"; g.beginPath(); g.roundRect(56, y - 40, 560, 54, 12); g.fill();
+    g.font = "30px sans-serif"; g.textAlign = "left"; g.fillText(ic, 70, y - 2);
+    txt(s, 118, y - 4, 26, "#fff3d6", 600, "left", "#000", 0);
+  });
+
+  // ===== ฝั่งขวา: หน้าจอเกมจำลอง =====
+  const fx = 660, fy = 230, fw = 480, fh = 330;
+  g.fillStyle = "#3a2410"; g.beginPath(); g.roundRect(fx - 10, fy - 10, fw + 20, fh + 20, 14); g.fill();
+  const sc = g.createLinearGradient(0, fy, 0, fy + fh); sc.addColorStop(0, "#7cc4e8"); sc.addColorStop(.55, "#bfe6c0"); sc.addColorStop(.56, "#6fb35a"); sc.addColorStop(1, "#4a8c3c");
+  g.fillStyle = sc; g.fillRect(fx, fy, fw, fh);
+  for (let i = 0; i < 6; i++) { R(fx + 20 + i * 80, fy + 170 - (i % 2) * 10, 40, 14, "#3d7a34"); R(fx + 30 + i * 80, fy + 160 - (i % 2) * 10, 20, 10, "#4f9440"); }
+  // ฮีโร่ (พิกเซลวาดเอง)
+  const hero = (x, y) => { R(x, y + 56, 34, 6, "#0003"); R(x + 8, y + 40, 6, 16, "#3a2a1a"); R(x + 20, y + 40, 6, 16, "#3a2a1a"); R(x + 4, y + 22, 26, 20, "#2f7de0");
+    R(x + 4, y - 4, 26, 26, "#f2c79a"); R(x + 2, y - 8, 30, 10, "#3a2010"); R(x + 10, y + 6, 4, 5, "#1a0e06"); R(x + 20, y + 6, 4, 5, "#1a0e06"); R(x + 2, y - 2, 30, 4, "#d63031");
+    R(x + 30, y + 10, 4, 34, "#c9c2b8"); R(x + 28, y + 40, 8, 4, "#ffd23f"); };
+  hero(fx + 90, fy + 190);
+  // มอนสเตอร์ (สไลม์/ภูต วาดเอง)
+  const mx = fx + 330, my = fy + 230; g.fillStyle = "#8e44ad"; g.beginPath(); g.ellipse(mx, my, 44, 34, 0, Math.PI, 0); g.lineTo(mx + 44, my + 14); g.lineTo(mx - 44, my + 14); g.fill();
+  R(mx - 18, my - 14, 8, 10, "#fff"); R(mx + 10, my - 14, 8, 10, "#fff"); R(mx - 16, my - 10, 4, 5, "#1a0e06"); R(mx + 12, my - 10, 4, 5, "#1a0e06");
+  R(mx - 40, my - 54, 80, 8, "#0008"); R(mx - 38, my - 52, 30, 4, "#ff4d4d");
+  // ลูกไฟ + ระเบิด + ตัวเลขดาเมจ
+  const fb = g.createRadialGradient(mx - 60, my - 10, 2, mx - 60, my - 10, 34); fb.addColorStop(0, "#fff"); fb.addColorStop(.35, "#ffb347"); fb.addColorStop(1, "#ff4a1a00");
+  g.fillStyle = fb; g.beginPath(); g.arc(mx - 60, my - 10, 34, 0, 7); g.fill();
+  for (let i = 0; i < 8; i++) { const a = i * .785; R(mx + Math.cos(a) * 52 - 3, my - 6 + Math.sin(a) * 30 - 3, 6, 6, "#ffe45c"); }
+  txt("1,250", mx - 20, my - 70, 40, "#ffffff", 800, "center", "#7a1a00", 7);
+  txt("CRITICAL!", mx + 40, my - 108, 22, "#ffd23f", 800, "center", "#7a1a00", 5);
+  // แถบ HP/SP + ปุ่มสกิล
+  R(fx + 14, fy + 14, 170, 12, "#0008"); R(fx + 16, fy + 16, 130, 8, "#4ade6b"); R(fx + 14, fy + 30, 170, 10, "#0008"); R(fx + 16, fy + 32, 100, 6, "#4da3ff");
+  ["🔥", "❄️", "⚡", "🛡️", "💫"].forEach((e, i) => { const x = fx + 110 + i * 54, y = fy + fh - 52; g.fillStyle = "#2a1a0ecc"; g.beginPath(); g.roundRect(x, y, 44, 44, 8); g.fill();
+    g.strokeStyle = "#ffd23f"; g.lineWidth = 2; g.stroke(); g.font = "26px sans-serif"; g.textAlign = "center"; g.fillText(e, x + 22, y + 32); });
+  txt("ตัวอย่างระบบที่ทำได้", fx + fw / 2, fy + fh + 44, 22, "#ffe9b0", 600, "center", "#000", 4);
+
+  // ===== แถบล่าง: ราคา + จุดขาย =====
+  g.fillStyle = "#ffd23f"; g.beginPath(); g.roundRect(60, 610, 380, 92, 18); g.fill();
+  txt("เริ่มต้น 3,900.-", 250, 672, 46, "#3a1a00", 800, "center", "#ffd23f", 0);
+  txt("✔ ปรึกษาฟรี   ✔ ส่งไฟล์ต้นฉบับ   ✔ ดูแลหลังส่งงาน", 470, 668, 26, "#ffffff", 600, "left", "#1a0e2a", 6);
+}
+document.fonts.load("800 40px Kanit").then(() => document.fonts.load("600 20px Kanit")).then(draw, draw);
+function dl() { const a = document.createElement("a"); a.download = "fastwork-promo.png"; a.href = c.toDataURL("image/png"); a.click(); }
+</script>
+</body></html>

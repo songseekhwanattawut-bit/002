@@ -100,12 +100,12 @@ const RARITY = {
 const SHOP_MAX_GRADE = 3;
 
 const ITEM_BASE = {
-  red:    { name: "ยาสมุนไพร",       icon: "🍵", type: "use", hp: 60,  price: 50,   desc: "ฟื้นฟู HP 60" },
-  orange:  { name: "ยาหอมอินทรจักร",  icon: "🏺", type: "use", hp: 180, price: 200,  desc: "ฟื้นฟู HP 180" },
-  blue:    { name: "น้ำมะพร้าว",       icon: "🥥", type: "use", sp: 40,  price: 350,  desc: "ฟื้นฟู SP 40" },
-  banana:  { name: "กล้วยน้ำว้า",      icon: "🍌", type: "use", hp: 30,  price: 20,   desc: "ฟื้นฟู HP 30" },
-  amulet:  { name: "ซองพระป่า",        icon: "🧧", type: "use", key: true, price: 3000, desc: "นำไปถวายหลวงพ่อทองในเมือง เพื่อล้างแต้มสถานะทั้งหมดแล้วแจกใหม่" },
-  incense: { name: "ธูปเทียนแพ",       icon: "🪔", type: "use", key: true, price: 5000, desc: "นำไปไหว้หลวงพ่อทองในเมือง เพื่อล้างแต้มสถานะทั้งหมดแล้วแจกใหม่" },
+  red:    { name: "ยาสมุนไพร",       icon: "🍵", type: "use", hp: 60,  hpPct: 4,  price: 80,   desc: "ฟื้นฟู HP 60 + 4% ของ HP สูงสุด" },
+  orange:  { name: "ยาหอมอินทรจักร",  icon: "🏺", type: "use", hp: 180, hpPct: 12, price: 400,  desc: "ฟื้นฟู HP 180 + 12% ของ HP สูงสุด" },
+  blue:    { name: "น้ำมะพร้าว",       icon: "🥥", type: "use", sp: 40,  spPct: 10, price: 600,  desc: "ฟื้นฟู SP 40 + 10% ของ SP สูงสุด" },
+  banana:  { name: "กล้วยน้ำว้า",      icon: "🍌", type: "use", hp: 30,  hpPct: 2,  price: 30,   desc: "ฟื้นฟู HP 30 + 2% ของ HP สูงสุด" },
+  amulet:  { name: "ซองพระป่า",        icon: "🧧", type: "use", key: true, price: 30000, desc: "นำไปถวายหลวงพ่อทองในเมือง เพื่อล้างแต้มสถานะทั้งหมดแล้วแจกใหม่" },
+  incense: { name: "ธูปเทียนแพ",       icon: "🪔", type: "use", key: true, price: 45000, desc: "นำไปไหว้หลวงพ่อทองในเมือง เพื่อล้างแต้มสถานะทั้งหมดแล้วแจกใหม่" },
   pigfang: { name: "เขี้ยวหมูป่า",     icon: "🦷", type: "etc", price: 14,   desc: "ของป่า ขายได้" },
   feather: { name: "ขนไก่ชน",         icon: "🪶", type: "etc", price: 30,   desc: "ของป่า ขายได้" },
   fur:     { name: "ขนลิงกัง",        icon: "🧶", type: "etc", price: 60,   desc: "ของป่า ขายได้" },
@@ -172,7 +172,7 @@ const ITEM_BASE = {
   chain:   { name: "เกราะหนังควาย",   icon: "🥋", type: "armor", def: 10, price: 2500, desc: "เกราะหนังหนา กันคมดาบ" },
   // ---------- เครื่องแต่งกาย (stats = โบนัสสถานะ) ----------
   wrap:     { name: "ผ้าโพกหัว",       icon: "👳", type: "head",   draw: "wrap",   def: 2, price: 300,  desc: "ผ้าโพกกันแดด" },
-  helm:     { name: "ลอมพอกทหาร",     icon: "🪖", type: "head",   draw: "lompok", def: 5, stats: { vit: 2 }, price: 2200, desc: "หมวกทรงสูงของทหารสยาม" },
+  helm:     { name: "หมวกขุนศึก",     icon: "🪖", type: "head",   draw: "lompok", def: 5, stats: { vit: 2 }, price: 2200, desc: "หมวกเหล็กทรงโดม ขอบทอง ของทหารสยาม" },
   pakama:   { name: "ผ้าขาวม้า",       icon: "🧣", type: "cape",   color: "#c92a2a", def: 1, stats: { agi: 2 }, price: 350, desc: "ผ้าอเนกประสงค์ พาดไหล่" },
   peacock:  { name: "ผ้าคลุมขนนกยูง",  icon: "🦚", type: "cape",   color: "#1f6f78", def: 3, stats: { agi: 4, dex: 2 }, price: 2600, desc: "ผ้าคลุมปักขนนกยูงสีเขียวมรกต" },
   dang:     { name: "ดั้งหนัง",         icon: "🛡️", type: "shield", color: "#8a5a32", def: 4, price: 700,  desc: "โล่หนังของทหารราบ (ใช้กับอาวุธมือเดียว)" },
@@ -304,6 +304,10 @@ for (const S of SETS) for (const [type, label, def, mats] of SET_PIECES) {
   ITEM_BASE[`set_${S.key}_${type}`] = it;
 }
 const SET_BY = Object.fromEntries(SETS.map(S => [S.key, S]));
+// เอฟเฟกต์พิเศษเมื่อใส่ครบ 6 ชิ้น (ทำงานในจุดต่าง ๆ ของเกม ดู setFull)
+const SET_FX = { pichai: "15% ฟันซ้ำอีกครั้ง", rishi: "วิชาใช้ SP น้อยลง 20%", phran: "10% ลูกศรทะลุโดนศัตรูข้างเคียง",
+  thudong: "เลือดต่ำกว่า 30% ฟื้นทันที 25% (ทุก 30 วิ)", lekfai: "ล้มศัตรูแล้วฟื้น SP 5%", kwian: "ได้เบี้ยจากมอนเพิ่ม 20%" };
+const setFull = key => (setCounts()[key] || 0) >= 6;
 const setBonusText = b => Object.entries(b).map(([k, v]) => k === "crit" ? `คริ +${v}%` : STAT_TH[k] ? `${STAT_TH[k]} +${v}` : `${(OPT_DEFS.find(o => o[0] === k) || [k, k])[1]} +${v}${(OPT_DEFS.find(o => o[0] === k) || [])[2] ? "%" : ""}`).join(", ");
 {
 }
@@ -436,116 +440,304 @@ const MOB_BOSS_LINE = { naga: "บริวารของข้า จงออ
 // kind: target = ต้องเลือกศัตรู · self = ใช้กับตัวเอง/รอบตัว · buff = เสริมพลังชั่วคราว · passive = ติดตัวตลอด
 // weapons: อาวุธที่ใช้ได้ (ไม่ระบุ = ทุกแบบ) · req: วิชาที่ต้องมีก่อน {id: เลเวล} · tier/row: ตำแหน่งในต้นไม้วิชา
 const LINES = [
-  { id: "sword",    name: "ดาบ",    icon: "⚔️", color: "#ff8a3d" },
-  { id: "mage",     name: "เวท",    icon: "🔮", color: "#b45cff" },
-  { id: "archer",   name: "ธนู",    icon: "🏹", color: "#4fd66a" },
-  { id: "priest",   name: "พระ",    icon: "🪷", color: "#ffd23f" },
-  { id: "thief",    name: "โจร",    icon: "🗡️", color: "#8a8fa0" },
-  { id: "merchant", name: "พ่อค้า", icon: "💰", color: "#3d9bff" },
+  { id: "sword",    name: "ขุนดาบ", icon: "⚔️", color: "#ff8a3d" },
+  { id: "mage",     name: "ไสยเวท", icon: "🔮", color: "#b45cff" },
+  { id: "archer",   name: "พรานธนู", icon: "🏹", color: "#4fd66a" },
+  { id: "priest",   name: "ฤๅษี",  icon: "🪷", color: "#ffd23f" },
+  { id: "thief",    name: "ขุนโจร", icon: "🗡️", color: "#8a8fa0" },
+  { id: "merchant", name: "วาณิช", icon: "💰", color: "#3d9bff" },
 ];
 const MELEE = ["dagger", "sword", "spear"];
 const SKILLS = {
-  // ---------------- ⚔️ ดาบ ----------------
-  slash:     { line: "sword", tier: 0, row: 0, name: "ฟันสะบั้น", icon: "⚡", kind: "target", max: 10, cd: 0.7, sp: lv => 5 + lv, weapons: MELEE,
-               desc: lv => `โจมตีแรง ${130 + lv * 30}% แม่นยำ +${lv * 5}` },
-  swordmast: { line: "sword", tier: 0, row: 1, name: "เชี่ยวชาญอาวุธ", icon: "🗡️", kind: "passive", max: 10,
-               desc: lv => `ATK +${lv * 3} เมื่อถือมีด/ดาบ/ทวน` },
-  iron:      { line: "sword", tier: 0, row: 2, name: "กายสิทธิ์", icon: "💪", kind: "passive", max: 5,
-               desc: lv => `HP สูงสุด +${lv * 6}%` },
-  provoke:   { line: "sword", tier: 0, row: 3, name: "ยั่วยุ", icon: "😤", kind: "self", max: 5, cd: 1, sp: lv => 4 + lv,
+  // ---------------- ⚔️ ดาบ · โจมตี 8 · บัพ 6 · ติดตัว 6 ----------------
+  // ph = สูตรวิชากายภาพ (physCast): m/ml = ตัวคูณ ATK (+ต่อเลเวล) · hit = แม่นยำเพิ่ม · r = วงรอบเป้า · self = วงรอบตัวเรา · hits = จำนวนครั้ง · knock/stun/stunL = กระเด็น/มึน
+  // ===== ขั้นเด็ก =====
+  slash:     { line: "sword", tier: 0, row: 0, name: "ฟาดสะท้าน", icon: "⚡", kind: "target", max: 10, cd: 0.7, sp: lv => 5 + lv, weapons: MELEE,
+               ph: { m: 1.3, ml: .3, hit: 5, col: "#ffa94d" }, desc: lv => `ฟาดแรง ${130 + lv * 30}% แม่นยำ +5` },
+  provoke:   { line: "sword", tier: 0, row: 1, name: "ยั่วยุ", icon: "😤", kind: "self", max: 5, cd: 1, sp: lv => 4 + lv,
                desc: lv => `ดึงศัตรูรอบตัวให้มาตีเรา และลด DEF ศัตรู ${10 + lv * 6}% นาน 20 วิ` },
-  pierce:    { line: "sword", tier: 1, row: 0, name: "ทวนทะลวงทัพ", icon: "🔱", kind: "target", max: 5, cd: 2, sp: lv => 10 + lv * 2, weapons: ["spear"], req: { slash: 3 },
-               desc: lv => `แทง ${160 + lv * 30}% โดนเป้าหมายและศัตรูที่อยู่ติดกัน` },
-  magnum:    { line: "sword", tier: 1, row: 1, name: "ระเบิดเพลิงรอบกาย", icon: "💢", kind: "self", max: 5, cd: 2, sp: lv => 12 + lv * 2, weapons: MELEE, req: { slash: 5 },
-               desc: lv => `ระเบิดรอบตัว ${120 + lv * 20}% และผลักศัตรูกระเด็น` },
-  whirl:     { line: "sword", tier: 2, row: 1, name: "พายุดาบ", icon: "🌀", kind: "target", max: 5, cd: 2.5, sp: lv => 14 + lv * 3, weapons: ["sword", "spear"], req: { magnum: 3, swordmast: 5 },
-               desc: lv => `ฟันกวาด ${150 + lv * 30}% โดนศัตรูทุกตัวรอบเป้าหมาย` },
-  endure:    { line: "sword", tier: 3, row: 2, name: "กายวชิระ", icon: "💎", kind: "buff", ult: true, rare: 4, max: 5, cd: 1, sp: lv => 20, dur: 30, req: { iron: 3, provoke: 3 },
-               desc: lv => `ลดดาเมจที่ได้รับ ${lv * 5}% นาน 30 วิ` },
-  // ---------------- 🔮 เวท (ต้องถือประคำ) ----------------
+  swordmast: { line: "sword", tier: 0, row: 2, name: "เชี่ยวชาญดาบ", icon: "🗡️", kind: "passive", max: 10,
+               desc: lv => `ATK +${lv * 3} เมื่อถือมีด/ดาบ/ทวน` },
+  iron:      { line: "sword", tier: 0, row: 3, name: "กายสิทธิ์", icon: "💪", kind: "passive", max: 10,
+               desc: lv => `HP สูงสุด +${lv * 4}%` },
+  hprecov:   { line: "sword", tier: 0, row: 4, name: "ฟื้นกายนักรบ", icon: "❤️", kind: "passive", max: 10,
+               desc: lv => `ฟื้น HP เร็วขึ้น ${lv * 15}%` },
+  // ===== ขั้นหนุ่มสาว =====
+  magnum:    { line: "sword", tier: 1, row: 0, name: "ระเบิดเพลิงรอบกาย", icon: "💢", kind: "self", max: 10, cd: 2, sp: lv => 12 + lv * 2, weapons: MELEE, req: { slash: 3 }, radius: 80,
+               ph: { m: 1.2, ml: .2, self: 80, knock: 45, col: "#ff6a1f" }, desc: lv => `ระเบิดไฟรอบตัว ${120 + lv * 20}% และผลักศัตรูกระเด็น` },
+  pierce:    { line: "sword", tier: 1, row: 1, name: "ทวนทะลวง", icon: "🔱", kind: "target", max: 10, cd: 1.2, sp: lv => 7 + lv, weapons: ["spear"], req: { slash: 3 },
+               ph: { m: 1.6, ml: .25, hit: 10, hits: 2, col: "#9fd3ff" }, desc: lv => `แทง 2 ครั้ง รวม ${160 + lv * 25}% แม่นยำ +10` },
+  endure:    { line: "sword", tier: 1, row: 2, name: "กายวชิระ", icon: "💎", kind: "buff", max: 10, cd: 10, sp: lv => 10 + lv, dur: 30, req: { provoke: 3 },
+               desc: lv => `ลดดาเมจที่ได้รับ ${lv * 3}% นาน 30 วิ` },
+  spearmast: { line: "sword", tier: 1, row: 3, name: "เชี่ยวชาญทวน", icon: "🔱", kind: "passive", max: 10, req: { swordmast: 3 },
+               desc: lv => `ATK +${lv * 4} เมื่อถือทวน/ง้าว` },
+  thq:       { line: "sword", tier: 1, row: 4, name: "เร่งศาสตรา", icon: "🌪️", kind: "buff", max: 10, cd: 5, sp: lv => 14 + lv * 2, dur: 60, req: { swordmast: 5 },
+               desc: lv => `ตีเร็วขึ้น ${lv * 4}% นาน 60 วิ` },
+  // ===== ขั้นผู้ใหญ่ =====
+  whirl:     { line: "sword", tier: 2, row: 0, name: "พายุดาบหมุน", icon: "🌀", kind: "target", max: 10, cd: 2, sp: lv => 14 + lv * 2, weapons: MELEE, req: { magnum: 3 },
+               ph: { m: 1.6, ml: .3, r: 75, hits: 2, knock: 30, col: "#dfe8ff" }, desc: lv => `ฟันวนเป็นพายุ 2 รอบ รวม ${160 + lv * 30}% โดนศัตรูทุกตัวรอบเป้า` },
+  spiral:    { line: "sword", tier: 2, row: 1, name: "ทวนนาคาเลื้อย", icon: "🌀", kind: "target", max: 10, cd: 2.5, sp: lv => 18 + lv * 2, weapons: ["spear"], req: { pierce: 5, spearmast: 3 },
+               ph: { m: 2.6, ml: .5, hit: 20, hits: 5, col: "#ffd23f" }, desc: lv => `พุ่งทวนหมุนเป็นเกลียว 5 ครั้ง รวม ${260 + lv * 50}%` },
+  sonicwave: { line: "sword", tier: 2, row: 2, name: "คลื่นดาบวายุภักษ์", icon: "🌊", kind: "target", max: 10, cd: 2.5, range: 170, sp: lv => 20 + lv * 2, weapons: MELEE, req: { slash: 8 },
+               ph: { m: 2.4, ml: .45, hit: 15, col: "#5cd6ff" }, desc: lv => `ฟันคลื่นพลังพุ่งไกล ${240 + lv * 45}% (ระยะ 170)` },
+  aurablade: { line: "sword", tier: 2, row: 3, name: "ดาบอาคม", icon: "✨", kind: "buff", max: 5, cd: 10, sp: lv => 20 + lv * 3, dur: 60, req: { thq: 3 },
+               desc: lv => `ATK +${lv * 10} (ทุกการโจมตี) นาน 60 วิ` },
+  parry:     { line: "sword", tier: 2, row: 4, name: "ปัดป้อง", icon: "🛡️", kind: "buff", max: 10, cd: 10, sp: lv => 20 + lv, dur: 30, req: { endure: 3 },
+               desc: lv => `หลบหลีก +${lv * 6} นาน 30 วิ` },
+  runemast:  { line: "sword", tier: 2, row: 5, name: "เชี่ยวชาญยันต์", icon: "🔷", kind: "passive", max: 10, req: { iron: 5 },
+               desc: lv => `ATK +${lv * 2}%` },
+  // ===== ขั้นผู้เฒ่า =====
+  ignition:  { line: "sword", tier: 3, row: 0, name: "ยันต์อัคนีระเบิด", icon: "🔥", kind: "self", ult: true, rare: 5, max: 5, cd: 6, sp: lv => 40 + lv * 6, weapons: MELEE, req: { whirl: 5 }, radius: 115,
+               ph: { m: 3, ml: .8, self: 115, stun: 15, stunL: 3, col: "#ff4a1a" }, desc: lv => `กระแทกพื้นระเบิดยันต์ไฟรอบตัว ${300 + lv * 80}% วงกว้าง โอกาสมึนงง` },
+  dragonbreath:{ line: "sword", tier: 3, row: 1, name: "พ่นไฟพญานาค", icon: "🐉", kind: "target", ult: true, rare: 5, max: 5, cd: 8, range: 180, sp: lv => 50 + lv * 8, weapons: MELEE, req: { spiral: 3, sonicwave: 3 },
+               ph: { m: 4, ml: 1, r: 90, hits: 4, col: "#ff8a1f" }, desc: lv => `พญานาคพ่นไฟใส่ 4 ระลอก รวม ${400 + lv * 100}% วงรอบเป้า (ระยะ 180)` },
+  enchantblade:{ line: "sword", tier: 3, row: 3, name: "ลงยันต์ปลุกศาสตรา", icon: "🔆", kind: "buff", max: 5, cd: 15, sp: lv => 35 + lv * 5, dur: 60, req: { aurablade: 5 },
+               desc: lv => `ATK +${lv * 5}% นาน 60 วิ` },
+  dragontrain:{ line: "sword", tier: 3, row: 4, name: "ขี่ม้าศึก", icon: "🐲", kind: "passive", max: 5, req: { runemast: 3 },
+               desc: lv => `วิ่งเร็วขึ้น ${lv * 3}% · คริติคอล +${lv}%` },
+  // ---------------- 🔮 เวท (ต้องถือประคำ) · ชุดวิชาแบบแผนผังกว้าง · สัดส่วน โจมตี 8 (40%) · บัพ/ซัพพอร์ต 6 (30%) · ติดตัว 6 (30%) ----------------
+  // mg = สูตรวิชาเวท (mageCast): b/bl = ดาเมจฐาน (+ต่อเลเวล) · i/il = คูณ INT (+ต่อเลเวล) · r = รัศมีวง (0 = ตัวเดียว) · hits = จำนวนครั้ง
+  //      splash = ดาเมจตัวรอบข้าง · slow = ช้าลง (วิ) · stun/stunL/stunT = โอกาสหยุดนิ่ง% (+ต่อเลเวล) / นาน · knock = กระเด็น · ghost = แรง×2 ใส่ผี · sky = ผ่าลงจากฟ้า
+  // ===== ขั้นเด็ก =====
   firebolt:  { line: "mage", tier: 0, row: 0, name: "ลูกไฟ", icon: "🔥", kind: "target", max: 10, cd: 1, range: 190, sp: lv => 6 + lv * 2, weapons: ["beads"],
-               desc: lv => `ยิงไฟ ${25 + lv * 12} + INT×${(1.5 + lv * 0.3).toFixed(1)}` },
+               mg: { b: 25, bl: 12, i: 1.5, il: .3, hits: lv => Math.ceil(lv / 3), col: "#ff8a3d" },
+               desc: lv => `ยิงลูกไฟ ${Math.ceil(lv / 3)} ลูก รวม ${25 + lv * 12} + INT×${(1.5 + lv * 0.3).toFixed(1)}` },
   coldbolt:  { line: "mage", tier: 0, row: 1, name: "ศรน้ำแข็ง", icon: "❄️", kind: "target", max: 10, cd: 1, range: 190, sp: lv => 6 + lv * 2, weapons: ["beads"],
-               desc: lv => `ยิงน้ำแข็ง ${20 + lv * 10} + INT×${(1.3 + lv * 0.3).toFixed(1)} ศัตรูช้าลง 3 วิ` },
-  lightbolt: { line: "mage", tier: 0, row: 2, name: "สายฟ้า", icon: "⚡", kind: "target", max: 10, cd: 1.2, range: 190, sp: lv => 8 + lv * 2, weapons: ["beads"],
-               desc: lv => `ฟาดสายฟ้า ${30 + lv * 14} + INT×${(1.6 + lv * 0.3).toFixed(1)}` },
-  focus:     { line: "mage", tier: 0, row: 3, name: "จิตตานุภาพ", icon: "🧘", kind: "passive", max: 5,
-               desc: lv => `SP สูงสุด +${lv * 6}% · ฟื้น SP เร็วขึ้น ${lv * 25}%` },
-  nova:      { line: "mage", tier: 0, row: 4, name: "ระเบิดเวท", icon: "💥", kind: "target", max: 5, cd: 2, range: 180, sp: lv => 12 + lv * 2, weapons: ["beads"],
-               desc: lv => `ระเบิดพลังเวท ${20 + lv * 10} + INT×${(1 + lv * 0.2).toFixed(1)} ใส่ศัตรูรอบเป้าหมาย` },
-  fire:      { line: "mage", tier: 1, row: 0, name: "ไฟบรรลัยกัลป์", icon: "☄️", kind: "target", max: 5, cd: 2.5, range: 190, sp: lv => 16 + lv * 3, weapons: ["beads"], req: { firebolt: 4 },
-               desc: lv => `ลูกไฟยักษ์ ${40 + lv * 20} + INT×${(2 + lv * 0.4).toFixed(1)} ระเบิดเป็นวงกว้าง` },
-  stonecurse:{ line: "mage", tier: 1, row: 1, name: "สาปหิน", icon: "🪨", kind: "target", max: 5, cd: 1.5, range: 180, sp: lv => 10 + lv, weapons: ["beads"], req: { coldbolt: 2 },
-               desc: lv => `โอกาส ${30 + lv * 10}% ให้ศัตรูกลายเป็นหิน ขยับไม่ได้ 3 วิ` },
-  thunder:   { line: "mage", tier: 1, row: 2, name: "อัสนีบาต", icon: "🌩️", kind: "target", max: 5, cd: 3, range: 200, sp: lv => 18 + lv * 3, weapons: ["beads"], req: { lightbolt: 4 },
-               desc: lv => `ฟ้าผ่า ${60 + lv * 25} + INT×${(3 + lv * 0.5).toFixed(1)} กระจายโดนศัตรูรอบข้าง` },
-  storm:     { line: "mage", tier: 2, row: 1, name: "พายุหิมะ", icon: "🌨️", kind: "target", ult: true, rare: 5, max: 5, cd: 6, range: 200, sp: lv => 40 + lv * 5, weapons: ["beads"], req: { coldbolt: 5, thunder: 3 },
-               desc: lv => `พายุหิมะวงกว้าง ${80 + lv * 30} + INT×${(3 + lv * 0.6).toFixed(1)} ศัตรูช้าลง + โอกาสแข็งตัว` },
-  // ---------------- 🏹 ธนู (ต้องถือธนู) ----------------
-  owleye:    { line: "archer", tier: 0, row: 0, name: "ตาเหยี่ยว", icon: "🦉", kind: "passive", max: 10,
+               mg: { b: 22, bl: 11, i: 1.4, il: .3, hits: lv => Math.ceil(lv / 3), slow: 3, col: "#bfefff" },
+               desc: lv => `ยิงศรน้ำแข็ง ${Math.ceil(lv / 3)} ดอก รวม ${22 + lv * 11} + INT×${(1.4 + lv * 0.3).toFixed(1)} ศัตรูช้าลง 3 วิ` },
+  lightbolt: { line: "mage", tier: 0, row: 2, name: "สายฟ้าฟาด", icon: "⚡", kind: "target", max: 10, cd: 1.2, range: 190, sp: lv => 8 + lv * 2, weapons: ["beads"],
+               mg: { b: 30, bl: 14, i: 1.6, il: .3, hits: lv => Math.ceil(lv / 3), sky: true, col: "#ffe45c" },
+               desc: lv => `ฟาดสายฟ้า ${Math.ceil(lv / 3)} ครั้ง รวม ${30 + lv * 14} + INT×${(1.6 + lv * 0.3).toFixed(1)}` },
+  sprecov:   { line: "mage", tier: 0, row: 3, name: "ฟื้นฟูพลังเวท", icon: "🧘", kind: "passive", max: 10,
+               desc: lv => `SP สูงสุด +${lv * 3}% · ฟื้น SP เร็วขึ้น ${lv * 15}%` },
+  wisdom:    { line: "mage", tier: 0, row: 4, name: "ปัญญาญาณ", icon: "🧠", kind: "passive", max: 10,
+               desc: lv => `INT +${lv}` },
+  energycoat:{ line: "mage", tier: 0, row: 5, name: "เกราะพลังเวท", icon: "🔰", kind: "buff", max: 5, cd: 2, sp: lv => 30, dur: 120,
+               desc: lv => `ลดดาเมจที่ได้รับ ${lv * 6}% นาน 120 วิ` },
+  // ===== ขั้นหนุ่มสาว =====
+  fireball:  { line: "mage", tier: 1, row: 0, name: "ลูกไฟระเบิด", icon: "☄️", kind: "target", max: 10, cd: 1.8, range: 190, sp: lv => 14 + lv * 2, weapons: ["beads"], req: { firebolt: 4 },
+               mg: { b: 40, bl: 15, i: 2, il: .3, r: 75, splash: .75, col: "#ff6a1f" },
+               desc: lv => `ลูกไฟยักษ์ ${40 + lv * 15} + INT×${(2 + lv * 0.3).toFixed(1)} ระเบิดโดนรอบข้าง 75%` },
+  insight:   { line: "mage", tier: 1, row: 1, name: "พรแห่งปัญญา", icon: "📖", kind: "buff", max: 5, cd: 3, sp: lv => 25 + lv * 3, dur: 90, req: { wisdom: 3 },
+               desc: lv => `INT +${2 + lv * 2} · ฟื้น SP เร็วขึ้น ${lv * 20}% นาน 90 วิ` },
+  thunderstorm:{ line: "mage", tier: 1, row: 2, name: "อัสนีบาต", icon: "🌩️", kind: "target", max: 10, cd: 2.5, range: 200, sp: lv => 18 + lv * 3, weapons: ["beads"], req: { lightbolt: 4 },
+               mg: { b: 50, bl: 20, i: 2.4, il: .4, r: 85, hits: lv => Math.ceil(lv / 2), sky: true, col: "#9fe8ff" },
+               desc: lv => `ฟ้าผ่าลงเป็นวง ${Math.ceil(lv / 2)} ครั้ง รวม ${50 + lv * 20} + INT×${(2.4 + lv * 0.4).toFixed(1)}` },
+  souldrain: { line: "mage", tier: 1, row: 3, name: "ดูดวิญญาณ", icon: "💜", kind: "passive", max: 10, req: { sprecov: 3 },
+               desc: lv => `SP สูงสุด +${lv * 2}% · ฆ่าศัตรูด้วยวิชาเวท ได้ SP คืน ${lv * 1.5}% ของ SP สูงสุด` },
+  safetywall:{ line: "mage", tier: 1, row: 4, name: "กำแพงคุ้มภัย", icon: "🧱", kind: "buff", max: 10, cd: 8, sp: lv => 20 + lv * 2, dur: 20, req: { wisdom: 3 },
+               desc: lv => `โล่เวทกันดาเมจ ${6 + lv * 2}% ของ HP สูงสุด นาน 20 วิ` },
+  quicken:   { line: "mage", tier: 1, row: 5, name: "เร่งมนตรา", icon: "⏩", kind: "buff", max: 5, cd: 30, sp: lv => 30 + lv * 4, dur: 30, req: { energycoat: 3 },
+               desc: lv => `คูลดาวน์วิชาเวทลดลง ${lv * 6}% · ร่ายคาถาเร็วขึ้น ${lv * 10}% นาน 30 วิ` },
+  // ===== ขั้นผู้ใหญ่ =====
+  meteor:    { line: "mage", tier: 2, row: 0, name: "ฝนอุกกาบาต", icon: "🌠", kind: "target", max: 10, cd: 4, range: 200, sp: lv => 30 + lv * 4, weapons: ["beads"], req: { fireball: 5, thunderstorm: 2 },
+               mg: { b: 70, bl: 28, i: 3, il: .5, r: 110, hits: lv => 2 + Math.floor(lv / 4), sky: true, stun: 10, stunL: 1, col: "#ff5a1f" },
+               desc: lv => `อุกกาบาต ${2 + Math.floor(lv / 4)} ลูก รวม ${70 + lv * 28} + INT×${(3 + lv * 0.5).toFixed(1)} วงกว้าง โอกาสมึนงง` },
+  stormgust: { line: "mage", tier: 2, row: 1, name: "พายุหิมะ", icon: "🌨️", kind: "target", max: 10, cd: 5, range: 200, sp: lv => 40 + lv * 4, weapons: ["beads"], req: { coldbolt: 5, insight: 2 },
+               mg: { b: 80, bl: 28, i: 3, il: .55, r: 125, hits: 3, slow: 4, stun: 15, stunL: 2, stunT: 3, col: "#bfefff" },
+               desc: lv => `พายุหิมะวงกว้าง 3 ระลอก รวม ${80 + lv * 28} + INT×${(3 + lv * 0.55).toFixed(2)} ศัตรูช้าลง + โอกาสแช่แข็ง` },
+  radius:    { line: "mage", tier: 2, row: 3, name: "ขยายรัศมีเวท", icon: "🎯", kind: "passive", max: 5, req: { souldrain: 3 },
+               desc: lv => `วิชาเวทยิงไกลขึ้น +${lv * 10} · คูลดาวน์วิชาเวทลดลง ${lv * 4}%` },
+  mystical:  { line: "mage", tier: 2, row: 4, name: "ขยายพลังเวท", icon: "🔮", kind: "buff", max: 10, cd: 10, sp: lv => 30 + lv * 3, dur: 30, req: { safetywall: 3 },
+               desc: lv => `พลังวิชาเวทแรงขึ้น ${lv * 5}% นาน 30 วิ` },
+  summon:    { line: "mage", tier: 2, row: 5, name: "เรียกภูตธาตุ", icon: "🧚", kind: "buff", max: 10, cd: 20, sp: lv => 40 + lv * 4, dur: 60, weapons: ["beads"], req: { quicken: 3 },
+               desc: lv => `เรียกภูตธาตุ ${1 + Math.floor(lv / 5)} ตน (ไฟ → น้ำแข็ง → สายฟ้า) ลอยตามตัว ยิงศัตรูทุก 1.5 วิ ครั้งละ ${20 + lv * 10} + INT×${(1 + lv * 0.2).toFixed(1)} นาน 60 วิ` },
+  // ===== ขั้นผู้เฒ่า =====
+  comet:     { line: "mage", tier: 3, row: 0, name: "ดาวหางล้างโลก", icon: "☄️", kind: "target", ult: true, rare: 5, max: 5, cd: 10, range: 210, sp: lv => 90 + lv * 10, weapons: ["beads"], req: { meteor: 5, stormgust: 3 },
+               mg: { b: 250, bl: 90, i: 6, il: 1.2, r: 160, splash: .8, sky: true, stun: 30, stunL: 5, col: "#ff9a3d" },
+               desc: lv => `ดาวหางตกใส่ ${250 + lv * 90} + INT×${(6 + lv * 1.2).toFixed(1)} วงกว้างมาก รอบข้าง 80% โอกาสมึนงง` },
+  magiccrit: { line: "mage", tier: 3, row: 3, name: "เวทวิกฤต", icon: "💥", kind: "passive", max: 5, req: { radius: 3 },
+               desc: lv => `วิชาเวทมีโอกาส ${lv * 4}% ติดคริติคอล แรง ×2` },
+  mastery:   { line: "mage", tier: 3, row: 4, name: "มหาเวทแก่กล้า", icon: "📜", kind: "passive", max: 5, req: { mystical: 5 },
+               desc: lv => `พลังวิชาเวททุกชนิด (รวมภูตธาตุ) แรงขึ้น ${lv * 4}% · ร่ายคาถาเร็วขึ้น ${lv * 8}%` },
+  // ---------------- 🏹 ธนู (ต้องถือธนู) · โจมตี 8 · บัพ 6 · ติดตัว 6 ----------------
+  // ===== ขั้นเด็ก =====
+  double:    { line: "archer", tier: 0, row: 0, name: "ยิงคู่", icon: "🏹", kind: "target", max: 10, cd: 0.9, sp: lv => 8 + lv, weapons: ["bow"],
+               ph: { m: 1.8, ml: .2, hits: 2, col: "#ffe38a" }, desc: lv => `ยิง 2 ดอกติด รวม ${180 + lv * 20}%` },
+  owleye:    { line: "archer", tier: 0, row: 1, name: "ตาเหยี่ยว", icon: "🦉", kind: "passive", max: 10,
                desc: lv => `DEX +${lv}` },
-  double:    { line: "archer", tier: 0, row: 1, name: "ยิงคู่", icon: "🏹", kind: "target", max: 10, cd: 0.9, sp: lv => 8 + lv, weapons: ["bow"],
-               desc: lv => `ยิง 2 ดอกติด ดอกละ ${90 + lv * 10}%` },
-  vulture:   { line: "archer", tier: 1, row: 0, name: "ตาอินทรี", icon: "🦅", kind: "passive", max: 5, req: { owleye: 3 },
-               desc: lv => `ธนูยิงไกลขึ้น +${lv * 12} · แม่นยำ +${lv * 2}` },
-  charge:    { line: "archer", tier: 1, row: 1, name: "ศรสะท้าน", icon: "💨", kind: "target", max: 5, cd: 2, sp: lv => 12, weapons: ["bow"], req: { double: 3 },
-               desc: lv => `ยิงแรง ${150 + lv * 20}% ผลักศัตรูกระเด็นไกล` },
-  concentrate:{ line: "archer", tier: 1, row: 2, name: "สมาธิพราน", icon: "🎯", kind: "buff", max: 5, cd: 1, sp: lv => 18, dur: 40, req: { owleye: 1 },
-               desc: lv => `DEX และ AGI +${2 + lv} นาน 40 วิ` },
-  rain:      { line: "archer", tier: 2, row: 1, name: "ศรพันดอก", icon: "🌧️", kind: "target", max: 5, cd: 3, sp: lv => 15 + lv * 3, weapons: ["bow"], req: { double: 5 },
-               desc: lv => `ห่าธนู ${100 + lv * 20}% ใส่ศัตรูทุกตัวรอบเป้าหมาย` },
-  sharp:     { line: "archer", tier: 3, row: 0, name: "ศรมรณะ", icon: "🏹", kind: "target", ult: true, rare: 5, max: 5, cd: 3, sp: lv => 25 + lv * 4, weapons: ["bow"], req: { rain: 3, vulture: 5 },
-               desc: lv => `ศรทะลุแนว ${200 + lv * 50}% โดนทุกตัวที่ขวางทาง คริติคอลง่าย` },
-  // ---------------- 🪷 พระ (ใช้ได้ทุกอาวุธ) ----------------
-  heal:      { line: "priest", tier: 0, row: 0, name: "คาถาฟื้นกาย", icon: "🪷", kind: "self", max: 10, cd: 1, sp: lv => 8 + lv * 2,
+  concentrate:{ line: "archer", tier: 0, row: 2, name: "สมาธิพราน", icon: "🎯", kind: "buff", max: 10, cd: 1, sp: lv => 14 + lv, dur: 60,
+               desc: lv => `DEX และ AGI +${2 + lv} นาน 60 วิ` },
+  beastbane: { line: "archer", tier: 0, row: 3, name: "นักล่าสัตว์ร้าย", icon: "🐺", kind: "passive", max: 10,
+               desc: lv => `ATK +${lv * 4} เมื่อถือธนู` },
+  windwalk:  { line: "archer", tier: 0, row: 4, name: "เดินตามสายลม", icon: "🍃", kind: "buff", max: 10, cd: 3, sp: lv => 20 + lv * 2, dur: 90,
+               desc: lv => `วิ่งเร็วขึ้น ${lv * 4}% · หลบหลีก +${lv * 2} นาน 90 วิ` },
+  // ===== ขั้นหนุ่มสาว =====
+  charge:    { line: "archer", tier: 1, row: 0, name: "ศรสะท้าน", icon: "💨", kind: "target", max: 10, cd: 2, sp: lv => 10 + lv, weapons: ["bow"], req: { double: 3 },
+               ph: { m: 1.5, ml: .2, knock: 90, col: "#bfe6ff" }, desc: lv => `ยิงแรง ${150 + lv * 20}% ผลักศัตรูกระเด็นไกล` },
+  rain:      { line: "archer", tier: 1, row: 1, name: "ศรพันดอก", icon: "🌧️", kind: "target", max: 10, cd: 2.5, sp: lv => 14 + lv * 2, weapons: ["bow"], req: { double: 5 },
+               ph: { m: 1.2, ml: .25, r: 85, hits: 2, col: "#ffe38a" }, desc: lv => `ห่าธนู 2 ระลอก รวม ${120 + lv * 25}% ใส่ศัตรูทุกตัวรอบเป้า` },
+  vulture:   { line: "archer", tier: 1, row: 2, name: "ตาอินทรี", icon: "🦅", kind: "passive", max: 10, req: { owleye: 3 },
+               desc: lv => `ธนูยิงไกลขึ้น +${lv * 8} · แม่นยำ +${lv * 2}` },
+  blitz:     { line: "archer", tier: 1, row: 3, name: "เหยี่ยวจู่โจม", icon: "🦅", kind: "target", max: 10, cd: 2, range: 200, sp: lv => 12 + lv * 2, weapons: ["bow"], req: { beastbane: 3 },
+               ph: { m: 1.5, ml: .3, r: 50, hits: 3, hit: 30, amp: ["steelcrow", .1], col: "#c9a26b" }, desc: lv => `สั่งเหยี่ยวโฉบ 3 ครั้ง รวม ${150 + lv * 30}% ใส่ศัตรูรอบเป้า` },
+  truesight: { line: "archer", tier: 1, row: 4, name: "เนตรทิพย์", icon: "👁️", kind: "buff", max: 10, cd: 5, sp: lv => 20 + lv * 2, dur: 60, req: { concentrate: 3 },
+               desc: lv => `ATK +${lv * 2}% · คริติคอล +${lv * 2}% · แม่นยำ +${lv * 3} นาน 60 วิ` },
+  // ===== ขั้นผู้ใหญ่ =====
+  aimedbolt: { line: "archer", tier: 2, row: 0, name: "ศรเล็งมรณะ", icon: "🎯", kind: "target", max: 10, cd: 3, sp: lv => 22 + lv * 3, weapons: ["bow"], req: { charge: 3 },
+               ph: { m: 3, ml: .6, hits: lv => 2 + Math.floor(lv / 3), hit: 20, col: "#5cd6ff" }, desc: lv => `เล็งจุดตายแล้วยิง ${2 + Math.floor(lv / 3)} ดอก รวม ${300 + lv * 60}%` },
+  claymore:  { line: "archer", tier: 2, row: 1, name: "กับระเบิดเพลิง", icon: "💣", kind: "target", max: 10, cd: 3, range: 200, sp: lv => 20 + lv * 3, weapons: ["bow"], req: { rain: 3 },
+               ph: { m: 2.5, ml: .5, r: 90, amp: ["trapresearch", .1], col: "#ff6a1f" }, desc: lv => `วางกับระเบิดที่เป้า ระเบิดวงกว้าง ${250 + lv * 50}%` },
+  autoblitz: { line: "archer", tier: 2, row: 2, name: "เหยี่ยวคู่ใจ", icon: "🪶", kind: "passive", max: 10, req: { vulture: 3, blitz: 1 },
+               desc: lv => `ยิงธนูมีโอกาส ${lv * 3}% ให้เหยี่ยวโฉบช่วยตีเอง` },
+  steelcrow: { line: "archer", tier: 2, row: 3, name: "กรงเล็บเหล็ก", icon: "🦾", kind: "passive", max: 10, req: { blitz: 3 },
+               desc: lv => `เหยี่ยวแรงขึ้น ${lv * 10}%` },
+  fearbreeze:{ line: "archer", tier: 2, row: 4, name: "ลมหวีดหวิว", icon: "🌬️", kind: "buff", max: 5, cd: 10, sp: lv => 30 + lv * 4, dur: 60, req: { windwalk: 3 },
+               desc: lv => `ยิงเร็วขึ้น ${lv * 5}% นาน 60 วิ` },
+  trapresearch:{ line: "archer", tier: 2, row: 5, name: "ช่างกับดัก", icon: "🔧", kind: "passive", max: 5, req: { rain: 5 },
+               desc: lv => `กับระเบิดแรงขึ้น ${lv * 10}% · SP สูงสุด +${lv * 2}%` },
+  // ===== ขั้นผู้เฒ่า =====
+  sharp:     { line: "archer", tier: 3, row: 0, name: "ศรมรณะ", icon: "🏹", kind: "target", ult: true, rare: 5, max: 5, cd: 4, sp: lv => 30 + lv * 5, weapons: ["bow"], req: { aimedbolt: 3, vulture: 5 },
+               ph: { m: 3, ml: .8, line: 220, crit: 30, col: "#ffe38a" }, desc: lv => `ศรทะลุแนว ${300 + lv * 80}% โดนทุกตัวที่ขวางทาง คริติคอลง่าย` },
+  arrowstorm:{ line: "archer", tier: 3, row: 1, name: "พายุพันศร", icon: "🌪️", kind: "target", ult: true, rare: 5, max: 5, cd: 6, range: 200, sp: lv => 45 + lv * 6, weapons: ["bow"], req: { claymore: 3 },
+               ph: { m: 3.5, ml: 1, r: 130, hits: 3, col: "#ffe38a" }, desc: lv => `พายุลูกศร 3 ระลอก รวม ${350 + lv * 100}% วงกว้างมาก` },
+  unlimit:   { line: "archer", tier: 3, row: 3, name: "ปลดขีดจำกัด", icon: "🔥", kind: "buff", max: 5, cd: 60, sp: lv => 50 + lv * 5, dur: 30, req: { truesight: 5 },
+               desc: lv => `ATK +${lv * 10}% แต่ DEF ลดครึ่ง นาน 30 วิ` },
+  falconeye: { line: "archer", tier: 3, row: 4, name: "ตาเหยี่ยวทอง", icon: "🌟", kind: "buff", max: 5, cd: 20, sp: lv => 40 + lv * 4, dur: 60, req: { fearbreeze: 3 },
+               desc: lv => `DEX +${lv * 2} · LUK +${lv} นาน 60 วิ` },
+  // ---------------- 🪷 พระ (ใช้ได้ทุกอาวุธ) · โจมตี 8 · ซัพพอร์ต/บัพ 6 · ติดตัว 6 ----------------
+  // ===== ขั้นเด็ก =====
+  holylight: { line: "priest", tier: 0, row: 0, name: "ดวงแก้วศักดิ์สิทธิ์", icon: "🔆", kind: "target", max: 10, cd: 1.2, range: 180, sp: lv => 10 + lv,
+               mg: { b: 30, bl: 15, i: 2, il: .3, ghost: true, col: "#fff2a8" }, desc: lv => `ยิงแสงศักดิ์สิทธิ์ ${30 + lv * 15} + INT×${(2 + lv * 0.3).toFixed(1)} · แรง ×2 ใส่ผี` },
+  heal:      { line: "priest", tier: 0, row: 1, name: "คาถาฟื้นกาย", icon: "🪷", kind: "self", max: 10, cd: 1, sp: lv => 8 + lv * 2,
                desc: lv => `ฟื้นฟู HP ${20 + lv * 15} + INT×${(2 + lv * 0.5).toFixed(1)}` },
-  blessing:  { line: "priest", tier: 0, row: 1, name: "พรประทาน", icon: "✨", kind: "buff", max: 5, cd: 1, sp: lv => 20, dur: 60,
+  blessing:  { line: "priest", tier: 0, row: 2, name: "พรประทาน", icon: "✨", kind: "buff", max: 10, cd: 1, sp: lv => 16 + lv, dur: 60,
                desc: lv => `STR / INT / DEX +${lv} นาน 60 วิ` },
-  holylight: { line: "priest", tier: 0, row: 2, name: "ดวงแก้วศักดิ์สิทธิ์", icon: "🔆", kind: "target", max: 5, cd: 1.2, range: 180, sp: lv => 12 + lv,
-               desc: lv => `ยิงแสงศักดิ์สิทธิ์ ${30 + lv * 15} + INT×${(2 + lv * 0.3).toFixed(1)} · แรง ×2 ใส่ผี` },
-  agiup:     { line: "priest", tier: 1, row: 0, name: "เร่งฝีเท้า", icon: "👟", kind: "buff", max: 5, cd: 1, sp: lv => 18, dur: 60, req: { heal: 3 },
-               desc: lv => `AGI +${2 + lv} · วิ่งเร็วขึ้น ${5 + lv * 3}% นาน 60 วิ` },
-  guard:     { line: "priest", tier: 1, row: 1, name: "คงกระพันชาตรี", icon: "🛡️", kind: "buff", max: 5, cd: 1, sp: lv => 22 + lv * 2, dur: 60, req: { blessing: 3 },
-               desc: lv => `โล่รับดาเมจแทน ${10 + lv * 3}% ของ HP สูงสุด นาน 60 วิ` },
-  regen:     { line: "priest", tier: 2, row: 0, name: "น้ำมนต์ต่อเนื่อง", icon: "💧", kind: "buff", max: 5, cd: 1, sp: lv => 20 + lv * 2, dur: 20, req: { heal: 5 },
-               desc: lv => `ฟื้น HP ${5 + lv * 3} + INT×0.3 ทุกวินาที นาน 20 วิ` },
-  magnus:    { line: "priest", tier: 3, row: 1, name: "แสงพระธรรม", icon: "☀️", kind: "self", ult: true, rare: 5, max: 5, cd: 6, sp: lv => 45 + lv * 5, req: { holylight: 3, regen: 3 },
-               desc: lv => `แสงศักดิ์สิทธิ์รอบตัว ${60 + lv * 25} + INT×${(2.5 + lv * 0.5).toFixed(1)} · แรง ×2 ใส่ผี` },
-  // ---------------- 🗡️ โจร ----------------
-  dodge:     { line: "thief", tier: 0, row: 0, name: "หลบหลีกขั้นสูง", icon: "🌪️", kind: "passive", max: 10,
-               desc: lv => `หลบหลีก (FLEE) +${lv * 3}` },
-  doubleatk: { line: "thief", tier: 0, row: 1, name: "ตีคู่", icon: "✌️", kind: "passive", max: 10,
-               desc: lv => `ถือมีด: โอกาส ${lv * 5}% ตีซ้ำอีกครั้ง` },
-  steal:     { line: "thief", tier: 0, row: 2, name: "ขโมย", icon: "🫳", kind: "target", max: 5, cd: 1, sp: lv => 10,
+  divineprot:{ line: "priest", tier: 0, row: 3, name: "พรคุ้มกาย", icon: "🙏", kind: "passive", max: 10,
+               desc: lv => `DEF +${lv * 3}` },
+  ironfist:  { line: "priest", tier: 0, row: 4, name: "หมัดเหล็ก", icon: "👊", kind: "passive", max: 10,
+               desc: lv => `ATK +${lv * 3}` },
+  // ===== ขั้นหนุ่มสาว =====
+  fingeroff: { line: "priest", tier: 1, row: 0, name: "ดีดลูกแก้วสะกด", icon: "🟡", kind: "target", max: 10, cd: 1.5, range: 170, sp: lv => 10 + lv * 2, req: { ironfist: 3 },
+               ph: { m: 1.6, ml: .3, hits: lv => 1 + Math.ceil(lv / 4), hit: 20, col: "#ffd23f" }, desc: lv => `ดีดลูกแก้วสะกด ${1 + Math.ceil(lv / 4)} ลูกใส่เป้า รวม ${160 + lv * 30}% (ระยะ 170)` },
+  investigate:{ line: "priest", tier: 1, row: 1, name: "ฝ่ามือทะลวงเกราะ", icon: "🖐️", kind: "target", max: 10, cd: 1.5, sp: lv => 12 + lv * 2, req: { ironfist: 5 },
+               ph: { m: 1.8, ml: .35, hit: 30, col: "#fff2a8" }, desc: lv => `ฝ่ามือกระแทกทะลุเกราะ ${180 + lv * 35}% แม่นยำ +30` },
+  agiup:     { line: "priest", tier: 1, row: 2, name: "เร่งฝีเท้า", icon: "👟", kind: "buff", max: 10, cd: 1, sp: lv => 15 + lv, dur: 60, req: { heal: 3 },
+               desc: lv => `AGI +${2 + lv} · วิ่งเร็วขึ้น ${5 + lv * 2}% นาน 60 วิ` },
+  guard:     { line: "priest", tier: 1, row: 3, name: "คงกระพันชาตรี", icon: "🛡️", kind: "buff", max: 10, cd: 1, sp: lv => 20 + lv * 2, dur: 60, req: { blessing: 3 },
+               desc: lv => `โล่รับดาเมจแทน ${10 + lv * 2}% ของ HP สูงสุด นาน 60 วิ` },
+  meditatio: { line: "priest", tier: 1, row: 4, name: "สมาธิภาวนา", icon: "🧘", kind: "passive", max: 10, req: { heal: 5 },
+               desc: lv => `คาถาฟื้นกายแรงขึ้น ${lv * 10}% · ฟื้น SP เร็วขึ้น ${lv * 10}%` },
+  triple:    { line: "priest", tier: 1, row: 5, name: "หมัดสามจังหวะ", icon: "✊", kind: "passive", max: 10, req: { ironfist: 3 },
+               desc: lv => `ตีธรรมดามีโอกาส ${lv * 3}% ต่อหมัดอีก 2 จังหวะ` },
+  // ===== ขั้นผู้ใหญ่ =====
+  chaincombo:{ line: "priest", tier: 2, row: 0, name: "หมัดพายุต่อเนื่อง", icon: "💥", kind: "target", max: 10, cd: 2, sp: lv => 16 + lv * 2, req: { triple: 3 },
+               ph: { m: 2.6, ml: .5, hits: 4, hit: 15, col: "#ffb347" }, desc: lv => `รัวหมัด 4 จังหวะ รวม ${260 + lv * 50}%` },
+  knucklearrow:{ line: "priest", tier: 2, row: 1, name: "หมัดศรพุ่ง", icon: "🏹", kind: "target", max: 10, cd: 2.5, range: 170, sp: lv => 20 + lv * 2, req: { fingeroff: 3 },
+               ph: { m: 2.4, ml: .45, knock: 70, col: "#ff8a3d" }, desc: lv => `พุ่งหมัดพลังจิตไปไกล ${240 + lv * 45}% ผลักศัตรูกระเด็น (ระยะ 170)` },
+  steelbody: { line: "priest", tier: 2, row: 3, name: "กายเหล็กไหล", icon: "🗿", kind: "buff", max: 5, cd: 30, sp: lv => 40 + lv * 5, dur: 30, req: { guard: 3 },
+               desc: lv => `ลดดาเมจที่ได้รับ ${lv * 8}% แต่วิ่งช้าลง 25% นาน 30 วิ` },
+  monkflee:  { line: "priest", tier: 2, row: 4, name: "ร่างเบาหลิว", icon: "🍂", kind: "passive", max: 10, req: { agiup: 3 },
+               desc: lv => `หลบหลีก +${lv * 3}` },
+  gentletouch:{ line: "priest", tier: 2, row: 5, name: "สัมผัสชีพจร", icon: "💗", kind: "passive", max: 10, req: { meditatio: 3 },
+               desc: lv => `HP สูงสุด +${lv * 3}%` },
+  // ===== ขั้นผู้เฒ่า =====
+  tigercannon:{ line: "priest", tier: 3, row: 0, name: "หมัดเสือสมิง", icon: "🐯", kind: "target", max: 5, cd: 4, sp: lv => 40 + lv * 5, req: { chaincombo: 5 },
+               ph: { m: 2.5, ml: .6, r: 80, stun: 15, stunL: 3, col: "#ffb347" }, desc: lv => `ทุบพลังพยัคฆ์ลงพื้น ${250 + lv * 60}% วงรอบเป้า โอกาสมึนงง` },
+  asura:     { line: "priest", tier: 3, row: 1, name: "หมัดพระอินทร์", icon: "👹", kind: "target", ult: true, rare: 5, max: 5, cd: 12, sp: lv => 80 + lv * 10, req: { investigate: 5, fingeroff: 5 },
+               ph: { m: 4, ml: 1.4, hit: 50, col: "#5cd6ff" }, desc: lv => `รวมพลังจิตทั้งหมดซัดหมัดเดียว ${400 + lv * 140}% แม่นยำ +50` },
+  rampage:   { line: "priest", tier: 3, row: 2, name: "ระเบิดพลังกสิณ", icon: "🌟", kind: "self", ult: true, rare: 5, max: 5, cd: 6, sp: lv => 45 + lv * 6, req: { knucklearrow: 3 }, radius: 110,
+               ph: { m: 3, ml: .8, self: 110, hits: 2, knock: 40, col: "#ffd23f" }, desc: lv => `ปลดพลังจักราระเบิดรอบตัว 2 ระลอก รวม ${300 + lv * 80}%` },
+  fury:      { line: "priest", tier: 3, row: 3, name: "จิตเดือดพล่าน", icon: "😡", kind: "buff", max: 5, cd: 20, sp: lv => 30 + lv * 4, dur: 60, req: { steelbody: 3 },
+               desc: lv => `คริติคอล +${lv * 5}% นาน 60 วิ` },
+  // ---------------- 🗡️ โจร · โจมตี 8 · ซัพพอร์ต/บัพ 6 · ติดตัว 6 ----------------
+  // ===== ขั้นเด็ก =====
+  envenom:   { line: "thief", tier: 0, row: 0, name: "อาบยาพิษ", icon: "☠️", kind: "target", max: 10, cd: 1, sp: lv => 8 + lv,
+               ph: { m: 1.1, ml: .1, hit: 10, poison: .1, col: "#8be04f" }, desc: lv => `โจมตี ${110 + lv * 10}% + พิษ ${10 + lv * 4}% ของ ATK ทุกวินาที นาน 6 วิ` },
+  steal:     { line: "thief", tier: 0, row: 1, name: "ขโมย", icon: "🫳", kind: "target", max: 10, cd: 1, sp: lv => 10,
                desc: lv => `โอกาส ${20 + lv * 10}% ขโมยของจากศัตรู (ตัวละ 1 ครั้ง)` },
-  envenom:   { line: "thief", tier: 0, row: 3, name: "อาบยาพิษ", icon: "☠️", kind: "target", max: 5, cd: 1, sp: lv => 10 + lv,
-               desc: lv => `โจมตี ${110 + lv * 10}% + พิษ ${10 + lv * 4}% ของ ATK ทุกวินาที นาน 6 วิ` },
-  hide:      { line: "thief", tier: 1, row: 2, name: "ซ่อนตัว", icon: "👤", kind: "buff", max: 5, cd: 3, sp: lv => 10, dur: 5, req: { steal: 2 },
+  dodge:     { line: "thief", tier: 0, row: 2, name: "หลบหลีกขั้นสูง", icon: "🌪️", kind: "passive", max: 10,
+               desc: lv => `หลบหลีก (FLEE) +${lv * 3}` },
+  doubleatk: { line: "thief", tier: 0, row: 3, name: "ตีคู่", icon: "✌️", kind: "passive", max: 10,
+               desc: lv => `ถือมีด: โอกาส ${lv * 5}% ตีซ้ำอีกครั้ง` },
+  hide:      { line: "thief", tier: 0, row: 4, name: "ซ่อนตัว", icon: "👤", kind: "buff", max: 10, cd: 3, sp: lv => 10, dur: 5,
                desc: lv => `หายตัว ${5 + lv * 2} วิ ศัตรูเลิกไล่ (โจมตีแล้วจะปรากฏตัว)` },
-  stab:      { line: "thief", tier: 1, row: 1, name: "แทงจุดตาย", icon: "🗡️", kind: "target", max: 5, cd: 1.2, sp: lv => 9 + lv * 2, weapons: ["dagger"], req: { doubleatk: 3 },
-               desc: lv => `แทงคริติคอลแน่นอน ${150 + lv * 30}% ทะลุเกราะ` },
-  shadow:    { line: "thief", tier: 2, row: 1, name: "เงามรณะ", icon: "🌑", kind: "target", ult: true, rare: 5, max: 5, cd: 5, sp: lv => 35 + lv * 5, weapons: ["dagger"], req: { stab: 3, hide: 3 },
-               desc: lv => `วาร์ปไปหลังศัตรู แทง 3 ครั้ง ครั้งละ ${100 + lv * 30}% คริติคอลแน่นอน` },
-  // ---------------- 💰 พ่อค้า (ใช้ได้ทุกอาวุธ) ----------------
-  discount:  { line: "merchant", tier: 0, row: 0, name: "ต่อรองราคา", icon: "🏷️", kind: "passive", max: 10,
+  // ===== ขั้นหนุ่มสาว =====
+  stab:      { line: "thief", tier: 1, row: 0, name: "มีดหมอรัวสังหาร", icon: "🗡️", kind: "target", max: 10, cd: 2, sp: lv => 14 + lv * 2, weapons: ["dagger"], req: { doubleatk: 3 },
+               ph: { m: 3, ml: .6, hits: 8, hit: 20, col: "#e0b3ff" }, desc: lv => `ฟันรัว 8 ครั้งเร็วดั่งลม รวม ${300 + lv * 60}%` },
+  grimtooth: { line: "thief", tier: 1, row: 1, name: "เขี้ยวเงา", icon: "🦷", kind: "target", max: 10, cd: 1.5, range: 150, sp: lv => 10 + lv * 2, weapons: ["dagger"], req: { envenom: 3 },
+               ph: { m: 1.6, ml: .3, r: 60, col: "#6b5a8a" }, desc: lv => `เงาแหลมแทงขึ้นจากพื้น ${160 + lv * 30}% รอบเป้า (ระยะ 150)` },
+  katarmast: { line: "thief", tier: 1, row: 2, name: "เชี่ยวชาญมีด", icon: "🔪", kind: "passive", max: 10, req: { doubleatk: 3 },
+               desc: lv => `ATK +${lv * 3} เมื่อถือมีด` },
+  enchantpoison:{ line: "thief", tier: 1, row: 3, name: "อาบพิษศาสตรา", icon: "🧪", kind: "buff", max: 10, cd: 5, sp: lv => 18 + lv, dur: 60, req: { envenom: 3 },
+               desc: lv => `ตีธรรมดามีโอกาส ${10 + lv * 3}% ทำให้ศัตรูติดพิษ นาน 60 วิ` },
+  cloaking:  { line: "thief", tier: 1, row: 4, name: "พรางกาย", icon: "🌫️", kind: "buff", max: 10, cd: 5, sp: lv => 15 + lv, dur: 60, req: { hide: 3 },
+               desc: lv => `วิ่งเร็วขึ้น ${lv * 4}% · หลบหลีก +${lv * 3} นาน 60 วิ` },
+  // ===== ขั้นผู้ใหญ่ =====
+  soulbreaker:{ line: "thief", tier: 2, row: 0, name: "ทำลายขวัญ", icon: "💀", kind: "target", max: 10, cd: 2.5, range: 160, sp: lv => 20 + lv * 3, req: { stab: 3 },
+               ph: { m: 2.6, ml: .5, hit: 25, col: "#b05cff" }, desc: lv => `คลื่นพลังวิญญาณพุ่งไกล ${260 + lv * 50}% (ระยะ 160)` },
+  meteorassault:{ line: "thief", tier: 2, row: 1, name: "ผีพุ่งไต้", icon: "☄️", kind: "self", max: 10, cd: 3, sp: lv => 22 + lv * 3, req: { grimtooth: 3 }, radius: 100,
+               ph: { m: 2.4, ml: .5, self: 100, stun: 10, stunL: 2, col: "#ff4a6a" }, desc: lv => `กระแทกพลังมืดรอบตัว ${240 + lv * 50}% โอกาสมึนงง` },
+  righthand: { line: "thief", tier: 2, row: 2, name: "มือสังหาร", icon: "🩸", kind: "passive", max: 10, req: { katarmast: 3 },
+               desc: lv => `แรงคริติคอล +${lv * 4}%` },
+  poisonresearch:{ line: "thief", tier: 2, row: 3, name: "ปรุงยาพิษ", icon: "⚗️", kind: "passive", max: 10, req: { enchantpoison: 3 },
+               desc: lv => `ดาเมจพิษแรงขึ้น ${lv * 10}%` },
+  shadowcrit:{ line: "thief", tier: 2, row: 4, name: "ลมปราณเงา", icon: "🌑", kind: "passive", max: 10, req: { dodge: 5 },
+               desc: lv => `คริติคอล +${lv}%` },
+  edp:       { line: "thief", tier: 2, row: 5, name: "พิษมรณะ", icon: "💜", kind: "buff", max: 5, cd: 30, sp: lv => 40 + lv * 5, dur: 40, req: { enchantpoison: 5 },
+               desc: lv => `ATK +${lv * 8}% นาน 40 วิ` },
+  // ===== ขั้นผู้เฒ่า =====
+  crossimpact:{ line: "thief", tier: 3, row: 0, name: "กรีดยมทูต", icon: "❌", kind: "target", ult: true, rare: 5, max: 5, cd: 6, sp: lv => 45 + lv * 6, weapons: ["dagger"], req: { soulbreaker: 3 },
+               ph: { m: 5, ml: 1.2, hits: 7, hit: 30, col: "#ff4a6a" }, desc: lv => `ฟันกากบาท 7 ครั้ง รวม ${500 + lv * 120}%` },
+  shadow:    { line: "thief", tier: 3, row: 1, name: "เงามรณะ", icon: "🌑", kind: "target", ult: true, rare: 5, max: 5, cd: 5, sp: lv => 35 + lv * 5, weapons: ["dagger"], req: { stab: 5, cloaking: 3 },
+               ph: { m: 3, ml: .9, hits: 3, warp: true, crit: 100, col: "#b45cff" }, desc: lv => `วาร์ปไปหลังศัตรู แทง 3 ครั้ง รวม ${300 + lv * 90}% คริติคอลแน่นอน` },
+  rollingcutter:{ line: "thief", tier: 3, row: 2, name: "ใบมีดหมุนพิฆาต", icon: "🌀", kind: "self", max: 5, cd: 2.5, sp: lv => 30 + lv * 4, weapons: ["dagger"], req: { meteorassault: 3 }, radius: 85,
+               ph: { m: 2.4, ml: .6, self: 85, hits: 3, col: "#c9c2b8" }, desc: lv => `หมุนใบมีดรอบตัว 3 รอบ รวม ${240 + lv * 60}%` },
+  hallucination:{ line: "thief", tier: 3, row: 4, name: "บังไพร", icon: "👻", kind: "buff", max: 5, cd: 60, sp: lv => 50 + lv * 5, dur: 30, req: { cloaking: 5 },
+               desc: lv => `หลบหลีก +${lv * 10} นาน 30 วิ` },
+  // ---------------- 💰 พ่อค้า (ใช้ได้ทุกอาวุธ) · โจมตี 8 · บัพ 6 · ติดตัว 6 ----------------
+  // ===== ขั้นเด็ก =====
+  mammonite: { line: "merchant", tier: 0, row: 0, name: "ตาเงินตาทอง", icon: "🪙", kind: "target", max: 10, cd: 0.8, sp: lv => 5,
+               ph: { m: 1.5, ml: .5, zeny: lv => lv * 30, col: "#ffd23f" }, desc: lv => `จ่าย ${lv * 30} เบี้ย โจมตีแรง ${150 + lv * 50}%` },
+  cartattack:{ line: "merchant", tier: 0, row: 1, name: "ไม้คานฟาดพุ่ง", icon: "🧺", kind: "target", max: 10, cd: 1.2, sp: lv => 8 + lv,
+               ph: { m: 1.5, ml: .3, knock: 40, col: "#c9a26b" }, desc: lv => `พุ่งเหวี่ยงไม้คานหาบฟาด ${150 + lv * 30}% ผลักศัตรูกระเด็น` },
+  discount:  { line: "merchant", tier: 0, row: 2, name: "ต่อรองราคา", icon: "🏷️", kind: "passive", max: 10,
                desc: lv => `ซื้อของจาก NPC ถูกลง ${lv * 2}%` },
-  overcharge:{ line: "merchant", tier: 0, row: 1, name: "ปากหวาน", icon: "🗣️", kind: "passive", max: 10,
+  overcharge:{ line: "merchant", tier: 0, row: 3, name: "ปากหวาน", icon: "🗣️", kind: "passive", max: 10,
                desc: lv => `ขายของให้ NPC แพงขึ้น ${lv * 2}%` },
-  mammonite: { line: "merchant", tier: 0, row: 2, name: "ตาเงินตาทอง", icon: "🪙", kind: "target", max: 10, cd: 0.8, sp: lv => 5,
-               desc: lv => `จ่าย ${lv * 30} เบี้ย โจมตีแรง ${150 + lv * 50}%` },
-  craft:     { line: "merchant", tier: 0, row: 3, name: "ช่างฝีมือ", icon: "🔨", kind: "passive", max: 5,
+  loudex:    { line: "merchant", tier: 0, row: 4, name: "ตะโกนปลุกใจ", icon: "📢", kind: "buff", max: 10, cd: 3, sp: lv => 8 + lv, dur: 120,
+               desc: lv => `STR +${lv} · ATK +${lv * 2} นาน 120 วิ` },
+  // ===== ขั้นหนุ่มสาว =====
+  cartrevo:  { line: "merchant", tier: 1, row: 0, name: "ไม้คานหมุนกวาด", icon: "🌀", kind: "target", max: 10, cd: 1.8, sp: lv => 12 + lv * 2, req: { cartattack: 3 },
+               ph: { m: 1.5, ml: .3, r: 75, knock: 35, col: "#c9a26b" }, desc: lv => `หมุนไม้คานหาบกวาด ${150 + lv * 30}% ศัตรูทุกตัวรอบเป้า` },
+  hammerfall:{ line: "merchant", tier: 1, row: 1, name: "ค้อนทุบธรณี", icon: "🔨", kind: "target", max: 10, cd: 2.5, sp: lv => 14 + lv * 2, req: { mammonite: 3 },
+               ph: { m: 1.4, ml: .2, r: 70, stun: 20, stunL: 5, col: "#ffb347" }, desc: lv => `ทุบพื้น ${140 + lv * 20}% รอบเป้า โอกาส ${20 + lv * 5}% มึนงง` },
+  craft:     { line: "merchant", tier: 1, row: 2, name: "ช่างฝีมือ", icon: "🔧", kind: "passive", max: 10, req: { discount: 1 },
                desc: lv => `ตีบวกติดง่ายขึ้น +${lv * 2}% (ขั้นที่เสี่ยงแตก)` },
-  luckydrop: { line: "merchant", tier: 1, row: 0, name: "โชคลาภ", icon: "🍀", kind: "passive", max: 5, req: { discount: 3 },
+  luckydrop: { line: "merchant", tier: 1, row: 3, name: "โชคลาภ", icon: "🍀", kind: "passive", max: 10, req: { discount: 3 },
                desc: lv => `โอกาสดรอปของเพิ่มขึ้น ${lv * 5}%` },
-  greed:     { line: "merchant", tier: 1, row: 1, name: "เก็บเบี้ย", icon: "💰", kind: "passive", max: 5, req: { overcharge: 3 },
+  greed:     { line: "merchant", tier: 1, row: 4, name: "เก็บเบี้ย", icon: "💰", kind: "passive", max: 10, req: { overcharge: 3 },
                desc: lv => `ได้เบี้ยจากมอนสเตอร์เพิ่มขึ้น ${lv * 8}%` },
-  tycoon:    { line: "merchant", tier: 2, row: 2, name: "มหาเศรษฐี", icon: "💸", kind: "target", ult: true, rare: 5, max: 5, cd: 5, sp: lv => 30, req: { mammonite: 5, greed: 3 },
-               desc: lv => `โปรยเบี้ย ${lv * 300} เบี้ย ระเบิดใส่ศัตรูรอบเป้าหมาย ${300 + lv * 100}% ทะลุเกราะ` },
+  adrenaline:{ line: "merchant", tier: 1, row: 5, name: "อะดรีนาลีนพลุ่ง", icon: "💓", kind: "buff", max: 10, cd: 5, sp: lv => 18 + lv * 2, dur: 60, req: { loudex: 3 },
+               desc: lv => `ตีเร็วขึ้น ${lv * 4}% นาน 60 วิ` },
+  // ===== ขั้นผู้ใหญ่ =====
+  axetornado:{ line: "merchant", tier: 2, row: 0, name: "ขวานพายุหมุน", icon: "🪓", kind: "self", max: 10, cd: 2.5, sp: lv => 20 + lv * 3, req: { cartrevo: 3 }, radius: 95,
+               ph: { m: 2.2, ml: .45, self: 95, hits: 3, col: "#c9c2b8" }, desc: lv => `หมุนขวานเป็นพายุรอบตัว 3 รอบ รวม ${220 + lv * 45}%` },
+  vulcanarm: { line: "merchant", tier: 2, row: 1, name: "ปืนกลแขนกล", icon: "🔫", kind: "target", max: 10, cd: 1.5, range: 180, sp: lv => 14 + lv * 2, req: { hammerfall: 3 },
+               ph: { m: 2, ml: .4, hits: 6, hit: 15, col: "#ffe45c" }, desc: lv => `รัวกระสุน 6 นัด รวม ${200 + lv * 40}% (ระยะ 180)` },
+  weaponresearch:{ line: "merchant", tier: 2, row: 2, name: "วิจัยอาวุธ", icon: "📐", kind: "passive", max: 10, req: { craft: 3 },
+               desc: lv => `ATK +${lv * 2} · แม่นยำ +${lv * 2}` },
+  overthrust:{ line: "merchant", tier: 2, row: 3, name: "พลังกล้ามเนื้อ", icon: "💪", kind: "buff", max: 10, cd: 5, sp: lv => 18 + lv * 2, dur: 60, req: { adrenaline: 3 },
+               desc: lv => `ATK +${lv * 5}% นาน 60 วิ` },
+  weaponperfect:{ line: "merchant", tier: 2, row: 4, name: "อาวุธไร้ที่ติ", icon: "⚙️", kind: "buff", max: 10, cd: 5, sp: lv => 16 + lv * 2, dur: 60, req: { loudex: 5 },
+               desc: lv => `ATK +${lv * 3} · แม่นยำ +${lv * 4} นาน 60 วิ` },
+  // ===== ขั้นผู้เฒ่า =====
+  armcannon: { line: "merchant", tier: 3, row: 0, name: "ปืนใหญ่ปราบศึก", icon: "💣", kind: "target", ult: true, rare: 5, max: 5, cd: 6, range: 200, sp: lv => 50 + lv * 6, req: { vulcanarm: 3 },
+               ph: { m: 4.5, ml: 1.2, r: 100, knock: 40, col: "#ff6a1f" }, desc: lv => `ยิงปืนใหญ่ระเบิด ${450 + lv * 120}% วงกว้าง ผลักศัตรู (ระยะ 200)` },
+  tycoon:    { line: "merchant", tier: 3, row: 1, name: "มหาเศรษฐี", icon: "💸", kind: "target", ult: true, rare: 5, max: 5, cd: 5, sp: lv => 30, req: { mammonite: 5, greed: 3 },
+               ph: { m: 3, ml: 1, r: 80, hits: 2, hit: 50, zeny: lv => lv * 300, col: "#ffd23f" }, desc: lv => `โปรยเบี้ย ${lv * 300} เบี้ย ระเบิดใส่ศัตรูรอบเป้า ${300 + lv * 100}%` },
+  maximize:  { line: "merchant", tier: 3, row: 3, name: "ทุ่มสุดกำลัง", icon: "🔥", kind: "buff", max: 5, cd: 20, sp: lv => 30 + lv * 4, dur: 60, req: { overthrust: 5 },
+               desc: lv => `คริติคอล +${lv * 2}% · แรงคริติคอล +${lv * 10}% นาน 60 วิ` },
+  mado:      { line: "merchant", tier: 3, row: 4, name: "เกราะกลช่างหลวง", icon: "🤖", kind: "buff", max: 5, cd: 60, sp: lv => 40 + lv * 5, dur: 90, req: { weaponperfect: 3 },
+               desc: lv => `DEF +${lv * 8} · HP สูงสุด +${lv * 4}% นาน 90 วิ` },
 };
 // เกรดของวิชา (ใช้กับกรอบไอคอน/คัมภีร์): ขั้นพื้นฐาน C · ขั้นกลาง B · ขั้นสูง A · ult ตามที่กำหนด
 for (const sk of Object.values(SKILLS)) if (!sk.rare) sk.rare = sk.tier === 0 ? 2 : sk.tier === 1 ? 3 : 4;
-const MAX_JOB = 50;
-const jobNeed = l => Math.floor(15 * Math.pow(l, 1.6)) + 10;   // (ปรับสมดุล: เดิม 12·l^1.55+8)
+const MAX_JOB = 160;
+// Job EXP ต่อเลเวล = EXP ฐานที่ต้องเก็บระหว่างเลเวลฐานที่จ็อบนั้นควรอยู่ (จ็อบเดินตามเลเวลฐาน ไม่ตันก่อน/ช้าเกิน)
+const cumExp = L => 28 * (Math.pow(L, 2.9) - 1) / 2.9 + 15 * (L - 1);              // EXP ฐานสะสมจาก Lv1 → L (ปริพันธ์ของ expNeed)
+const jobBaseLv = J => 1 + 999 * Math.pow(Math.max(0, J - 1) / 159, 1 / 0.861);     // Job J ≈ เลเวลฐานนี้
+const jobNeed = J => Math.max(10, Math.round(cumExp(jobBaseLv(J + 1)) - cumExp(jobBaseLv(J))));
 // ไอคอนวิชา (ภาพฝังในไฟล์ สร้างจาก icons/*.jpg โดยสคริปต์)
 const SKILL_IMG = {};   // (เลิกใช้ภาพวาด ไอคอนวิชาวาดด้วยโค้ดแทน)
 const skillIcon = (id, cls = "") => {   // ไอคอนวาดมือ (PIX_ART) ก่อน ยกเว้นวิชาที่แอดมินอัปโหลดรูปเอง
@@ -558,8 +750,6 @@ for (const [id, sk] of Object.entries(SKILLS)) {
   if (!sk.ult) continue;
   // ยกเลิกระบบคัมภีร์แล้ว: วิชาขั้นสุดท้ายอัปได้เมื่อมีวิชาก่อนหน้าครบ (คัมภีร์เก่าในย่าม → ตำราฝึกวิชา ตอนโหลดตัวละคร)
 }
-ITEM_BASE.book_point = { name: "ตำราฝึกวิชา", icon: "📒", type: "book", rare: 3, price: 1200, desc: "อ่านแล้วได้แต้มวิชา +1" };
-for (const [m, ch] of [["monkey", 0.006], ["cobra", 0.008], ["kraseu", 0.012], ["naga", 0.5]]) MOBS[m].drops.push(["book_point", ch]);
 // คัมภีร์ของระบบเก่า (เรียนวิชาด้วยการอ่าน) ถูกยกเลิก: เอาออกจากดรอป
 for (const mob of Object.values(MOBS)) mob.drops = mob.drops.filter(([id]) => ITEM_BASE[id]);
 // ---------- โจมตีปกติ (ใส่ช่องปุ่มลัดได้เหมือนวิชา) ----------
@@ -573,51 +763,54 @@ const weaponOk = (id, wtype) => !SKILLS[id].weapons || SKILLS[id].weapons.includ
 const weaponText = id => SKILLS[id].weapons ? SKILLS[id].weapons.map(w => WTYPES[w].name).join(" / ") : "ทุกอาวุธ (รวมมือเปล่า)";
 // สายเวท: SP ×1.5 · คูลดาวน์ ×0.7 (คิดตอนใช้ จึงไม่โดนค่าที่แอดมินแก้ทับ)
 const isMageSk = sk => sk && sk.line === "mage" && !sk.custom;
-const skSp = (sk, lv) => sk.sp ? Math.round(sk.sp(lv) * (isMageSk(sk) ? 1.5 : 1)) : 0;
-const skCd = sk => +((sk.cd || 0) * (isMageSk(sk) ? 0.7 : 1)).toFixed(2);
+const skSp = (sk, lv) => sk.sp ? Math.round(sk.sp(lv) * (isMageSk(sk) ? 1.5 : 1) * (typeof setFull === "function" && P.equip && setFull("rishi") ? 0.8 : 1)) : 0;   // เซ็ตฤๅษีเทพครบ: SP -20%
+const skCd = sk => +((sk.cd || 0) * (isMageSk(sk) ? 0.7 * (1 - skillLv("radius") * 0.04) * (1 - buffLv("quicken") * 0.06) : 1)).toFixed(2);   // ขยายรัศมีเวท: คูลดาวน์ -4%/เลเวล
 const skillCost = id => skSp(SKILLS[id], Math.max(1, skillLv(id)));
 const HOTKEYS = ["1", "2", "3", "4", "5", "6"];
 const defaultHotbar = () => [{ type: "skill", id: BASIC_ID }, null,
   { type: "item", id: "red" }, { type: "item", id: "orange" }, { type: "item", id: "blue" }, { type: "item", id: "banana" }];
 // ปลดล็อกวิชาได้ไหม: ต้องมีวิชาก่อนหน้าตามเลเวล + วิชา ult ต้องอ่านคัมภีร์แล้ว
+// ขั้นอายุของวิชาปลดตาม Job Lv: เด็ก = ตั้งแต่เริ่ม · หนุ่มสาว 40 · ผู้ใหญ่ 80 · ผู้เฒ่า 120
+const TIER_JOB = [1, 40, 80, 120];
+const tierOk = sk => sk.basic || sk.custom && sk.tier == null || (P.jobLvl || 1) >= TIER_JOB[Math.min(3, sk.tier || 0)];
 function skillReqOk(id) {
   const sk = SKILLS[id];
-  return Object.entries(sk.req || {}).every(([r, lv]) => skillLv(r) >= lv);
+  return tierOk(sk) && Object.entries(sk.req || {}).every(([r, lv]) => skillLv(r) >= lv);
 }
 const spentPoints = () => Object.values(P.skills || {}).reduce((s, v) => s + v, 0);
 
 const QUESTS = [
-  { title: "ภัยในท้องนา", mob: "pig", need: 6, reward: { exp: 60, zeny: 150, items: { banana: 5, book_point: 1 } },
+  { title: "ภัยในท้องนา", mob: "pig", need: 6, reward: { exp: 60, zeny: 150, items: { banana: 5 } },
     offer: "เจ้าคือนักรบที่เพิ่งมาถึงสินะ ดีเลย!\nหมูป่าลงมากินข้าวในนาของชาวบ้านจนเสียหาย\nไปปราบหมูป่าน้อยที่ทุ่งนาริมกรุงมา 6 ตัว",
     done: "ทำได้ดี! ชาวนาฝากกล้วยน้ำว้ามาขอบใจเจ้า\nส่วนข้าขอมอบตำราฝึกวิชาให้ อ่านแล้วได้แต้มวิชาเพิ่ม\n(กด K เพื่อเปิดหน้าวิชาแล้วเลือกอัปวิชาที่ชอบ)" },
-  { title: "ไก่ชนอาละวาด", mob: "rooster", need: 6, reward: { exp: 150, zeny: 300, items: { red: 5, book_point: 1 } },
+  { title: "ไก่ชนอาละวาด", mob: "rooster", need: 6, reward: { exp: 150, zeny: 300, items: { red: 5 } },
     offer: "ไก่ชนของเศรษฐีหลุดออกไปอาละวาดกลางทุ่ง จิกคนไม่เลือกหน้า\nจัดการไก่ชน 6 ตัวให้ที",
     done: "เศรษฐีโล่งใจแล้ว นี่ยาสมุนไพรเป็นรางวัล\nหลวงพ่อทองยังฝากตำราฝึกวิชามาให้อีกเล่มด้วย" },
-  { title: "ฝูงลิงป่าไผ่", mob: "monkey", need: 8, reward: { exp: 500, zeny: 800, items: { cloth: 1, book_point: 1 } },
+  { title: "ฝูงลิงป่าไผ่", mob: "monkey", need: 8, reward: { exp: 500, zeny: 800, items: { cloth: 1 } },
     offer: "ทางตะวันออกไกลออกไปคือป่าไผ่\nฝูงลิงกังดุร้ายผิดปกติ... ได้ยินว่ามีจ่าฝูงตัวใหญ่คุมพวกมันอยู่\nปราบลิงกัง 8 ตัว ระวังนะ พวกมันจะเข้ามาทำร้ายก่อน!\n(แนะนำ Lv 20 ขึ้นไป)",
     done: "เก่งมาก! หลวงพ่อทองฝากเสื้อยันต์คุ้มกายมาให้เจ้าด้วย\n(กด I เพื่อสวมใส่)" },
-  { title: "เศษดาบชิ้นที่ 1", mob: "m1_monkeyking", need: 1, reward: { exp: 12000, zeny: 5000, items: { swordshard1: 1, book_point: 1 } },
+  { title: "เศษดาบชิ้นที่ 1", mob: "m1_monkeyking", need: 1, reward: { exp: 12000, zeny: 5000, items: { swordshard1: 1 } },
     offer: "หลวงพ่อทองบอกว่าด้ามดาบของเจ้าเรืองแสงเมื่ออยู่ใกล้ \"เศษดาบมนตรา\"\nมีคนเห็นจ่าฝูงลิงกังคาบของแวววาวอยู่ในป่าไผ่เหนือ\nตามล่าจ่าฝูงลิงกังให้ได้! (มันไม่ได้อยู่ที่เดิม ต้องออกตามหา · แนะนำ Lv 30+)",
     done: "นี่มัน... เศษดาบมนตราจริง ๆ! ด้ามดาบของเจ้าสั่นตอบรับ\nยังมีอีกหลายชิ้นกระจายอยู่ทั่วแผ่นดิน จงเก็บรักษาไว้ให้ดี" },
   { title: "งูเห่าเฝ้าทาง", mob: "cobra", need: 8, reward: { exp: 900, zeny: 1200, items: { orange: 5 } },
     offer: "งูเห่าเลื้อยออกมาเต็มป่าไผ่ทั้งทางตะวันออกและทางใต้\nชาวบ้านถูกกัดไปหลายคนแล้ว ปราบงูเห่า 8 ตัว",
     done: "เส้นทางปลอดภัยขึ้นมาก รับยาหอมไปใช้เถิด" },
-  { title: "แสงผีกลางป่า", mob: "kraseu", need: 8, reward: { exp: 2500, zeny: 2500, items: { blue: 3, book_point: 1 } },
+  { title: "แสงผีกลางป่า", mob: "kraseu", need: 8, reward: { exp: 2500, zeny: 2500, items: { blue: 3 } },
     offer: "ข่าวร้าย... ผีกระสือออกหากินในป่าหิมพานต์ทางตะวันออก\nแสงวับวาบกลางป่าคือพวกมัน\nปราบผีกระสือ 8 ตัว แล้วเราจะรู้ว่ามันมาจากไหน\n(แนะนำ Lv 40 ขึ้นไป)",
     done: "เจ้ากล้าหาญยิ่งนัก!\nพวกกระสือบินกลับไปทางบึงต้องห้ามทางตะวันออกเฉียงใต้... ที่นั่นคือรังของพวกมัน" },
-  { title: "ราชินีแห่งรัตติกาล", mob: "m1_kqueen", need: 1, reward: { exp: 60000, zeny: 20000, items: { blue: 5, book_point: 2 } },
+  { title: "ราชินีแห่งรัตติกาล", mob: "m1_kqueen", need: 1, reward: { exp: 60000, zeny: 20000, items: { blue: 5 } },
     offer: "ถึงเวลาแล้ว...\nแม่กระสือราชินีออกหากินที่บึงต้องห้ามทางตะวันออกเฉียงใต้\nนางไม่ได้อยู่ที่เดิม ต้องออกตามหาเอง และนางจะหายไปนานหลังถูกปราบ\nจงปราบนางเพื่อคืนความสงบให้เมืองท่าสุวรรณ!\n(แนะนำ Lv 55 ขึ้นไป รวมกลุ่มไปจะดีกว่า และพกยาไปให้พอ)",
     done: "เจ้าทำได้! ผีกระสือสงบลงแล้ว ชาวบ้านนอนหลับได้เสียที\nแต่ก่อนสิ้นใจ นางกระซิบว่า \"ใต้บึงนั่น... ท่านผู้นั้นกำลังตื่น...\"\nแม่ทองทอผ้าบอกว่าผ้าทอโบราณของนางชี้ทางไป \"ที่ราบลุ่มน้ำ\" ทางตะวันตกเฉียงใต้" },
   { title: "ข้ามแม่น้ำ", mob: "p3_deer", need: 10, reward: { exp: 45000, zeny: 8000, items: { blue: 5 } },
     offer: "ตามผ้าทอของแม่ทองไปที่ราบลุ่มน้ำ (ประตูมิติมุมตะวันตกเฉียงใต้ของทุ่งนา)\nเก้งหมอกที่นั่นดุร้ายผิดธรรมชาติ ปราบเก้งหมอก 10 ตัว แล้วดูว่ามีอะไรผิดปกติ\n(แนะนำ Lv 60+)",
     done: "เก้งพวกนี้ถูกอาคมบางอย่างควบคุม... รอยเท้าทองคำนำไปทางดงลึกตะวันออกเฉียงใต้\nได้ยินว่ามี \"เก้งทองคำเจ้าป่า\" เฝ้าของวิเศษอยู่ที่นั่น" },
-  { title: "เศษดาบชิ้นที่ 2", mob: "p3_golddeer", need: 1, reward: { exp: 120000, zeny: 30000, items: { swordshard2: 1, book_point: 2 } },
+  { title: "เศษดาบชิ้นที่ 2", mob: "p3_golddeer", need: 1, reward: { exp: 120000, zeny: 30000, items: { swordshard2: 1 } },
     offer: "เก้งทองคำเจ้าป่าซ่อนตัวอยู่ที่ดงเก้งทอง ข้ามสะพานไม้ไปทางตะวันออกเฉียงใต้\nมันแข็งแกร่งนัก ชวนสหายไปช่วยกันตี (บอสตัวเดียวทั้งแผ่นดิน · แนะนำ Lv 100+)",
     done: "เศษดาบชิ้นที่ 2! ในเขาของมันมีแหวนลายเกล็ดนาคฝังอยู่\nเฮียกิมช่างทองบอกว่าเคยเห็นลายนี้... ของพ่อค้าแปลกหน้าที่เดินทางไปทาง \"หุบเขาหมอก\"" },
   { title: "หมอกแห่งหุบเขา", mob: "v_kongkoi", need: 10, reward: { exp: 120000, zeny: 20000, items: { blue: 8 } },
     offer: "หุบเขาหมอกอยู่ทางตะวันออกเฉียงเหนือของป่าหิมพานต์\nผีกองกอยเฝ้าทางเข้าอยู่เต็มไปหมด ปราบผีกองกอย 10 ตัวเพื่อเปิดทาง (แนะนำ Lv 115+)",
     done: "ทางเปิดแล้ว... แต่ลึกเข้าไปในลานลับข้างบึง ได้ยินเสียงคำรามของเสือที่ไม่ใช่เสือธรรมดา" },
-  { title: "เศษดาบชิ้นที่ 3", mob: "v_tigerking", need: 1, reward: { exp: 250000, zeny: 60000, items: { swordshard3: 1, book_point: 3 } },
+  { title: "เศษดาบชิ้นที่ 3", mob: "v_tigerking", need: 1, reward: { exp: 250000, zeny: 60000, items: { swordshard3: 1 } },
     offer: "พญาเสือสมิงเฝ้าเศษดาบชิ้นที่ 3 อยู่ในลานลับข้างบึงของหุบเขาหมอก\nมันแปลงกายเป็นคนได้ อย่าหลงกล! (บอสตัวเดียวทั้งแผ่นดิน · แนะนำ Lv 150+)",
     done: "เศษดาบชิ้นที่ 3 อยู่ในมือเจ้าแล้ว!\nก่อนสิ้นใจ พญาสมิงหัวเราะว่า \"คนที่สั่งข้า... สวมผ้าสีม่วงและถือประคำ...\"\nด้วยความดีความชอบนี้ ขอประกาศให้เจ้าเป็น \"ผู้ถือดาบมนตรา\"\n(จบเนื้อเรื่องพาส 1 · รอติดตามตอนต่อไป)" },
 ];
@@ -629,10 +822,13 @@ const expNeed = l => Math.floor(28 * Math.pow(l, 1.9)) + 15;   // (ปรับ�
 //  ทุ่งนา 1–18 · ป่าไผ่ 22–38 · ป่าหิมพานต์ 42–57 · บึงต้องห้าม: บอสใหญ่แม่กระสือราชินี Lv 60
 //  มินิบอส (mini) / บอสใหญ่ (boss) สุ่มจุดเกิดในโซน และเกิดใหม่ตามช่วงเวลาสุ่ม (respawnRange วินาที)
 // =====================================================================
+// จำนวนตัวที่ต้องล่าต่อ 1 เลเวล: ถึง Lv200 = 10 + 0.33·L^1.5 (~3 เดือน ที่ 3 ชม./วัน) · หลัง 200 ลดลงเรื่อย ๆ (มอนแผนที่ใหม่ให้ EXP มากขึ้น) → Lv1000 ≈ 10–11 เดือน
+const killsPerLv = L => L <= 200 ? 10 + 0.33 * Math.pow(L, 1.5) : (10 + 0.33 * Math.pow(200, 1.5)) * Math.pow(200 / L, 0.75);
 const lvStat = L => ({   // ค่าพลังมาตรฐานตามเลเวล (ก่อนคูณ BAL.mobHp / mobAtk ของหลังบ้าน)
-  hp: Math.round(30 + 16 * L + 0.25 * L * L), atk: [Math.round(2 + 1.8 * L), Math.round(4 + 2.3 * L)], def: Math.round(0.5 * L), flee: Math.round(2 + 1.1 * L),
-  exp: Math.max(4, Math.round(expNeed(L) / (10 + 0.33 * Math.pow(L, 1.5)))),   // ล่า ~10 + 0.33·L^1.5 ตัวต่อ 1 เลเวล
-  zeny: [1 + L * 2, 5 + L * 4],
+  hp: Math.round(L <= 200 ? 30 + 16 * L + 0.25 * L * L : 13230 * L / 200),   // หลัง Lv200: HP โตตามเลเวลแบบเส้นตรง (จำนวนครั้งตีต่อตัวคงที่)
+  atk: [Math.round(2 + 1.8 * L), Math.round(4 + 2.3 * L)], def: Math.round(0.5 * L), flee: Math.round(2 + 1.1 * L),
+  exp: Math.max(4, Math.round(expNeed(L) / killsPerLv(L))),
+  zeny: [1 + Math.round(L * .2), 3 + Math.round(L * .4)],   // เบี้ยจากมอนลดลง (เดิม 2L–4L ทำเงินเฟ้อ) · รายได้หลักย้ายไปที่ของป่าที่ขายได้
 });
 function tierMob(key, look, name, L, where, o = {}) {
   const b = MOBS[look], s = lvStat(L), rank = o.boss ? "boss" : o.mini ? "mini" : "";
@@ -653,25 +849,25 @@ tierMob("m1_cock", "rooster", "ไก่ชน", 4, "ทุ่งนาริม
 tierMob("m1_boar", "pig", "หมูป่าโทน", 10, "ทุ่งนาริมกรุง · ทุ่งนาฝั่งตะวันออก", { scale: 1.15, tint: 20 });
 tierMob("m1_junglecock", "rooster", "ไก่ป่าเดือยเหล็ก", 16, "ทุ่งนาริมกรุง · ทุ่งนาฝั่งตะวันออก", { tint: 200, aggro: true });
 tierMob("m1_ironboar", "pig", "หมูป่าเขี้ยวเหล็ก", 18, "ทุ่งนาริมกรุง · ทุ่งนา (สุ่มจุดเกิด)", { mini: true, scale: 1.6, tint: 190, aggro: true, respawnRange: [600, 1200],
-  drops: boosted("pig", [["book_point", 0.15], ["machete", 0.08]]) });
+  drops: boosted("pig", [["machete", 0.08]]) });
 // ป่าไผ่
 tierMob("m1_monkey", "monkey", "ลิงกัง", 22, "ทุ่งนาริมกรุง · ป่าไผ่เหนือ");
 tierMob("m1_ape", "monkey", "ลิงกังหัวโจก", 33, "ทุ่งนาริมกรุง · ป่าไผ่เหนือ", { scale: 1.15, tint: 30 });
 tierMob("m1_cobra", "cobra", "งูเห่า", 27, "ทุ่งนาริมกรุง · ป่าไผ่ใต้");
 tierMob("m1_kingcobra", "cobra", "งูจงอางดง", 38, "ทุ่งนาริมกรุง · ป่าไผ่ใต้", { scale: 1.2, tint: 90 });
 tierMob("m1_monkeyking", "monkey", "จ่าฝูงลิงกัง", 35, "ทุ่งนาริมกรุง · ป่าไผ่เหนือ (สุ่มจุดเกิด)", { mini: true, scale: 1.7, tint: 40, respawnRange: [600, 1200],
-  drops: boosted("monkey", [["book_point", 0.2], ["kris", 0.05]]) });
+  drops: boosted("monkey", [["kris", 0.05]]) });
 // ป่าหิมพานต์
 tierMob("m1_kraseu", "kraseu", "ผีกระสือ", 42, "ทุ่งนาริมกรุง · ป่าหิมพานต์ฝั่งตะวันตก");
 tierMob("m1_kongkoi", "kongkoi", "ผีกองกอย", 47, "ทุ่งนาริมกรุง · ป่าหิมพานต์ฝั่งตะวันตก");
 tierMob("m1_oldkraseu", "kraseu", "กระสือเฒ่า", 52, "ทุ่งนาริมกรุง · ป่าหิมพานต์ฝั่งตะวันออก", { tint: 280 });
 tierMob("m1_firekraseu", "kraseu", "กระสือไฟ", 57, "ทุ่งนาริมกรุง · ป่าหิมพานต์ฝั่งตะวันออก", { scale: 1.1, tint: 330 });
 tierMob("m1_kongkoiking", "kongkoi", "ผีกองกอยเจ้าป่า", 52, "ทุ่งนาริมกรุง · ป่าหิมพานต์ (สุ่มจุดเกิด)", { mini: true, scale: 1.6, tint: 120, respawnRange: [600, 1200],
-  drops: boosted("kongkoi", [["book_point", 0.2], ["takrut", 0.1]]) });
+  drops: boosted("kongkoi", [["takrut", 0.1]]) });
 // บึงต้องห้าม: บอสใหญ่
 tierMob("m1_kqueen", "kraseu", "แม่กระสือราชินี", 60, "ทุ่งนาริมกรุง · บึงต้องห้าม (สุ่มจุดเกิด)", { boss: true, scale: 2, tint: 300, summon: "m1_kraseu",
   respawnRange: [3600, 5400], line: "ลูก ๆ ของข้า... ออกมากินเลือดมันซะ!",
-  drops: [["orb", 1], ["blue", 0.8], ["book_point", 0.6], ["takrut", 0.35], ["helm", 0.2], ["peacock", 0.15], ["namphi", 0.12], ["sanab", 0.15], ["nopphakao", 0.05],
+  drops: [["orb", 1], ["blue", 0.8], ["takrut", 0.35], ["helm", 0.2], ["peacock", 0.15], ["namphi", 0.12], ["sanab", 0.15], ["nopphakao", 0.05],
           ["bodhibeads", 0.2], ["kris", 0.15], ["chain", 0.15], ["sword", 0.2]] });
 // ---------- พาส 1 · แผนที่ 3: ที่ราบลุ่มน้ำ (Lv 62–110) ----------
 tierMob("p3_deer", "deer", "เก้งหมอก", 62, "ที่ราบลุ่มน้ำ · ทุ่งเหนือแม่น้ำ");
@@ -681,12 +877,12 @@ tierMob("p3_shroom", "shroom", "เห็ดผีเรือง", 84, "ที�
 tierMob("p3_owl", "owl", "นกแสกผี", 94, "ที่ราบลุ่มน้ำ · บึงบัวใต้แม่น้ำ");
 tierMob("p3_owl2", "owl", "นกแสกเฒ่า", 104, "ที่ราบลุ่มน้ำ · บึงบัวใต้แม่น้ำ", { scale: 1.1, tint: 200 });
 tierMob("p3_dholeking", "dhole", "หมาในจ่าฝูง", 80, "ที่ราบลุ่มน้ำ · ทุ่งเหนือ (สุ่มจุดเกิด)", { mini: true, scale: 1.6, tint: 20, respawnRange: [600, 1200],
-  drops: boosted("dhole", [["book_point", 0.2], ["machete", 0.08]]) });
+  drops: boosted("dhole", [["machete", 0.08]]) });
 tierMob("p3_owlking", "owl", "นกแสกเจ้าราตรี", 100, "ที่ราบลุ่มน้ำ · บึงบัว (สุ่มจุดเกิด)", { mini: true, scale: 1.6, tint: 260, respawnRange: [600, 1200],
-  drops: boosted("owl", [["book_point", 0.2], ["emeraldear", 0.08]]) });
+  drops: boosted("owl", [["emeraldear", 0.08]]) });
 tierMob("p3_golddeer", "deer", "เก้งทองคำเจ้าป่า", 110, "ที่ราบลุ่มน้ำ · ดงเก้งทอง (สุ่มจุดเกิด)", { boss: true, scale: 2, tint: 45, summon: "p3_deer2",
   respawnRange: [3600, 5400], line: "ผู้ใดบังอาจบุกรุกดงทองของข้า!",
-  drops: [["antler", 1], ["blue", 0.8], ["book_point", 0.6], ["emeraldear", 0.25], ["peacock", 0.2], ["warboots", 0.15], ["namphi", 0.12], ["nopphakao", 0.06]] });
+  drops: [["antler", 1], ["blue", 0.8], ["emeraldear", 0.25], ["peacock", 0.2], ["warboots", 0.15], ["namphi", 0.12], ["nopphakao", 0.06]] });
 // ---------- พาส 1 · แผนที่ 4: หุบเขาหมอก (Lv 115–196) · ไล่ตามทางเดิน ลานงู → ลานกลาง → ลานใต้ → ลานกระสือ ----------
 tierMob("v_kongkoi", "kongkoi", "ผีกองกอย", 115, "หุบเขาหมอก · ลานแรก");
 tierMob("v_centi", "centipede", "ตะขาบยักษ์", 128, "หุบเขาหมอก · ลานแรก");
@@ -697,12 +893,12 @@ tierMob("v_tiger", "tiger", "เสือสมิง", 178, "หุบเขา
 tierMob("v_tiger2", "tiger", "เสือสมิงดำ", 190, "หุบเขาหมอก · ลานเหนือ (ปลายทาง)", { tint: 200, scale: 1.15 });
 tierMob("v_pob2", "pob", "ปอบเฒ่า", 196, "หุบเขาหมอก · ลานเหนือ (ปลายทาง)", { tint: 280, scale: 1.1 });
 tierMob("v_pobking", "pob", "ปอบเจ้าป่า", 130, "หุบเขาหมอก · ลานแรก/กลาง (สุ่มจุดเกิด)", { mini: true, scale: 1.6, tint: 90, respawnRange: [600, 1200],
-  drops: boosted("pob", [["book_point", 0.25], ["takrut", 0.12]]) });
+  drops: boosted("pob", [["takrut", 0.12]]) });
 tierMob("v_centiking", "centipede", "ตะขาบพันปี", 145, "หุบเขาหมอก · ลานใต้ (สุ่มจุดเกิด)", { mini: true, scale: 1.7, tint: 40, respawnRange: [600, 1200],
-  drops: boosted("centipede", [["book_point", 0.25], ["sanab", 0.1]]) });
+  drops: boosted("centipede", [["sanab", 0.1]]) });
 tierMob("v_tigerking", "tiger", "พญาเสือสมิง", 150, "หุบเขาหมอก · ลานลับข้างบึง (สุ่มจุดเกิด)", { boss: true, scale: 2, tint: 330, summon: "v_tiger",
   respawnRange: [3600, 5400], line: "แผ่นดินนี้เป็นของสมิง... เจ้าจะเป็นเหยื่อรายต่อไป!",
-  drops: [["tigerskin", 1], ["blue", 0.8], ["book_point", 0.7], ["warboots", 0.2], ["peacock", 0.2], ["khen", 0.15], ["namphi", 0.15], ["nopphakao", 0.08]] });
+  drops: [["tigerskin", 1], ["blue", 0.8], ["warboots", 0.2], ["peacock", 0.2], ["khen", 0.15], ["namphi", 0.15], ["nopphakao", 0.08]] });
 // ของรางวัลบอส: มินิบอสดรอปวัตถุดิบเซ็ต + ของเฉพาะตัว · บอสใหญ่: sure = ทุกคนที่ช่วยตีได้แน่นอน · mvp = เฉพาะ MVP
 MOBS.m1_ironboar.drops.push(["ironfang", 0.8], ["ironring", 0.1]);
 MOBS.m1_monkeyking.drops.push(["goldfur", 0.8], ["monkeyband", 0.1]);
@@ -761,7 +957,8 @@ function D() {
     for (const [k, v] of Object.entries(b)) { if (k in bonus) bonus[k] += v; else if (k in O) O[k] += v; else if (k === "crit") setCrit += v; }
   });
   // โบนัสจากวิชาติดตัว + บัฟ
-  bonus.dex += skillLv("owleye");
+  bonus.dex += skillLv("owleye") + buffLv("falconeye") * 2; bonus.luk += buffLv("falconeye"); bonus.str += buffLv("loudex");   // ตาเหยี่ยว · ตาเหยี่ยวทอง
+  bonus.int += skillLv("wisdom") + (buffLv("insight") ? 2 + buffLv("insight") * 2 : 0);   // ปัญญาญาณ + พรแห่งปัญญา
   const bl = buffLv("blessing"), ag = buffLv("agiup"), cn = buffLv("concentrate");
   if (bl) { bonus.str += bl; bonus.int += bl; bonus.dex += bl; }
   if (ag) bonus.agi += 2 + ag;
@@ -785,18 +982,19 @@ function D() {
     atk: Math.round(((wt.magic ? sf("matk") : wt.ranged ? sf("ratk") : sf("atk")) + P.lvl + w
          + (wtype === "dagger" ? Math.floor(s.luk + s.agi * 0.5) : 0)   // มีด/กริช (สายโจร): LUK +1 · AGI +0.5 ATK ต่อแต้ม
          + (wtype === "staff" ? sf("matk") + s.vit - sf("atk") : 0)     // ไม้เท้า/ตาลปัตร (สายพระ): ใช้ INT + VIT แทน STR
-         + (MELEE.includes(wtype) ? skillLv("swordmast") * 3 : 0) + (wt.magic ? O.matk : O.atk)) * (1 + (cAtk + (wt.magic ? O.matkPct : O.atkPct)) / 100)),
+         + (MELEE.includes(wtype) ? skillLv("swordmast") * 3 : 0) + (wtype === "spear" ? skillLv("spearmast") * 4 : 0) + (wtype === "bow" ? skillLv("beastbane") * 4 : 0) + skillLv("ironfist") * 3 + (wtype === "dagger" ? skillLv("katarmast") * 3 : 0) + skillLv("weaponresearch") * 2 + buffLv("loudex") * 2 + buffLv("weaponperfect") * 3 + buffLv("aurablade") * 10   // เชี่ยวชาญทวน · ดาบอาคม
+         + (wt.magic ? O.matk : O.atk)) * (1 + (cAtk + (wt.magic ? O.matkPct : O.atkPct + skillLv("runemast") * 2 + buffLv("enchantblade") * 5 + buffLv("truesight") * 2 + buffLv("unlimit") * 10 + buffLv("edp") * 8 + buffLv("overthrust") * 5)) / 100)),   // เชี่ยวชาญยันต์ · ลงยันต์ปลุกศาสตรา
     magic: !!wt.magic,
-    def: Math.max(0, Math.round((sf("def") + a + cDef + O.def) * (1 + O.defPct / 100))),
-    hit: Math.round(80 + sr("hit") + P.lvl + (wtype === "bow" ? skillLv("vulture") * 2 : 0)),
-    flee: Math.round(sr("flee") + P.lvl + skillLv("dodge") * 3),
-    crit: Math.max(0, 1 + sr("crit") + wt.crit + ((wd && wd.crit) || 0) + setCrit),
-    critDmg: Math.max(100, 150 + sr("critDmg") + O.critDmg),   // แรงคริติคอล % (พื้นฐาน 150%)
-    aspd: Math.max(200, (1150 - sr("aspd")) * wt.spd / (1 + O.aspdPct / 100) - O.aspd * 5),
-    range: wt.range + (wtype === "bow" ? skillLv("vulture") * 12 : 0), wtype, ranged: !!wt.ranged,
-    maxHp: Math.max(1, Math.round((80 + P.lvl * 18 + sr("hp")) * (1 + skillLv("iron") * 0.06))),
-    maxSp: Math.max(1, Math.round((20 + P.lvl * 4 + sr("sp")) * (1 + skillLv("focus") * 0.06))),
-    speed: Math.min(420, Math.max(40, 150 + sr("speed") + O.spd) * (1 + (ag ? 0.05 + ag * 0.03 : 0) + O.spdPct / 100)),
+    def: Math.max(0, Math.round((sf("def") + a + cDef + O.def + skillLv("divineprot") * 3 + buffLv("mado") * 8) * (1 + O.defPct / 100) * (buffLv("unlimit") ? .5 : 1))),   // ปลดขีดจำกัด: DEF ครึ่งเดียว
+    hit: Math.round(80 + sr("hit") + P.lvl + (wtype === "bow" ? skillLv("vulture") * 2 : 0) + buffLv("truesight") * 3 + skillLv("weaponresearch") * 2 + buffLv("weaponperfect") * 4),
+    flee: Math.round(sr("flee") + P.lvl + skillLv("dodge") * 3 + buffLv("parry") * 6 + buffLv("windwalk") * 2 + skillLv("monkflee") * 3 + buffLv("cloaking") * 3 + buffLv("hallucination") * 10),
+    crit: Math.min(80, Math.max(0, 1 + sr("crit") + wt.crit + ((wd && wd.crit) || 0) + setCrit + skillLv("dragontrain") + buffLv("truesight") * 2 + buffLv("fury") * 5 + skillLv("shadowcrit") + buffLv("maximize") * 2)),   // คริติคอลสูงสุด 80%
+    critDmg: Math.max(100, 150 + sr("critDmg") + O.critDmg + skillLv("righthand") * 4 + buffLv("maximize") * 10),   // แรงคริติคอล % (พื้นฐาน 150%)
+    aspd: Math.max(200, 1150 / (1 + sr("aspd") / 460) * wt.spd / (1 + (O.aspdPct + buffLv("thq") * 4 + buffLv("fearbreeze") * 5 + buffLv("adrenaline") * 4) / 100) - O.aspd * 5),
+    range: wt.range + (wtype === "bow" ? skillLv("vulture") * 8 : 0), wtype, ranged: !!wt.ranged,
+    maxHp: Math.max(1, Math.round((80 + P.lvl * 18 + sr("hp")) * (1 + skillLv("iron") * 0.04 + skillLv("gentletouch") * 0.03 + buffLv("mado") * 0.04))),
+    maxSp: Math.max(1, Math.round((20 + P.lvl * 4 + sr("sp")) * (1 + skillLv("sprecov") * 0.03 + skillLv("souldrain") * 0.02 + skillLv("trapresearch") * 0.02))),
+    speed: Math.min(420, Math.max(40, 150 + sr("speed") + O.spd) * (1 + (ag ? 0.05 + ag * 0.03 : 0) + O.spdPct / 100 + skillLv("dragontrain") * 0.03 + buffLv("windwalk") * 0.04 - (buffLv("steelbody") ? .25 : 0) + buffLv("cloaking") * 0.04)),
   };
 }
 
@@ -907,7 +1105,7 @@ function newCharData(name, look, bg) {
 function charData() {
   return { name: P.name, title: P.title, bg: P.bg, look: P.look, lvl: P.lvl, exp: P.exp, points: P.points, zeny: P.zeny,
     stats: P.stats, inv: P.inv, equip: P.equip, quest: P.quest, created: P.created, skills: P.skills, hotbar: P.hotbar,
-    jobLvl: P.jobLvl, jobExp: P.jobExp, skillPts: P.skillPts, unlocked: P.unlocked, skillSys: 2, bagMax: P.bagMax || SETTINGS.bagBase, stash: P.stash || {}, skillStash: P.skillStash || {}, basicInit: true, build: P.build || "sword",
+    jobLvl: P.jobLvl, jobExp: P.jobExp, skillPts: P.skillPts, unlocked: P.unlocked, skillSys: 2, bagMax: P.bagMax || SETTINGS.bagBase, stash: P.stash || {}, skillStash: P.skillStash || {}, basicInit: true, build: P.build || "sword", guardUntil: P.guardUntil || 0,
     pos: mode === "play" && !P.dead ? { map: currentMap, x: Math.round(P.x), y: Math.round(P.y) } : P.pos || null };   // จุดล่าสุด (เข้าเกมครั้งหน้าเริ่มที่เดิม)
 }
 function saveGame() {
@@ -926,7 +1124,7 @@ function loadChar(data) {   // โหลดตัวละครเข้า P �
   const c = JSON.parse(JSON.stringify(data));
   Object.assign(P, {
     x: CITY_SPAWN.x, y: CITY_SPAWN.y, target: null, tx: null, ty: null, queued: null, dead: false,
-    atkCd: 0, skillCd: 0, potCd: 0, swing: 0, hurt: 0, regenT: 0, bg: "novice", created: Date.now(), bagMax: 30,
+    atkCd: 0, skillCd: 0, potCd: 0, swing: 0, hurt: 0, regenT: 0, bg: "novice", created: Date.now(), bagMax: 30, guardUntil: 0,
   }, c);
   P.equip = Object.assign(Object.fromEntries(EQUIP_SLOTS.map(s => [s, null])), c.equip || {});
   P.look = Object.assign({}, DEFAULT_LOOK, c.look || {});
@@ -957,8 +1155,9 @@ function loadChar(data) {   // โหลดตัวละครเข้า P �
   if (contentLoaded) { for (const id in P.skillStash) P.skillPts += P.skillStash[id]; P.skillStash = {}; }
   for (const id of Object.keys(P.skills)) if (P.skills[id] > SKILLS[id].max) { P.skillPts += P.skills[id] - SKILLS[id].max; P.skills[id] = SKILLS[id].max; }   // แอดมินลดเลเวลสูงสุด → คืนแต้มส่วนเกิน
   P.hotbar = P.hotbar.map(h => h && h.type === "skill" && !SKILLS[h.id] ? null : h);
+  if (P.equip && P.equip.shield) { addItem(P.equip.shield); P.equip.shield = null; }   // ยกเลิกช่องโล่: ถอดเข้าย่าม
   // คัมภีร์ระบบเก่าที่ค้างในย่าม → กลายเป็นตำราฝึกวิชา
-  for (const id of Object.keys(P.inv || {})) if (id.startsWith("book_") && !ITEM_BASE[id]) { P.inv.book_point = (P.inv.book_point || 0) + P.inv[id]; delete P.inv[id]; }
+  for (const id of Object.keys(P.inv || {})) if (id.startsWith("book_") && !ITEM_BASE[id]) { P.zeny = (P.zeny || 0) + P.inv[id] * 660; delete P.inv[id]; }   // ตำรา/คัมภีร์ที่ยกเลิกแล้ว → คืนเป็นเบี้ย (ราคาขายเดิม)
   // ช่องสวมใส่ที่ถูกยกเลิก (ปลอกแขน/สร้อย/ต่างหู): สร้อยกับต่างหูกลายเป็นแหวนแล้ว → ย้ายไปช่องแหวนหรือเข้าย่าม
   for (const slot of ["neck", "ear1", "ear2", "gloves"]) {
     const id = P.equip[slot];
@@ -1673,6 +1872,7 @@ let NPCS = [
   { id: "monk",  name: "หลวงพ่อทอง",    x: 320, y: 222, look: { skin: "#d9a57a", robe: true, hair: "bald" } },
   { id: "smith", name: "ช่างเหล็กแก้ว",   x: 236, y: 462, look: { skin: "#b9784f", top: "#5a3a22", pants: "#3a2a1c", sash: "#8b1e1e", hair: "short", headband: false, weapon: "hammer" } },
   { id: "guard", name: "ขุนศึกเพชร",     x: 620, y: 292, look: { skin: "#c98f63", top: "#8b1e1e", pants: "#2b2b33", sash: "#d4a93a", hair: "short", hat: "lompok", detail: "gold", weapon: "glaive" } },
+  { id: "merc",  name: "นายกองทหารรับจ้าง", x: 560, y: 300, look: { skin: "#b98256", top: "#1f3a5a", pants: "#2b2b33", sash: "#d4a93a", hair: "short", hat: "lompok", detail: "gold", weapon: "spear" } },
   { id: "tailor", name: "แม่ทองทอผ้า",   x: 404, y: 452, look: { gender: "f", skin: "#e8b48a", top: "#f6e7c8", pants: "#7a2e8a", sash: "#e6b422", hair: "bun", flower: "#ff8fb8", bandColor: "#c2185b" } },
   { id: "jeweler", name: "เฮียกิมช่างทอง", x: 402, y: 362, look: { skin: "#f0c9a0", top: "#1f4e5a", pants: "#2b2b33", sash: "#e6b422", hair: "short", hat: "wrap" } },
   { id: "shaman", name: "หมอผีเฒ่าจันทร์", x: 60, y: 290, look: { skin: "#a8744f", top: "#2e2238", pants: "#1a1420", sash: "#8a1e8a", hair: "long", hairColor: "#d8d4cc", headband: true, bandColor: "#6b1e6b", detail: "yant", weapon: "beads" } },
@@ -2052,7 +2252,7 @@ function buildCity() {
   // NPC
   NPCS = placeNpcs([
     { id: "monk", x: cx, y: 575 }, { id: "shop", x: cx - 205, y: 960 }, { id: "jeweler", x: cx + 205, y: 960 },
-    { id: "tailor", x: x1 + 180, y: 830 }, { id: "smith", x: x2 - 180, y: 830 }, { id: "guard", x: cx + 85, y: y2 - 30 },
+    { id: "tailor", x: x1 + 180, y: 830 }, { id: "smith", x: x2 - 180, y: 830 }, { id: "guard", x: cx + 85, y: y2 - 75 }, { id: "merc", x: cx + 230, y: y2 - 75 },
     { id: "shaman", x: 930, y: 1730 },   // หมอผีเฒ่าจันทร์อยู่ชายหมู่บ้าน ข้างต้นไม้ตาย
   ]);
   // ต้นไม้ + พุ่มไม้ (ไม่บังถนน/ป้าย/ประตู ไม่ชิดสิ่งก่อสร้าง)
@@ -2081,6 +2281,8 @@ function buildCity() {
   forestEdgeTrees(["banyan", "palm", "coconut", "bush"], 0.45);
   // ต้นไม้ขอบป่า: ไม่ขึ้นในทะเล/ชายหาด · ฝั่งล่างสุดเหลือแค่พุ่มเตี้ย (ไม่บังหมู่บ้าน)
   obstacles = obstacles.filter(o => !(o.edge && (o.x < 470 || (o.y > 1800 && o.kind !== "bush"))));
+  const ov = MAP_OVERRIDES.city;   // ที่แอดมินจัดไว้ในหลังบ้าน: ตำแหน่ง NPC + ประตูมิติเพิ่ม (ไม่มีมอนในเมือง)
+  if (ov) { addMapExtras("city", { ...ov, spawns: [] }); if (Array.isArray(ov.npcs) && ov.npcs.length) NPCS = placeNpcs(ov.npcs); }
   applyLinks("city");
   snapshotMap("city");
 }
@@ -2241,6 +2443,8 @@ function addCustomItem(id, d) {
   const type = TYPE_SLOTS[d.type] || ["use", "etc"].includes(d.type) ? d.type : "etc";
   const it = { custom: true, name: txt(d.name, 30) || id, icon: String(d.icon || "📦").slice(0, 4), type, price: num(d.price, 10, 1, 1e7), desc: txt(d.desc, 120) };
   const rare = num(d.grade, 1, 1, 5) | 0;
+  if (d.gild === "gold" || d.gild === "red") it.gild = d.gild;   // ไอคอนลงทอง / แดงทอง
+  if (d.gild === "gold" || d.gild === "red") it.gild = d.gild;   // ไอคอนลงทอง / แดงทอง
   if (type === "weapon") {
     it.wtype = WTYPES[d.wtype] && d.wtype !== "none" ? d.wtype : "sword";
     it.draw = ICON_WEAPON[d.draw] ? d.draw : WEAPON_DRAW[it.wtype];
@@ -2289,7 +2493,7 @@ function addCustomMob(id, d) {
   if (d.deleted) { if (builtin) disableMob(id); return; }
   const look = MOB_LOOK_IDS.includes(d.look) ? d.look : "pig";
   const def = {
-    custom: true, look, name: txt(d.name, 24) || id, lvl: num(d.lvl, 1, 1, 999) | 0, hp: num(d.hp, 50, 1, 1e7) | 0,
+    custom: true, look, name: txt(d.name, 24) || id, lvl: num(d.lvl, 1, 1, 1000) | 0, hp: num(d.hp, 50, 1, 1e7) | 0,
     atk: [num(d.atkMin, 5, 0, 1e5) | 0, Math.max(num(d.atkMin, 5), num(d.atkMax, 8, 0, 1e5)) | 0], def: num(d.def, 0, 0, 9999) | 0,
     flee: num(d.flee, 5, 0, 999) | 0, exp: num(d.exp, 10, 0, 1e7) | 0, zeny: [num(d.zenyMin, 1) | 0, Math.max(num(d.zenyMin, 1), num(d.zenyMax, 5)) | 0],
     speed: num(d.speed, 60, 10, 300), aggro: !!d.aggro, r: num(d.r, 15, 8, 60), aspd: num(d.aspd, 1400, 300, 5000),
@@ -2389,6 +2593,7 @@ function removeBuiltinItem(id) {   // ลบของเดิมออกจา
   }
 }
 function addCustomMap(id, d) {
+  if (id === "city") { MAP_OVERRIDES.city = d; return; }   // เมืองท่าสุวรรณ: แอดมินแก้ได้เฉพาะ NPC + ประตูมิติ (ผังเมืองอยู่ในโค้ด)
   if (id === "main" || id === "valley") {   // แผนที่เดิมที่แอดมินแก้
     const shapes = (d.shapes || []).filter(s => s.path ? s.path.length >= 2 : s.rect || s.rx > 0);
     if (!shapes.length) return;
@@ -2484,6 +2689,10 @@ async function loadContent() {
   }
   // พาส 1: แผนที่หลักใช้ผังตามเนื้อเรื่องในโค้ด (รูปทรง/มอน/NPC ที่แอดมินเคยวาดไว้สำหรับผังเก่าไม่ใช้แล้ว ข้อมูลในฐานข้อมูลยังอยู่)
   // if (MAP_OVERRIDES.main) rebuildMain(MAP_OVERRIDES.main);
+  if (MAP_OVERRIDES.city) {   // เมืองถูกสร้างไปก่อนข้อมูลหลังบ้านมาถึง → สร้างใหม่ให้ตรงกับที่แอดมินจัด
+    if (currentMap === "city") { const px = P.x, py = P.y; linked.delete("city"); buildCity(); P.x = px; P.y = py; }
+    else { delete MAPS.city; linked.delete("city"); }
+  }
   if (MAP_OVERRIDES.valley && MAP_OVERRIDES.valley.spawn) {   // จุดโผล่ในหุบเขาย้ายตามที่แอดมินวาง
     const sp = MAP_OVERRIDES.valley.spawn;
     for (const p of (currentMap === "main" ? PORTALS : MAPS.main.PORTALS)) if (p.to === "valley") { p.ax = num(sp.x, 250); p.ay = num(sp.y, 960); }
@@ -2654,7 +2863,20 @@ function knockMob(m, fromX, fromY, px) {
   if (inTown(m.x - m.r - 10, m.y - m.r - 10)) { m.x -= dx / l * px; m.y -= dy / l * px; }
 }
 function breakHide() { if (P.hideUntil > now) { P.hideUntil = 0; delete P.buffs.hide; log("👤 ปรากฏตัวแล้ว", "#b9a47c"); } }
+// ติดพิษ: % ของ ATK ทุกวินาที นาน 6 วิ (ปรุงยาพิษ +10%/เลเวล)
+function poisonMob(m, pct, d) {
+  if (m.dead) return;
+  m.poison = { until: now + 6, dps: Math.max(1, Math.round(d.atk * pct * (1 + skillLv("poisonresearch") * .1))), tick: 0 };
+  floatText(m.x, mobTop(m, 14), "ติดพิษ!", "#8be04f", 14);
+}
+let BLITZING = false;
+function autoBlitz(m) {
+  if (m.dead) return;
+  effects.push({ kind: "mfx", a: "blitz", x: m.x, y: m.y, h: 0, sx: P.x, sy: P.y, r: 30, n: 1, color: "#c9a26b", life: .8, max: .8, seed: Math.random() });
+  setTimeout(() => { if (m.dead || P.dead) return; BLITZING = true; try { attackMob(m, (1 + skillLv("blitz") * .2) * (1 + skillLv("steelcrow") * .1), 30, D()); } finally { BLITZING = false; } }, 350);
+}
 function attackMob(m, mult, hitBonus, d) {
+  if (!BLITZING && d.ranged && skillLv("autoblitz") && Math.random() < skillLv("autoblitz") * .03) setTimeout(() => autoBlitz(m), 120);
   P.swing = 0.25;
   breakHide();
   if (d.magic) effects.push({ kind: "arrow", orb: true, x: P.x + (m.x < P.x ? -10 : 10), y: P.y, h: 26, x2: m.x, y2: m.y, h2: m.r, life: 0.22, max: 0.22, color: mult > 1 ? "#ff9cf0" : "#b58cff" });
@@ -2677,13 +2899,14 @@ function killMob(m) {
   m.dead = true;
   mobs = mobs.filter(x => x !== m);
   if (P.target && P.target.ref === m) { P.target = null; P.queued = null; }
-  const def = m.def, z = Math.round(randi(def.zeny[0], def.zeny[1]) * BAL.zenyRate * (1 + skillLv("greed") * 0.08));
-  const gexp = balExp(def.exp), jexp = Math.ceil(gexp * 0.75);
+  const def = m.def, z = Math.round(randi(def.zeny[0], def.zeny[1]) * BAL.zenyRate * (1 + skillLv("greed") * 0.08) * (setFull("kwian") ? 1.2 : 1));   // เซ็ตพ่อค้าเกวียนครบ: เบี้ย +20%
+  if (setFull("lekfai")) { const ms = D().maxSp; P.sp = Math.min(ms, P.sp + Math.ceil(ms * 0.05)); }   // เซ็ตเงาเหล็กไหลครบ: ล้มศัตรูฟื้น SP
+  const gexp = balExp(def.exp), jexp = gexp;
   P.zeny += z;
   log(`ปราบ ${def.name} ได้ ${gexp} EXP · ${jexp} Job EXP · ${z} เบี้ย`, "#ffe38a");
   effect("poof", m.x, { y: m.y, h: m.r }, "#fff", 0.5);
   const dropMul = 1 + skillLv("luckydrop") * 0.05;
-  for (const [id, chance] of dropList(def)) if (Math.random() < dropChance(chance) * dropMul) groundItems.push({ id, x: m.x + rand(-18, 18), y: m.y + rand(-12, 12), t: 0, life: 60 });
+  for (const [id, chance] of dropList(def)) if (Math.random() < dropChance(chance) * dropMul) groundItems.push({ id, n: ITEMS[id] && ITEMS[id].type === "etc" && def.story ? Math.max(1, Math.min(20, Math.round((def.lvl + 10) / Math.max(10, ITEMS[id].price)))) : 1, x: m.x + rand(-18, 18), y: m.y + rand(-12, 12), t: 0, life: 60 });   // ของป่าจากมอนเลเวลสูงได้หลายชิ้น (มูลค่าโตตามเลเวล)
   gainJobExp(jexp);
   if (def.boss) log(`★ ท่านปราบ ${def.name} สำเร็จ! ★`, "#ffb3e6");
   // มินิบอส/บอสใหญ่: เกิดใหม่ตามช่วงเวลาสุ่ม (ไม่ขึ้นกับตัวคูณเกิดใหม่ของหลังบ้าน) ที่จุดสุ่มใหม่ในโซน
@@ -2752,7 +2975,7 @@ function wbKilled(b, st) {
   if (got.length) log(`🎁 ได้รับ: ${got.join(", ")}`, "#ffd23f");
   log(mvp ? `🏆 MVP! ท่านทำดาเมจสูงสุดในการปราบ ${name}` : `⚔ ร่วมปราบ ${name} (ดาเมจ ${Math.round(share * 100)}%)`, "#ffd23f");
   log(`ได้ ${gexp} EXP · ${z} เบี้ย`, "#ffe38a");
-  gainJobExp(Math.ceil(gexp * 0.75));
+  gainJobExp(gexp);
   questKill(def.look, def);
   gainExp(gexp);
   b.mine = 0;
@@ -2773,16 +2996,18 @@ async function wbPoll() {
 }
 setInterval(wbFlush, 500);
 setInterval(wbPoll, 3000);
+const statPtsAt = L => L <= 200 ? BAL.statPts : (L % 2 ? 1 : 2);
+const statCap = k => SETTINGS.statMax[k] + Math.max(0, Math.floor((P.lvl - 200) / 4));   // เพดานสถานะโตตามเลเวลหลัง 200
 function gainExp(n) {
   if (P.lvl >= SETTINGS.maxLevel) return;
   P.exp += n;
   while (P.exp >= expNeed(P.lvl) && P.lvl < SETTINGS.maxLevel) {
     P.exp -= expNeed(P.lvl);
-    P.lvl++; P.points += BAL.statPts;
+    P.lvl++; const gotPts = statPtsAt(P.lvl); P.points += gotPts;
     const d = D(); P.hp = d.maxHp; P.sp = d.maxSp;
     effect("levelup", P.x, P.y, "#ffe066", 1.5);
     floatText(P.x, { y: P.y, h: 64 }, "เลเวลอัป!", "#ffe066", 26, true);
-    log(`✨ เลเวลอัป! ตอนนี้ Lv ${P.lvl} ได้แต้มสถานะ +${BAL.statPts} (กด S เพื่อเพิ่ม)`, "#7dffb2");
+    log(`✨ เลเวลอัป! ตอนนี้ Lv ${P.lvl} ได้แต้มสถานะ +${gotPts} (กด S เพื่อเพิ่ม)`, "#7dffb2");
     saveGame();
   }
   refreshWindows();
@@ -2808,7 +3033,9 @@ function mobAttack(m, d) {
 }
 // รับดาเมจ (จากมอนหรือผู้เล่น) ผ่านบัฟป้องกัน · คืนค่าดาเมจที่โดนจริง
 function takeDamage(dmg, killer = null) {
-  if (buffLv("endure")) dmg = Math.max(1, Math.round(dmg * (1 - buffLv("endure") * 0.05)));   // กายวชิระ
+  if (buffLv("endure")) dmg = Math.max(1, Math.round(dmg * (1 - buffLv("endure") * 0.03)));   // กายวชิระ
+  if (buffLv("steelbody")) dmg = Math.max(1, Math.round(dmg * (1 - buffLv("steelbody") * 0.08)));   // กายเหล็กไหล
+  if (buffLv("energycoat")) dmg = Math.max(1, Math.round(dmg * (1 - buffLv("energycoat") * 0.06)));   // เกราะพลังเวท
   if (P.shield > 0 && buffLv("guard")) {   // โล่คงกระพันรับดาเมจแทน
     const take = Math.min(P.shield, dmg); P.shield -= take; dmg -= take;
     floatText(P.x, { y: P.y, h: 40 }, "🛡" + take, "#ffd23f", 14);
@@ -2817,6 +3044,10 @@ function takeDamage(dmg, killer = null) {
   }
   P.hp -= dmg; P.hurt = 0.2;
   floatText(P.x, { y: P.y, h: 54 }, dmg, "#ff5a5a", 20);
+  if (P.hp > 0 && setFull("thudong") && now >= (P.setHealCd || 0)) {   // เซ็ตพระธุดงค์ครบ: เลือดต่ำ → บุญคุ้มครองฟื้น 25%
+    const mh = D().maxHp;
+    if (P.hp < mh * 0.3) { P.setHealCd = now + 30; P.hp = Math.min(mh, P.hp + Math.round(mh * 0.25)); effect("heal", P.x, P.y, "#ffe9a8", 1.2); floatText(P.x, { y: P.y, h: 78 }, "บุญคุ้มครอง!", "#ffe9a8", 15, true); }
+  }
   if (P.hp <= 0) die(killer);
   return dmg;
 }
@@ -2843,11 +3074,16 @@ function respawn() {
 }
 
 // ---------- วิชาและยา ----------
-const skillReach = (id, d) => (SKILLS[id] && SKILLS[id].range) || d.range;
+const skillReach = (id, d) => (SKILLS[id] && SKILLS[id].range ? SKILLS[id].range + (isMageSk(SKILLS[id]) ? skillLv("radius") * 10 : 0) : d.range);
 function magicHit(m, dmg, color) {   // ดาเมจเวท/ทะลุเกราะ
   m.hp -= dmg; m.hitFlash = 0.12; m.aggro = true; m.returning = false;
   floatText(m.x, { y: m.y, h: m.r * 2 }, dmg, color, 26, true);
-  if (m.hp <= 0) killMob(m);
+  if (m.hp <= 0) {
+    killMob(m);
+    const sd = skillLv("souldrain");
+    if (sd && !P.dead) { const g = Math.round(D().maxSp * sd * 0.015); P.sp = Math.min(D().maxSp, P.sp + g); floatText(P.x, { y: P.y, h: 60 }, "+" + g + " SP", "#c58bff", 14);
+      effects.push({ kind: "mfx", a: "souldrain", follow: true, x: P.x, y: P.y, h: 0, sx: m.x, sy: m.y, r: 30, n: 1, color: "#c58bff", life: .8, max: .8, seed: Math.random() }); }
+  }
 }
 // ใช้วิชาที่ต้องมีเป้าหมาย (เรียกเมื่อเดินถึงระยะแล้ว)
 const INTof = d => P.stats.int + d.bonus.int;
@@ -2872,43 +3108,94 @@ function chantFx(dur, say = true) {
   playVfx("runes", P.x, P.y, 0, "#c38bff");
   if (say) floatText(P.x, { y: P.y, h: 66 }, CHANTS[randi(0, CHANTS.length - 1)], "#e0b3ff", 12);
 }
+// วิชาเวท: คำนวณดาเมจทุกครั้งตอนร่ายเสร็จ แล้วทยอยลงทีละครั้ง · ขยายพลังเวทเพิ่มดาเมจ
+// วิชากายภาพ: ตัวเลขใน sk.ph · แอนิเมชันประจำวิชาใน drawMageFx · ดาเมจลงตอนกระทบ
+function physCast(sk, m, lv, d, id) {
+  const g = sk.ph, hits = Math.max(1, typeof g.hits === "function" ? g.hits(lv) : g.hits || 1), ctr = g.self || !m ? P : m;
+  let tg = g.self ? near(P, g.self) : g.r ? near(m, g.r) : [m];
+  if (g.line) {   // ทะลุแนว: ทุกตัวในแนวจากเราผ่านเป้าออกไปอีก g.line
+    const dx = m.x - P.x, dy = m.y - P.y, l = Math.hypot(dx, dy) || 1, ux = dx / l, uy = dy / l;
+    tg = mobs.filter(o => { const px = o.x - P.x, py = o.y - P.y, al = px * ux + py * uy; return !o.dead && al > 0 && al < l + g.line && Math.abs(px * uy - py * ux) < o.r + 22; });
+  }
+  const T0 = { slash: .12, magnum: .1, pierce: .12, whirl: .1, spiral: .3, sonicwave: .3, ignition: .22, dragonbreath: .35,
+    double: .15, charge: .2, rain: .3, blitz: .35, aimedbolt: .45, claymore: .4, sharp: .2, arrowstorm: .35,
+    fingeroff: .2, investigate: .15, chaincombo: .1, knucklearrow: .25, tigercannon: .45, asura: .55, rampage: .2,
+    envenom: .12, stab: .08, grimtooth: .25, soulbreaker: .28, meteorassault: .15, crossimpact: .1, shadow: .15, rollingcutter: .1,
+    mammonite: .15, cartattack: .25, cartrevo: .2, hammerfall: .4, axetornado: .1, vulcanarm: .15, armcannon: .45, tycoon: .35 }[id] ?? .1;
+  const STEP = { pierce: .14, spiral: .08, whirl: .2, dragonbreath: .25, double: .12, rain: .25, blitz: .15, aimedbolt: .12, arrowstorm: .3, fingeroff: .12, chaincombo: .1, rampage: .3, stab: .06, crossimpact: .1, shadow: .14, rollingcutter: .22, axetornado: .25, vulcanarm: .07, tycoon: .25 }[id] || .12;
+  const L = { slash: .55, magnum: .6, pierce: .55, whirl: .8, spiral: .9, sonicwave: .7, ignition: 1, dragonbreath: 1.4,
+    double: .5, charge: .6, rain: .9, blitz: 1, aimedbolt: 1.1, claymore: 1.1, sharp: .7, arrowstorm: 1.5,
+    fingeroff: .9, investigate: .6, chaincombo: .7, knucklearrow: .7, tigercannon: 1.1, asura: 1.3, rampage: 1,
+    envenom: .9, stab: .8, grimtooth: .7, soulbreaker: .8, meteorassault: .8, crossimpact: 1.1, shadow: .8, rollingcutter: 1,
+    mammonite: .7, cartattack: .7, cartrevo: .8, hammerfall: 1, axetornado: 1.1, vulcanarm: .8, armcannon: 1.2, tycoon: 1.2 }[id] || .7;
+  effects.push({ kind: "mfx", a: id, x: ctr.x, y: ctr.y, h: 0, sx: P.x, sy: P.y, r: g.self || g.r || 30, n: hits, color: hex7(g.col), life: L, max: L, seed: Math.random() });
+  if (g.warp && m) { effect("poof", P.x, { y: P.y, h: 20 }, "#6b5a8a", .5); P.x = m.x + (m.x > P.x ? 22 : -22); P.y = m.y; collide(P); }   // วาร์ปไปหลังเป้า
+  if (g.zeny) { const z = g.zeny(lv); P.zeny -= z; floatText(P.x, { y: P.y, h: 60 }, `-${z} เบี้ย`, "#ffd23f", 13); }   // ตาเงินตาทอง / มหาเศรษฐี
+  P.swing = .25; if (m && !g.self) P.dir = faceDir(P.x, P.y, m.x, m.y);
+  if (typeof sfx === "function") sfx(id === "magnum" || id === "ignition" || id === "dragonbreath" || id === "claymore" ? "boom" : "slice", 0);
+  const mult = (g.m + g.ml * lv) / hits * (g.amp ? 1 + skillLv(g.amp[0]) * g.amp[1] : 1);
+  for (let h = 0; h < hits; h++) setTimeout(() => {
+    if (P.dead) return;
+    const dd = g.crit ? { ...D(), crit: D().crit + g.crit } : D();
+    for (const t of tg) {
+      if (t.dead) continue;
+      attackMob(t, mult, g.hit || 0, dd);
+      if (t.dead || h < hits - 1) continue;
+      if (g.knock) knockMob(t, P.x, P.y, g.knock);
+      if (g.poison) poisonMob(t, g.poison + lv * .04, dd);
+      if (g.stun && !t.def.boss && Math.random() * 100 < g.stun + lv * (g.stunL || 0)) stunMob(t, 2);
+    }
+  }, (T0 + h * STEP) * 1000);
+}
+function mageCast(sk, m, lv, d) {
+  const g = sk.mg, hits = Math.max(1, typeof g.hits === "function" ? g.hits(lv) : g.hits || 1), amp = (1 + buffLv("mystical") * 0.05) * (1 + skillLv("mastery") * 0.04);
+  const tg = g.r ? near(m, g.r) : [m], id = Object.keys(SKILLS).find(k => SKILLS[k] === sk);
+  // แอนิเมชันประจำวิชา + จังหวะดาเมจให้ตรงตอนกระทบ [ครั้งแรก, ระยะห่างแต่ละครั้ง] (วินาที)
+  const T = { firebolt: [.22, .12], coldbolt: [.2, .12], lightbolt: [.04, .12], soulstrike: [.3, .1], fireball: [.35, .1], frostdiver: [.4, .1], thunderstorm: [.05, .12],
+    stonecurse: [.45, .1], meteor: [.35, .16], stormgust: [.2, .38], jupitel: [.22, .1], lov: [.1, .28], heavensdrive: [.12, .15], comet: [.6, .1], tetra: [.55, .12], crimson: [.5, .1], jackfrost: [.4, .1] }[id] || [.1, .12];
+  const L = { firebolt: .6 + hits * .12, coldbolt: .65 + hits * .12, lightbolt: .3 + hits * .12, soulstrike: .9 + hits * .1, napalm: .55, fireball: .95, frostdiver: .95, thunderstorm: .4 + hits * .24,
+    holylight: .7, stonecurse: .95, meteor: .9 + hits * .16, stormgust: 1.4, jupitel: .55 + hits * .1, lov: 1.3, heavensdrive: .6 + hits * .15, comet: 1.6, tetra: 1.3, crimson: 1.2, jackfrost: 1.2 }[id] || .8;
+  effects.push({ kind: "mfx", a: id, x: m.x, y: m.y, h: 0, sx: P.x, sy: P.y, r: g.r || 30, n: hits, color: hex7(g.col), life: L, max: L, seed: Math.random() });
+  const snd = { lightbolt: "zap", thunderstorm: "zap", jupitel: "zap", lov: "zap", fireball: "boom", meteor: "boom", comet: "boom", crimson: "boom", heavensdrive: "boom" }[id] || "magic";
+  if (typeof sfx === "function") for (let h = 0; h < Math.min(hits, 4); h++) setTimeout(() => sfx(snd, 0), (T[0] + h * T[1]) * 1000);   // เสียงตอนกระทบ (sound.js)
+  const crit = Math.random() < skillLv("magiccrit") * 0.04;   // เวทวิกฤต: ทั้งวิชาแรง ×2
+  if (crit) floatText(m.x, { y: m.y, h: m.r * 2 + 30 }, "คริเวท!", "#ff5ad6", 18, true);
+  const plan = tg.map(t => { let v = magicDmg(g.b + g.bl * lv, g.i + g.il * lv, d) * amp * (crit ? 2 : 1) / hits; if (t !== m && g.splash) v *= g.splash; if (g.ghost) v *= ghostMul(t); return [t, Math.max(1, Math.round(v))]; });
+  for (let h = 0; h < hits; h++) setTimeout(() => {
+    for (const [t, v] of plan) {
+      if (t.dead) continue;
+      magicHit(t, v, g.col);
+      if (t.dead || h < hits - 1) continue;   // สถานะติดตอนครั้งสุดท้าย
+      if (g.slow) slowMob(t, g.slow);
+      if (g.stun && !t.def.boss && Math.random() * 100 < g.stun + lv * (g.stunL || 0)) stunMob(t, g.stunT || 2);
+      if (g.knock && t === m) knockMob(t, P.x, P.y, g.knock);
+    }
+  }, (T[0] + h * T[1]) * 1000);
+}
 function castSkill(id, m, d, chanted = false) {
   const sk = SKILLS[id], lv = skillLv(id);
   if (sk.line === "mage" && !chanted) {   // วิชาสายเวท: ร่าย 0.45 วิ ก่อน
-    P.skillCd = P.atkCd = MAGE.chant + 0.05; P.dir = faceDir(P.x, P.y, m.x, m.y); chantFx(MAGE.chant);
+    const ch = MAGE.chant * (1 - skillLv("mastery") * 0.08) * (1 - buffLv("quicken") * 0.1);   // มหาเวทแก่กล้า: ร่ายเร็วขึ้น
+    P.skillCd = P.atkCd = ch + 0.05; P.dir = faceDir(P.x, P.y, m.x, m.y); chantFx(ch);
     setTimeout(() => {
       if (!P.dead && mode === "play" && !m.dead && P.sp >= skSp(sk, lv)) { castMul = MAGE.dmg; try { castSkill(id, m, D(), true); } finally { setTimeout(() => castMul = 1, 0); } }
       else P.skillCd = 0;
-    }, MAGE.chant * 1000);
+    }, ch * 1000);
     return;
   }
   if (id === "mammonite" && P.zeny < lv * 30) { floatText(P.x, { y: P.y, h: 74 }, "เบี้ยไม่พอ", "#ffd23f", 14); return; }
   if (id === "tycoon" && P.zeny < lv * 300) { floatText(P.x, { y: P.y, h: 74 }, "เบี้ยไม่พอ", "#ffd23f", 14); return; }
-  P.sp -= skSp(sk, lv); P.skillCd = skCd(sk); P.atkCd = d.aspd / 1000;
+  P.sp -= skSp(sk, lv); startCd(id, sk); P.atkCd = d.aspd / 1000;
   P.swing = 0.25; P.dir = faceDir(P.x, P.y, m.x, m.y);
   breakHide();
   floatText(P.x, { y: P.y, h: 74 }, sk.name + "!", sk.color || LINES.find(l => l.id === sk.line).color, 16);
   if (sk.custom) return customCast(sk, m, lv, d);   // วิชาของแอดมิน (รวมวิชาเดิมที่เปลี่ยนแม่แบบ)
+  if (sk.mg && !sk.sheet) return mageCast(sk, m, lv, d);
+  if (sk.ph && !sk.sheet) return physCast(sk, m, lv, d, id);   // วิชากายภาพมีแอนิเมชันของตัวเอง   // วิชาเวทมีแอนิเมชันของตัวเอง (ไม่ใช้เอฟเฟกต์รวม)
   if (sk.sheet) playSheet(sk.sheet, m.x, m.y, m.r); else if (sk.vfx) playVfx(sk.vfx, m.x, m.y, m.r, sk.color);   // วิชาเดิมที่แอดมินเลือกเอฟเฟกต์เพิ่ม
+  if (sk.mg) return mageCast(sk, m, lv, d);
   switch (id) {
     // ⚔️ ดาบ
-    case "slash": effect("ring", m.x, { y: m.y, h: m.r }, "#ffa94d", 0.4); attackMob(m, 1.3 + lv * 0.3, lv * 5, d); break;
-    case "pierce": effect("ring", m.x, { y: m.y, h: m.r }, "#9fd3ff", 0.5); for (const t of near(m, 55)) attackMob(t, 1.6 + lv * 0.3, 20, d); break;
-    case "whirl": effect("ring", m.x, m.y, "#dfe8ff", 0.6); for (const t of near(m, 70)) attackMob(t, 1.5 + lv * 0.3, 15, d); break;
-    // 🔮 เวท
-    case "firebolt": bolt(m, "#ff7b25"); effect("poof", m.x, { y: m.y, h: m.r }, "#ff8a3d", 0.4); magicHit(m, magicDmg(25 + lv * 12, 1.5 + lv * 0.3, d), "#ff8a3d"); break;
-    case "coldbolt": bolt(m, "#9fe8ff"); magicHit(m, magicDmg(20 + lv * 10, 1.3 + lv * 0.3, d), "#bfefff"); if (!m.dead) slowMob(m, 3); break;
-    case "lightbolt": bolt(m, "#ffe45c", true); effect("ring", m.x, m.y, "#ffe45c", 0.4); magicHit(m, magicDmg(30 + lv * 14, 1.6 + lv * 0.3, d), "#ffe45c"); break;
-    case "nova": effect("ring", m.x, m.y, "#d05cff", 0.7); effect("poof", m.x, { y: m.y, h: m.r }, "#e9b8ff", 0.6);
-      for (const t of near(m, 75)) magicHit(t, magicDmg(20 + lv * 10, 1 + lv * 0.2, d), "#e9b8ff"); break;
-    case "fire": bolt(m, "#ff5a1f"); effect("ring", m.x, m.y, "#ff5a1f", 0.6); effect("poof", m.x, { y: m.y, h: m.r }, "#ff8a3d", 0.6);
-      for (const t of near(m, 85)) magicHit(t, magicDmg(40 + lv * 20, 2 + lv * 0.4, d), "#ff8a3d"); break;
-    case "stonecurse": bolt(m, "#c9c2b8"); magicHit(m, magicDmg(20 + lv * 5, 0.5, d), "#c9c2b8");
-      if (!m.dead && !m.def.boss && Math.random() * 100 < 30 + lv * 10) stunMob(m, 3); break;
-    case "thunder": bolt(m, "#9fe8ff", true); effect("ring", m.x, m.y, "#9fe8ff", 0.5); effect("poof", m.x, { y: m.y, h: m.r }, "#e0f7ff", 0.4);
-      for (const t of near(m, 55)) magicHit(t, magicDmg(t === m ? 60 + lv * 25 : 30 + lv * 12, (3 + lv * 0.5) * (t === m ? 1 : 0.5), d), "#9fe8ff"); break;
-    case "storm": effect("ring", m.x, m.y, "#bfefff", 1); effect("poof", m.x, { y: m.y, h: m.r }, "#ffffff", 0.8);
-      for (const t of near(m, 130)) { magicHit(t, magicDmg(80 + lv * 30, 3 + lv * 0.6, d), "#bfefff"); if (!t.dead) { slowMob(t, 4); if (!t.def.boss && Math.random() < 0.2) stunMob(t, 2); } } break;
     // 🏹 ธนู
     case "double": attackMob(m, 0.9 + lv * 0.1, 10, d); if (!m.dead) setTimeout(() => { if (!m.dead) attackMob(m, 0.9 + lv * 0.1, 10, D()); }, 120); break;
     case "charge": attackMob(m, 1.5 + lv * 0.2, 15, d); if (!m.dead) knockMob(m, P.x, P.y, 90); break;
@@ -3021,6 +3308,10 @@ function customSelf(sk, lv, d) {
   customStatus(sk, targets, d);
   floatText(P.x, { y: P.y, h: 74 }, sk.name + "!", sk.color, 16);
 }
+// คูลดาวน์แยกรายวิชา: ใช้วิชาหนึ่งแล้ววิชาอื่นยังกดได้ (หน่วงรวมแค่ GCD สั้น ๆ)
+const GCD = 0.35;
+const cdLeft = id => Math.max(0, ((P.cds && P.cds[id]) || 0) - now);
+const startCd = (id, sk) => { (P.cds = P.cds || {})[id] = now + skCd(sk); P.skillCd = Math.min(GCD, skCd(sk)); };
 function useSkill(id) {
   if (P.dead || mode !== "play") return;
   const sk = SKILLS[id], lv = skillLv(id), d = D();
@@ -3035,15 +3326,16 @@ function useSkill(id) {
   if (sk.kind === "passive") { log(`${sk.name} เป็นวิชาติดตัว ทำงานอัตโนมัติ`, "#b9a47c"); return; }
   if (!weaponOk(id, d.wtype)) { floatText(P.x, { y: P.y, h: 74 }, "อาวุธไม่ถูกประเภท", "#ffb3a8", 14); log(`⚠ ${sk.name} ใช้ได้กับ: ${weaponText(id)}`, "#ffd166"); return; }
   if (P.sp < skSp(sk, lv)) { floatText(P.x, { y: P.y, h: 74 }, "SP ไม่พอ", "#8ab4ff", 14); return; }
-  if (P.skillCd > 0) return;
+  if (P.skillCd > 0 || cdLeft(id) > 0) return;
   if (sk.kind === "target") {
     if (!P.target || P.target.kind !== "mob") { log(`คลิกเลือกศัตรูก่อนใช้ ${sk.name}`, "#b9a47c"); return; }
     P.queued = id;   // จะใช้เมื่อเดินเข้าระยะ
     return;
   }
-  P.sp -= skSp(sk, lv); P.skillCd = skCd(sk);
+  P.sp -= skSp(sk, lv); startCd(id, sk);
   const col = sk.color || LINES.find(l => l.id === sk.line).color;
-  if (!sk.custom) { if (sk.sheet) playSheet(sk.sheet, P.x, P.y, 30); else if (sk.vfx) playVfx(sk.vfx, P.x, P.y, 20, col); }
+  if (sk.ph && !sk.custom && !sk.sheet) { physCast(sk, null, lv, d, id); floatText(P.x, { y: P.y, h: 74 }, sk.name + "!", col, 16); return; }   // วิชารอบตัว (ระเบิดเพลิง / ยันต์อัคนีระเบิด)
+  if (!sk.custom && !MAGE_AURA[id]) { if (sk.sheet) playSheet(sk.sheet, P.x, P.y, 30); else if (sk.vfx) playVfx(sk.vfx, P.x, P.y, 20, col); }
   if (sk.custom && sk.kind === "self") {
     customSelf(sk, lv, d);
   } else if (sk.custom && sk.kind === "buff") {
@@ -3052,12 +3344,12 @@ function useSkill(id) {
     if (sk.sheet) playSheet(sk.sheet, P.x, P.y, 30); else playVfx(sk.vfx || "pillar", P.x, P.y, 0, col);
     floatText(P.x, { y: P.y, h: 74 }, sk.name + "!", col, 18, true);
   } else if (id === "heal") {
-    const amt = Math.round(20 + lv * 15 + INTof(d) * (2 + lv * 0.5));
+    const amt = Math.round((20 + lv * 15 + INTof(d) * (2 + lv * 0.5)) * (1 + skillLv("meditatio") * 0.1));   // สมาธิภาวนา
     P.hp = Math.min(d.maxHp, P.hp + amt);
     floatText(P.x, { y: P.y, h: 54 }, "+" + amt, "#6bff8a", 22);
     effect("heal", P.x, P.y, "#ffd1e8", 1);
   } else if (id === "provoke") {
-    effect("ring", P.x, P.y, "#ff5a5a", 0.7);
+    effects.push({ kind: "mfx", a: "provoke", follow: true, x: P.x, y: P.y, h: 0, r: 150, n: 1, color: "#ff4d4d", life: .7, max: .7, seed: Math.random() });
     let n = 0;
     for (const m of near(P, 150)) { m.aggro = true; m.returning = false; m.provUntil = now + 20; m.provAmt = (10 + lv * 6) / 100; n++; floatText(m.x, mobTop(m), "โกรธ!", "#ff6b6b", 14); }
     floatText(P.x, { y: P.y, h: 74 }, `ยั่วยุ! (${n} ตัว)`, col, 16);
@@ -3077,6 +3369,14 @@ function useSkill(id) {
     const dur = id === "hide" ? 5 + lv * 2 : sk.dur;
     P.buffs[id] = { lv, until: now + dur };
     if (id === "guard") P.shield = Math.round(d.maxHp * (0.1 + lv * 0.03));
+    if (id === "safetywall") P.shield = Math.round(d.maxHp * (0.06 + lv * 0.02));
+    if (id === "summon") summonSpirits(lv);
+    if (MAGE_AURA[id]) {   // บัพสายเวท: แอนิเมชันตอนร่ายของตัวเอง (ออร่าค้างวาดใน drawMageAura)
+      effects.push({ kind: "mfx", a: id, follow: true, x: P.x, y: P.y, h: 0, r: 30, n: 1, color: MAGE_AURA[id], life: 1.1, max: 1.1, seed: Math.random() });
+      if (typeof sfx === "function") sfx("holy", 0);
+      floatText(P.x, { y: P.y, h: 74 }, sk.name + "!", col, 18, true);
+      return;
+    }
     if (id === "hide") { P.hideUntil = now + dur; for (const m of mobs) if (dist(m, P) < 400) m.aggro = false; P.target = null; }
     effect("levelup", P.x, P.y, col, 0.9);
     floatText(P.x, { y: P.y, h: 74 }, sk.name + "!", col, 18, true);
@@ -3098,8 +3398,10 @@ function learnSkill(id) {
   saveGame(); refreshWindows();
 }
 // ล้างแต้มวิชา (ที่หลวงพ่อทอง) · วิชา ult ที่ปลดล็อกแล้วยังปลดล็อกอยู่
+// ค่าครูล้างวิชา: ค่าตั้งต้น + 1,000 ต่อแต้มที่ใช้ไป (Lv สูง/แต้มเยอะ = แพงขึ้น กันล้างพร่ำเพรื่อ)
+function skillResetFee(spent) { return SETTINGS.skillReset + (spent ?? spentPoints()) * 1000; }
 function resetSkills() {   // ล้างแต้มวิชาที่หมอผี (ค่าครูตั้งได้ในหลังบ้าน > ตั้งค่า)
-  const spent = spentPoints(), fee = SETTINGS.skillReset;
+  const spent = spentPoints(), fee = skillResetFee(spent);
   if (!spent) { log("ยังไม่ได้อัปวิชาใดเลย", "#b9a47c"); return; }
   if (P.zeny < fee) { log(`เบี้ยไม่พอ (ค่าครู ${fee.toLocaleString()} เบี้ย)`, "#ffd166"); return; }
   P.zeny -= fee; P.skills = {}; P.skillPts += spent; P.buffs = {}; P.shield = 0;
@@ -3135,14 +3437,14 @@ function useItem(id) {
   if (it.type === "use") {
     if (P.potCd > 0) return;
     P.potCd = 0.3;
-    if (it.hp) { P.hp = Math.min(d.maxHp, P.hp + it.hp); floatText(P.x, { y: P.y, h: 54 }, "+" + it.hp, "#6bff8a", 20); }
-    if (it.sp) { P.sp = Math.min(d.maxSp, P.sp + it.sp); floatText(P.x, { y: P.y, h: 54 }, "+" + it.sp + " SP", "#8ab4ff", 18); }
+    if (it.hp) { const a = it.hp + Math.round(d.maxHp * (it.hpPct || 0) / 100); P.hp = Math.min(d.maxHp, P.hp + a); floatText(P.x, { y: P.y, h: 54 }, "+" + a, "#6bff8a", 20); }
+    if (it.sp) { const a = it.sp + Math.round(d.maxSp * (it.spPct || 0) / 100); P.sp = Math.min(d.maxSp, P.sp + a); floatText(P.x, { y: P.y, h: 54 }, "+" + a + " SP", "#8ab4ff", 18); }
     effect("heal", P.x, P.y, "#c8ffd0", 0.6);
     removeItem(id);
   } else if (it.type === "book") {
     readBook(id);
   } else if (isEquip(it)) {
-    if (it.type === "shield" && twoHanded(P.equip.weapon)) { log(`⚠ ${ITEMS[P.equip.weapon].name} ใช้สองมือ ถือโล่ไม่ได้`, "#ffd166"); return; }
+    if (it.type === "shield") { log("🛡️ ยกเลิกช่องโล่แล้ว (ขายที่ร้านค้าได้)", "#ffd166"); return; }
     const cands = TYPE_SLOTS[it.type];
     const slot = cands.find(s => !P.equip[s]) || cands[0];   // แหวน/ต่างหู: ใส่ช่องที่ว่างก่อน
     removeItem(id);
@@ -3171,13 +3473,13 @@ function addItem(id, n = 1) { P.inv[id] = (P.inv[id] || 0) + n; }
 // ย่ามมีจำกัด: ของต่างชนิดได้ไม่เกิน bagMax() ช่อง (ของชนิดเดียวกันซ้อนในช่องเดียวได้ไม่จำกัด)
 // ค่าย่าม (แอดมินแก้ได้ในหลังบ้าน > ตั้งค่า): ช่องเริ่มต้น / สูงสุด / ขยายครั้งละกี่ช่อง / ราคาครั้งแรก / ราคาเพิ่มต่อครั้ง
 const SETTINGS = { bagBase: 30, bagLimit: 80, bagStep: 5, bagPrice: 3000, bagPriceStep: 3000, skillReset: 3000,
-  maxLevel: 200, statMax: { str: 99, int: 99, agi: 99, dex: 99, vit: 99, luk: 99 } };   // เพดานเลเวล / สเตตัสฐานสูงสุดต่อตัว (แอดมินตั้งได้)
+  maxLevel: 1000, statMax: { str: 99, int: 99, agi: 99, dex: 99, vit: 99, luk: 99 } };   // เพดานเลเวล / สเตตัสฐานสูงสุดต่อตัว (แอดมินตั้งได้)
 function applySettings(d) {
   const n = (v, def, lo, hi) => { v = Number(v); return Number.isFinite(v) ? Math.round(clamp(v, lo, hi)) : def; };
   SETTINGS.bagBase = n(d.bagBase, 30, 10, 200); SETTINGS.bagLimit = n(d.bagLimit, 80, SETTINGS.bagBase, 300);
   SETTINGS.bagStep = n(d.bagStep, 5, 1, 50); SETTINGS.bagPrice = n(d.bagPrice, 3000, 0, 1e9); SETTINGS.bagPriceStep = n(d.bagPriceStep, 3000, 0, 1e9);
   SETTINGS.skillReset = n(d.skillReset, 3000, 0, 1e9);
-  SETTINGS.maxLevel = n(d.maxLevel, 200, 1, 999);   // พาส 1: เลเวลตัน 200
+  SETTINGS.maxLevel = n(d.maxLevel, 1000, 1, 1000);   // เลเวลตันตามที่แอดมินตั้ง (สูงสุด 1000)
   for (const k of STAT_ORDER) SETTINGS.statMax[k] = n(d["max_" + k], 99, 1, 999);
   STAT_RATE = JSON.parse(JSON.stringify(STAT_RATE_DEFAULT));   // ค่าสเตตัสต่อแต้มจากหลังบ้าน (ไม่ตั้ง = สูตรเดิม)
   if (d.statRates && typeof d.statRates === "object") for (const st of STAT_ORDER) {
@@ -3254,7 +3556,7 @@ function talkNpc(n) {
       { label: "🔨 ตีบวก", fn: () => openCraft("tailor", "refine") }, { label: "⚒️ ทอชุด", fn: () => openCraft("tailor", "craft") }, { label: "ไว้ก่อน" },
     ], n);
   } else if (n.id === "shaman") {
-    const spent = spentPoints(), fee = SETTINGS.skillReset;
+    const spent = spentPoints(), fee = skillResetFee(spent);
     showDialog(n.name, "หึ ๆ ๆ... เจ้ามาหาข้าเพราะวิชาที่ฝึกมาไม่ถูกใจหรือ?\nข้าล้างวิชาทั้งหมดให้ได้ แล้วเจ้าจะได้แต้มคืนไปฝึกใหม่" +
       (spent ? `\n\n(คืน ${spent} แต้ม · ค่าครู ${fee.toLocaleString()} เบี้ย)` : "\n\n(เจ้ายังไม่ได้อัปวิชาใดเลย)"), [
       ...(spent ? [{ label: `🔮 ล้างแต้มวิชา (${fee.toLocaleString()} เบี้ย)`, fn: () => showDialog(n.name,
@@ -3269,6 +3571,10 @@ function talkNpc(n) {
   } else if (n.id === "smith") {
     showDialog(n.name, "เหล็กดีต้องผ่านไฟ! เอาอาวุธหรือโล่ที่สวมอยู่มาให้ข้าตีให้แกร่งขึ้นสิ หรือจะให้ข้าตีอาวุธเล่มใหม่ก็ได้\n+1 ถึง +4 ปลอดภัยแน่นอน แต่สูงกว่านั้น... ถ้าพลาด ของแตกนะ!\nอาวุธ +7 ขึ้นไปจะเรืองแสงสีทอง (ชุดไปหาแม่ทอง · แหวนไปหาเฮียกิม)", [
       { label: "🔨 ตีบวก", fn: () => { stationTab.smith = "refine"; openWin("smithWin"); } }, { label: "⚒️ คราฟอาวุธ", fn: () => { stationTab.smith = "craft"; openWin("smithWin"); } }, { label: "ไว้ก่อน" },
+    ], n);
+  } else if (n.id === "merc") {
+    showDialog(n.name, (guardOn() ? "ลูกน้องข้ายังคุ้มกันเจ้าอยู่ · เหลืออีก " + guardLeft() + "\nหมดเวลาแล้วค่อยมาจ้างใหม่" : "ออกนอกเมืองไปคนเดียวอันตรายนะ มีคนชอบรังแกคนอื่น\nจ้างทหารของข้าสิ จะคุ้มกันเจ้าจากผู้เล่นคนอื่น 2 ชั่วโมงเต็ม") + "\n(ค่าจ้าง " + guardCost().toLocaleString() + " เบี้ย)", [
+      ...(guardOn() ? [] : [{ label: "🛡️ จ้างทหาร (" + guardCost().toLocaleString() + " เบี้ย)", fn: () => openGuardWin() }]), { label: "ไว้ก่อน" },
     ], n);
   } else if (n.id === "guard") talkGuard(n);
 }
@@ -3324,13 +3630,15 @@ function hotbarAtkSkills(d) {   // วิชาโจมตีในช่อง
 }
 const basicOn = d => (P.hotbar || []).some(h => h && h.type === "skill" && h.id === BASIC_ID) || !hotbarAtkSkills(d).length;
 function pickHotbarSkill(m, d) {   // โหมดใช้แต่วิชา: วิชาแรกในช่องที่ SP พอ (วิชารอบตัวใช้เมื่อศัตรูอยู่ในรัศมี)
+  let wait = null;
   for (const id of hotbarAtkSkills(d)) {
-    if (P.sp < skillCost(id)) continue;
-    const sk = SKILLS[id];
-    if (sk.kind === "target") return { id, self: false };
-    if (dist(P, m) < (sk.radius || (id === "magnus" ? 150 : 75)) + m.r) return { id, self: true };
+    if (P.sp < skillCost(id) || !zenyOk(id)) continue;
+    const sk = SKILLS[id], pick = sk.kind === "target" ? { id, self: false } : dist(P, m) < (sk.radius || (id === "magnus" ? 150 : 75)) + m.r ? { id, self: true } : null;
+    if (!pick) continue;
+    if (cdLeft(id) <= 0) return pick;
+    if (!wait || cdLeft(id) < cdLeft(wait.id)) wait = pick;
   }
-  return null;
+  return wait;
 }
 function updatePlayer(dt, d) {
   P.swing = Math.max(0, P.swing - dt);
@@ -3338,9 +3646,10 @@ function updatePlayer(dt, d) {
   P.moving = false;
   if (P.dead || mode !== "play") return;
   P.atkCd -= dt; P.skillCd -= dt; P.potCd -= dt;
+  tickSummons(dt, d); autoPot(d);
   if (P.buffs) for (const b in P.buffs) if (P.buffs[b].until <= now) {
     delete P.buffs[b];
-    if (b === "guard") P.shield = 0;
+    if (b === "guard" || b === "safetywall") P.shield = 0;
     if (b === "hide") P.hideUntil = 0;
     log(`${SKILLS[b].icon} ${SKILLS[b].name} หมดฤทธิ์`, "#b9a47c");
   }
@@ -3360,9 +3669,9 @@ function updatePlayer(dt, d) {
     }
     const range = m.r + P.r + d.range, reach = q ? m.r + P.r + skillReach(q, d) : range, dm = dist(P, m);
     P.lastReach = reach - m.r - P.r;
-    if (selfQ && P.skillCd <= 0) useSkill(selfQ);
+    if (selfQ && P.skillCd <= 0 && cdLeft(selfQ) <= 0) useSkill(selfQ);
     else if (dm > reach) walkTo(P, m.x, m.y, d.speed * dt);
-    else if (q && P.skillCd <= 0 && P.sp >= skillCost(q)) { P.queued = null; castSkill(q, m, d); }
+    else if (q && P.skillCd <= 0 && cdLeft(q) <= 0 && P.sp >= skillCost(q)) { P.queued = null; castSkill(q, m, d); }
     else if (!basic) { if (dm > range && !q) walkTo(P, m.x, m.y, d.speed * dt); }   // รอคูลดาวน์วิชา
     else if (dm > range) walkTo(P, m.x, m.y, d.speed * dt);
     else if (P.atkCd <= 0) {
@@ -3370,7 +3679,21 @@ function updatePlayer(dt, d) {
       if (d.magic) {   // ถือประคำ/ไม้เท้าเวท: ท่องคาถาสั้น ๆ 0.3 วิ ก่อนยิงลูกเวท
         chantFx(0.3, Math.random() < 0.35);
         setTimeout(() => { if (!P.dead && !m.dead && mode === "play") { const d2 = D(); attackMob(m, 1, 0, d2); hitVfx(m, d2); } }, 300);
-      } else { attackMob(m, 1, 0, d); hitVfx(m, d); }
+      } else {
+        attackMob(m, 1, 0, d); hitVfx(m, d);
+        if (setFull("pichai") && !d.ranged && Math.random() < 0.15) setTimeout(() => {   // เซ็ตขุนศึกพิชัยครบ: ฟันซ้ำ
+          if (!m.dead && !P.dead) { floatText(P.x, { y: P.y, h: 70 }, "ฟันซ้ำ!", "#ffd23f", 13); const d2 = D(); attackMob(m, 1, 0, d2); hitVfx(m, d2); }
+        }, 140);
+        if (setFull("phran") && d.ranged && Math.random() < 0.1) {   // เซ็ตทหารพรานครบ: ลูกศรทะลุโดนตัวข้างเคียง
+          const t2 = mobs.find(o => o !== m && !o.dead && dist(o, m) < 90);
+          if (t2) setTimeout(() => { if (!t2.dead) { floatText(t2.x, mobTop(t2, 10), "ทะลุ!", "#9fe8a0", 13); attackMob(t2, 1, 0, D()); } }, 180);
+        }
+      }
+      if (buffLv("enchantpoison") && !m.dead && Math.random() * 100 < 10 + buffLv("enchantpoison") * 3) poisonMob(m, .1 + buffLv("enchantpoison") * .03, d);   // อาบพิษศาสตรา
+      if (!d.ranged && !d.magic && !m.dead && Math.random() * 100 < skillLv("triple") * 3) {   // หมัดสามจังหวะ
+        floatText(P.x, { y: P.y, h: 70 }, "สามจังหวะ!", "#ffb347", 13);
+        for (const k of [1, 2]) setTimeout(() => { if (!m.dead && !P.dead) { const d2 = D(); attackMob(m, 1, 0, d2); hitVfx(m, d2); } }, k * 110);
+      }
       if (d.wtype === "dagger" && !m.dead && Math.random() * 100 < skillLv("doubleatk") * 5) {   // ตีคู่
         floatText(P.x, { y: P.y, h: 70 }, "ตีคู่!", "#c9c2b8", 13); attackMob(m, 1, 0, d);
       }
@@ -3378,6 +3701,7 @@ function updatePlayer(dt, d) {
   } else if (t && t.kind === "pvp") {   // ประลองกับผู้เล่น (นอกเมืองเท่านั้น)
     const o = t.ref;
     if (!others.has(o.key) || o.dead || o.map !== currentMap) P.target = null;
+    else if (o.guard) { P.target = null; floatText(o.x, { y: o.y, h: 70 }, "🛡 มีทหารคุ้มกันอยู่", "#9fd8ff", 16); }
     else if (inTown(P.x, P.y) || inTown(o.x, o.y)) {
       P.target = null;
       floatText(P.x, { y: P.y, h: 70 }, "ในเมืองห้ามต่อสู้!", "#9fd8ff", 16);
@@ -3391,7 +3715,7 @@ function updatePlayer(dt, d) {
     if (walkTo(P, it.x, it.y, d.speed * dt) || dist(P, it) < 16) {
       const i = groundItems.indexOf(it);
       if (i >= 0 && bagFull(it.id)) { if (!(it.fullMsgT > now)) { bagFullMsg(); it.fullMsgT = now + 3; } }
-      else if (i >= 0) { groundItems.splice(i, 1); addItem(it.id); log(`เก็บ ${ITEMS[it.id].icon} ${ITEMS[it.id].name}`, "#d6b4ff"); refreshWindows(); }
+      else if (i >= 0) { groundItems.splice(i, 1); addItem(it.id, it.n || 1); log(`เก็บ ${ITEMS[it.id].icon} ${ITEMS[it.id].name}${it.n > 1 ? " x" + it.n : ""}`, "#d6b4ff"); refreshWindows(); }
       P.target = null;
     }
   } else if (t && t.kind === "npc") {
@@ -3404,8 +3728,11 @@ function updatePlayer(dt, d) {
   if (P.regenT >= 2) {
     P.regenT = 0;
     const mul = (P.moving ? 1 : 2) * (inTown(P.x, P.y) ? 2 : 1);
-    P.hp = Math.min(d.maxHp, P.hp + (1 + Math.floor(d.maxHp * 0.01 + P.stats.vit * 0.4)) * mul);
-    P.sp = Math.min(d.maxSp, P.sp + (1 + Math.floor(d.maxSp * 0.015 + P.stats.int * 0.3)) * mul * (1 + skillLv("focus") * 0.25));
+    P.hp = Math.min(d.maxHp, P.hp + (1 + Math.floor(d.maxHp * 0.01 + P.stats.vit * 0.4)) * mul * (1 + skillLv("hprecov") * 0.15));   // ฟื้นกายนักรบ
+    const sp0 = P.sp;
+    P.sp = Math.min(d.maxSp, P.sp + (1 + Math.floor(d.maxSp * 0.015 + P.stats.int * 0.3)) * mul * (1 + skillLv("sprecov") * 0.15 + buffLv("insight") * 0.2 + skillLv("meditatio") * 0.1));
+    if (skillLv("sprecov") && P.sp > sp0 && !P.dead)   // วิชาติดตัว "ฟื้นฟูพลังเวท": ละอองพลังสีฟ้าลอยเข้าตัวทุกครั้งที่ SP ฟื้น
+      effects.push({ kind: "mfx", a: "sprecov", follow: true, x: P.x, y: P.y, h: 0, r: 30, n: 1, color: "#5ab8ff", life: .9, max: .9, seed: Math.random() });
   }
 }
 // =====================================================================
@@ -3424,7 +3751,8 @@ function saveAutoSettings() {
 const MOB_ICON = { pig: "🐗", rooster: "🐓", monkey: "🐒", cobra: "🐍", kraseu: "👻", naga: "🐉" };
 function renderAutoWin() {
   const mapMobs = autoMapMobs();
-  let h = `<div style="margin-bottom:6px;color:var(--muted);font-size:13px">เลือกมอนสเตอร์ที่ออโต้จะล่า (เฉพาะในแผนที่นี้)</div>`;
+  let h = `<button class="autoGo ${AUTO.on ? "on" : ""}" onclick="toggleAuto();renderAutoWin();if(AUTO.on)$('autoWin').style.display='none'">${AUTO.on ? "■ หยุดออโต้" : "▶ เริ่มออโต้"}</button>
+    <div style="margin-bottom:6px;color:var(--muted);font-size:13px">เลือกมอนสเตอร์ที่ออโต้จะล่า (เฉพาะในแผนที่นี้)</div>`;
   if (!mapMobs.length) h += `<div style="padding:10px 0;color:var(--muted);font-size:13px">แผนที่นี้ไม่มีมอนสเตอร์</div>`;
   for (const [type, def] of mapMobs) {
     const high = def.lvl > P.lvl + 4;
@@ -3440,8 +3768,7 @@ function renderAutoWin() {
         <label class="row" style="cursor:pointer"><span>🛡️ ตีกลับตัวที่โจมตีเราเสมอ<br><small>แม้ไม่ได้เลือกไว้ (แนะนำให้เปิด)</small></span>
           <input type="checkbox" ${AUTO.defend ? "checked" : ""} onchange="AUTO.defend=this.checked;saveAutoSettings()" style="width:18px;height:18px;accent-color:#d4a93a"></label>
         <label class="row" style="cursor:pointer"><span>⚠️ ข้ามมอนที่เลเวลสูงกว่าเราเกิน 4</span>
-          <input type="checkbox" ${AUTO.skipHigh ? "checked" : ""} onchange="AUTO.skipHigh=this.checked;saveAutoSettings()" style="width:18px;height:18px;accent-color:#d4a93a"></label>
-        <div style="margin-top:10px;text-align:right"><button class="btn ${AUTO.on ? "on" : ""}" onclick="toggleAuto();renderAutoWin()">${AUTO.on ? "หยุดออโต้" : "เริ่มออโต้"}</button></div>`;
+          <input type="checkbox" ${AUTO.skipHigh ? "checked" : ""} onchange="AUTO.skipHigh=this.checked;saveAutoSettings()" style="width:18px;height:18px;accent-color:#d4a93a"></label>`;
   $("autoBody").innerHTML = h;
 }
 function setAutoPick(type, v) { AUTO.pick[type] = v; saveAutoSettings(); }
@@ -3470,6 +3797,7 @@ function toggleAuto(force) {
   }
   const b = $("autoBtn");
   b.classList.toggle("on", AUTO.on);
+  $("topAutoBtn")?.classList.toggle("on", AUTO.on);
   b.innerHTML = AUTO.on ? `⚔<span class="albl"> ออโต้: เปิด</span><span class="mhide"> (A)</span>` : `⚔<span class="albl"> ออโต้</span><span class="mhide"> (A)</span>`;
   if (isOpen("autoWin")) renderAutoWin();
 }
@@ -3523,10 +3851,10 @@ function autoFarm(d, dt) {
   const hpPct = P.hp / d.maxHp;
   const pot = ["orange", "red", "banana"].find(id => P.inv[id]);
   const healCost = skillLv("heal") ? skillCost("heal") : 0;
-  if (hpPct < 0.5 && healCost && P.sp >= healCost && P.skillCd <= 0) useSkill("heal");
+  if (hpPct < 0.5 && healCost && P.sp >= healCost && P.skillCd <= 0 && cdLeft("heal") <= 0) useSkill("heal");
   else if (hpPct < 0.35 && P.potCd <= 0 && pot) useItem(pot);
   for (const b of ["blessing", "agiup", "concentrate", "guard", "endure", "regen"]) {   // เปิดบัฟอัตโนมัติถ้าเรียนแล้วและหมดเวลา
-    if (skillLv(b) && !(P.buffs && P.buffs[b]) && P.skillCd <= 0 && P.sp >= skillCost(b) + healCost && P.target) { useSkill(b); break; }
+    if (skillLv(b) && !(P.buffs && P.buffs[b]) && P.skillCd <= 0 && cdLeft(b) <= 0 && P.sp >= skillCost(b) + healCost && P.target) { useSkill(b); break; }
   }
   if (!pot && hpPct < 0.4 && !AUTO.returning) {
     AUTO.returning = true;
@@ -3541,14 +3869,14 @@ function autoFarm(d, dt) {
     if (t.ref.returning) { P.target = null; return; }   // ศัตรูหนีกลับรัง ไม่ต้องไล่
     if (!basicOn(d)) return;   // ใช้แต่วิชาในช่องปุ่มลัด (updatePlayer เลือกให้เอง)
     // ใช้วิชาโจมตีที่แรงที่สุดที่เข้ากับอาวุธ (มอนรุมตั้งแต่ 2 ตัว = ใช้วิชาหมู่ก่อน) · ไม่ใช้วิชาที่เสียเบี้ย
-    const ready = id => skillLv(id) && weaponOk(id, d.wtype) && P.skillCd <= 0 && !P.queued && P.sp >= skillCost(id) + healCost;
+    const ready = id => skillLv(id) && weaponOk(id, d.wtype) && zenyOk(id) && P.skillCd <= 0 && cdLeft(id) <= 0 && !P.queued && P.sp >= skillCost(id) + healCost;
     const crowd = mobs.filter(m => dist(m, P) < 90).length;
     if (crowd >= 2) {
       for (const id of ["magnus", "magnum"]) if (ready(id)) { useSkill(id); return; }
-      const aoe = ["storm", "fire", "thunder", "nova", "rain", "whirl", "pierce"].find(ready);
+      const aoe = ["comet", "stormgust", "meteor", "thunderstorm", "fireball", "ignition", "dragonbreath", "arrowstorm", "claymore", "rain", "blitz", "tigercannon", "rampage", "meteorassault", "rollingcutter", "grimtooth", "armcannon", "tycoon", "axetornado", "cartrevo", "hammerfall", "whirl"].find(ready);
       if (aoe) { P.queued = aoe; return; }
     }
-    const atk = ["shadow", "sharp", "storm", "thunder", "fire", "lightbolt", "firebolt", "coldbolt", "stab", "double", "rain", "whirl", "pierce", "holylight", "envenom", "slash"].find(ready);
+    const atk = ["crossimpact", "vulcanarm", "cartattack", "mammonite", "shadow", "sharp", "asura", "soulbreaker", "stab", "envenom", "chaincombo", "knucklearrow", "investigate", "fingeroff", "holylight", "aimedbolt", "spiral", "sonicwave", "charge", "double", "lightbolt", "firebolt", "coldbolt", "pierce", "stab", "double", "rain", "whirl", "pierce", "holylight", "envenom", "slash"].find(ready);
     if (atk) P.queued = atk;
     return;
   }
@@ -3829,7 +4157,9 @@ function drawWeapon(x, y, d, swing, kind, glow, tint = 0, img = null) {
     ctx.restore();
     return;
   }
-  const ang = swing > 0 ? -1.7 + (1 - swing / 0.25) * 2.9 : 0.35;
+  // ท่าฟัน: ง้างไปข้างหลัง (ช้า) → ฟาดลงเร็ว เลยไปนิดแล้วดีดกลับ (easeOutBack)
+  const st = 1 - swing / 0.25, eob = u => { const c = 1.9; return 1 + (c + 1) * Math.pow(u - 1, 3) + c * Math.pow(u - 1, 2); };
+  const ang = swing > 0 ? (st < .35 ? 0.35 + (-2.3 - 0.35) * (1 - Math.pow(1 - st / .35, 2)) : -2.3 + 3.6 * eob((st - .35) / .65)) : 0.35;
   if (kind === "spear" && swing > 0) {   // หอก/ทวน: แทงตรงไปทางที่หัน (พุ่งออกแล้วดึงกลับ)
     const reach = Math.sin((1 - swing / 0.25) * Math.PI) * 16;
     ctx.rotate(WPN_VIEW === "up" ? 0 : WPN_VIEW === "down" ? Math.PI : Math.PI / 2);
@@ -3926,6 +4256,9 @@ function makeHumanSprite(o, leg, bob, view = "down", arm = 0) {   // view: down 
     for (const [lx, off] of [[12, leg], [18, -leg]]) {
       rect(lx, B - 6 + Math.min(0, off), lx + 2, B - 1 + Math.min(0, off), (x) => x === lx + 2 ? S.d : S.m);
       rect(lx - (lx < 16 ? 1 : 0), B + Math.min(0, off), lx + 2 + (lx < 16 ? 0 : 1), B + Math.min(0, off), () => [70, 44, 30]);
+      if (o.boots) { const BT = toneSet(o.boots), o2 = Math.min(0, off);   // รองเท้าตามที่สวม
+        rect(lx, B - 2 + o2, lx + 2, B - 1 + o2, (x, y) => y === B - 2 + o2 ? BT.l : x === lx + 2 ? BT.d : BT.m);
+        rect(lx - (lx < 16 ? 1 : 0), B + o2, lx + 2 + (lx < 16 ? 0 : 1), B + o2, () => BT.dd); }
     }
     // ลำตัว
     if (o.robe) {
@@ -3938,8 +4271,15 @@ function makeHumanSprite(o, leg, bob, view = "down", arm = 0) {   // view: down 
       if (view !== "up" && o.detail === "yant") { for (const [a, b] of [[15, 3], [16, 3], [17, 3], [14, 4], [18, 4], [16, 5]]) set(a, B - 17 + hb + b, [176, 42, 42]); }
       if (o.detail === "leather") for (let i = 0; i < 3; i++) rect(11, B - 15 + hb + i * 2, 20, B - 15 + hb + i * 2, () => TOP.dd);
       if (view !== "up" && o.detail === "gold") ell(17, B - 13 + hb, 2.2, 2.2, () => [226, 185, 59]);
+      if (o.detail === "royal") { const Gd = [255, 214, 90];   // เสื้อลงทอง: ขอบคอทอง + แถบทองกลางอก + พลอย
+        rect(11, B - 17 + hb, 20, B - 17 + hb, () => Gd);
+        if (view !== "up") { rect(15, B - 16 + hb, 16, B - 11, () => Gd); set(15, B - 14 + hb, [214, 40, 60]); set(16, B - 14 + hb, [214, 40, 60]); }
+        for (const yy of [B - 15 + hb, B - 12]) rect(10, yy, 21, yy, (x) => x === 15 || x === 16 ? null : (x % 2 ? Gd : [214, 160, 50])); }
       rect(10, B - 10, 21, B - 9, (x) => x < 12 ? SA.l : x > 19 ? SA.d : SA.m);                                        // ผ้าคาดเอว
     }
+    if (o.cape && view !== "up") { const C2 = toneSet(o.cape);   // ผ้าคลุมด้านหน้า: ปกไหล่ + ชายผ้าห้อยข้างตัว
+      rect(9, B - 18 + hb, 22, B - 17 + hb, (x, y) => y === B - 18 + hb ? C2.l : C2.m);
+      for (const x of [7, 24]) rect(x, B - 17 + hb, x, B - 6, (xx, y) => y > B - 8 && (y + xx) % 2 ? null : x === 7 ? C2.m : C2.d); }
     // แขน
     rect(8, B - 16 + hb + arm, 9, B - 10 + hb + arm, (x) => x === 8 ? S.m : S.d);     // แขนแกว่งสลับขา
     rect(22, B - 16 + hb - arm, 23, B - 10 + hb - arm, (x) => x === 22 ? S.m : S.d);
@@ -3982,9 +4322,17 @@ function makeHumanSprite(o, leg, bob, view = "down", arm = 0) {   // view: down 
       const N = { l: [246, 222, 160], m: [217, 179, 108], d: [168, 128, 70] };
       ell(16, hy - 5, 16, 3.5, (x, y, dx, dy) => dy > .3 ? N.d : N.m);
       ell(16, hy - 9, 9, 6, (x, y, dx, dy) => dy > .2 ? null : (dx < -.3 ? N.l : N.m));
-    } else if (o.hat === "lompok") {   // ลอมพอก
-      for (let y = hy - 26; y <= hy - 5; y++) { const w = Math.round((y - (hy - 26)) * 9 / 21); rect(16 - w, y, 16 + w, y, (x) => x < 16 - w / 2 ? [255, 255, 250] : x > 16 + w / 2 ? [210, 204, 190] : [246, 242, 232]); }
-      rect(6, hy - 6, 26, hy - 5, (x, y) => y === hy - 6 ? [240, 200, 80] : [200, 150, 40]);
+    } else if (o.hat === "lompok") {   // หมวกขุนศึกทรงโดม (เลิกทรงแหลม)
+      const HM = o.hatGild === "red" ? [[255, 150, 110], [196, 40, 30], [120, 16, 12]] : o.hatGild ? [[255, 244, 170], [236, 184, 52], [160, 104, 20]] : [[238, 238, 244], [186, 192, 204], [120, 126, 142]];
+      ell(16, hy - 6, 11.5, 8.5, (x, y, dx, dy) => dy > .35 ? null : dx + dy < -.7 ? HM[0] : dx > .45 ? HM[2] : HM[1]);
+      rect(5, hy - 6, 27, hy - 4, (x, y) => y === hy - 6 ? [255, 214, 90] : y === hy - 5 ? [226, 176, 56] : [168, 118, 30]);
+      rect(15, hy - 16, 17, hy - 14, () => [200, 150, 40]); ell(16, hy - 17, 2.2, 1.8, () => [214, 40, 60]);
+      if (view !== "up") set(16, hy - 5, [214, 40, 60]);
+    } else if (o.hat === "crown") {   // มงกุฎทอง (ไม่แหลม): รัดเกล้า 5 ยอดเล็ก + พลอย
+      const Gl = [255, 236, 140], Gm = [232, 184, 60], Gd = [168, 118, 30];
+      rect(6, hy - 7, 26, hy - 5, (x, y) => y === hy - 7 ? Gl : y === hy - 6 ? Gm : Gd);
+      for (const x of [8, 12, 16, 20, 24]) { const h = x === 16 ? 4 : x === 12 || x === 20 ? 3 : 2; rect(x, hy - 7 - h, x, hy - 8, () => Gm); set(x, hy - 8 - h, Gl); }
+      if (view !== "up") { set(16, hy - 6, [214, 40, 60]); set(11, hy - 6, [60, 170, 220]); set(21, hy - 6, [60, 170, 220]); }
     } else if (o.hat === "wrap") {   // ผ้าโพก
       ell(16, hy - 4, 11.5, 7, (x, y, dx, dy) => dy > .35 ? null : (y % 3 === 0 ? [214, 200, 170] : [245, 236, 214]));
     }
@@ -3992,7 +4340,7 @@ function makeHumanSprite(o, leg, bob, view = "down", arm = 0) {   // view: down 
 }
 const HUM_CACHE = new Map();
 function humanSprite(o, leg, bob, view, arm) {
-  const key = [o.skin, o.hair, o.hairColor, o.top, o.pants, o.sash, o.bandColor, o.headband, o.flower, o.hat, o.robe, o.cape, o.shield, o.detail, o.gender, leg, bob, view, arm].join("|");
+  const key = [o.skin, o.hair, o.hairColor, o.top, o.pants, o.sash, o.bandColor, o.headband, o.flower, o.hat, o.hatGild, o.robe, o.cape, o.shield, o.boots, o.detail, o.gender, leg, bob, view, arm].join("|");
   let spr = HUM_CACHE.get(key);
   if (!spr) { if (HUM_CACHE.size > 900) HUM_CACHE.clear(); spr = makeHumanSprite(o, leg, bob, view, arm); HUM_CACHE.set(key, spr); }
   return spr;
@@ -4031,7 +4379,8 @@ function drawHumanPix(x, y, o) {
   const fwd = view === "side" ? [d, 0] : view === "up" ? [0, -1] : [0, 1];
   let ox = 0, oy = 0;
   if (t >= 0) {
-    const amt = { blade: 3, sweep: 3, spear: 5, heavy: 2, bow: -2, magic: 0, fist: 3 }[cls], s = Math.sin(t * Math.PI);
+    // ช่วงแรก (35%) ถอยตัวง้าง แล้วพุ่งไปข้างหน้าเร็ว ๆ → ดูมีน้ำหนัก
+    const amt = { blade: 4, sweep: 4, spear: 6, heavy: 3, bow: -2, magic: 0, fist: 4 }[cls], s = t < .35 ? -0.45 * (t / .35) : Math.sin(Math.min(1, (t - .35) / .5) * Math.PI);
     ox = fwd[0] * amt * s; oy = fwd[1] * amt * s * .7;
     if (cls === "heavy" && t > .45) oy += 2;              // ทุบลงพื้น ตัวยุบ
     if (cls === "magic") oy -= 2 * s;                      // ร่ายเวท ตัวลอยขึ้นนิด
@@ -4189,7 +4538,7 @@ function drawHuman(x, y, o) {
 function lookOf(c) {
   const eq = c.equip || {}, lk = Object.assign({}, DEFAULT_LOOK, c.look || {});
   const arm = eq.armor && ITEMS[eq.armor] && (ITEMS[eq.armor].style || baseOf(eq.armor)), female = lk.gender === "f";   // style = หน้าตาเกราะของไอเท็มที่แอดมินสร้าง
-  return {
+  const L = {
     gender: lk.gender, skin: lk.skin, hair: lk.hair, hairColor: lk.hairColor, bandColor: lk.band,
     pants: eq.pants && ITEMS[eq.pants] ? (ITEMS[eq.pants].color || (baseOf(eq.pants) === "sanab" ? "#1f2a44" : "#6b2a8a")) : lk.pants, sash: "#d4a93a",
     headband: !eq.head && !female && lk.hair !== "topknot", flower: female && !eq.head ? "#ff8fb8" : null,
@@ -4203,6 +4552,14 @@ function lookOf(c) {
     cape: eq.cape && ITEMS[eq.cape] ? ITEMS[eq.cape].color : null,
     shield: eq.shield && ITEMS[eq.shield] ? ITEMS[eq.shield].color : null,
   };
+  const gc = k => k === "red" ? "#b3261e" : "#e0a82a", gi = s => eq[s] && ITEMS[eq[s]];
+  L.shield = null;   // ยกเลิกช่องโล่
+  const ar = gi("armor"); if (ar && ar.gild) { L.top = gc(ar.gild); L.detail = "royal"; }
+  const pa = gi("pants"); if (pa && pa.gild) L.pants = gc(pa.gild);
+  const ca = gi("cape"); if (ca && ca.gild) L.cape = gc(ca.gild);
+  const bo = gi("boots"); if (bo) L.boots = bo.gild ? gc(bo.gild) : bo.color || ["#6b4a2a", "#3a3a44", "#7a2a1a", "#2a4a6a", "#e0a82a"][(bo.rare || 1) - 1];
+  const he = gi("head"); if (he && he.gild) L.hatGild = he.gild;   // หมวกลงทอง: ทรงเดียวกับไอคอน
+  return L;
 }
 const playerLook = () => lookOf(P);
 function drawPlayer() {
@@ -4210,7 +4567,9 @@ function drawPlayer() {
   if (P.dead) ctx.globalAlpha = 0.45;
   if (P.hideUntil > now) ctx.globalAlpha = 0.35;   // ซ่อนตัว = โปร่งใส
   if (P.swing > 0 && P.target && P.target.ref) { const r = P.target.ref; P.face = faceOf(r.x - P.x, r.y - P.y); }   // หันหาเป้าตอนตี
+  if (guardOn()) drawGuardSoldier(x, y, P);
   drawHumanPix(x, y, { ...playerLook(), moving: P.moving, walkT: P.walkT, hurt: P.hurt > 0, dir: P.dir, swing: P.swing, face: P.face });
+  drawMageAura(x, y);   // ออร่าบัพสายเวท
   ctx.globalAlpha = 1;
   pRR(x - 21, y + 6, 42, 9, 3); fs("rgba(15,8,4,.8)", 0);
   ctx.fillStyle = P.hp / d.maxHp < .25 ? "#ff4d4d" : "#4ade6b"; ctx.fillRect(x - 20, y + 7, 40 * P.hp / d.maxHp, 3.2);
@@ -4224,6 +4583,7 @@ function drawOther(o) {
   const { x, y } = iso(o.x, o.y);
   if (x < -60 || x > VW + 60 || y < -120 || y > VH + 40) return;
   if (o.dead) ctx.globalAlpha = 0.45;
+  if (o.guard && !o.dead) drawGuardSoldier(x, y, o);
   drawHumanPix(x, y, { ...o.lk, moving: o.moving, walkT: o.walkT, dir: o.dir, swing: o.swing, face: o.face });
   ctx.globalAlpha = 1;
   pRR(x - 21, y + 6, 42, 6, 3); fs("rgba(15,8,4,.8)", 0);
@@ -4374,7 +4734,7 @@ function equipPixIcon(id) {
     } else if (t === "head") {   // ผ้าโพก · ลอมพอก · มงคล
       const v = it.draw === "lompok" ? 1 : it.series === "mongkol" ? 2 : it.draw === "wrap" ? 0 : h % 3;
       if (v === 0) { D.ell(16, 19, 11, 6.5, C); for (let i = 0; i < 4; i++) D.line(7 + i * 5, 14, 11 + i * 5, 24, C.d); D.ell(26, 15, 2.5, 2.5, C); D.rect(27, 17, 28, 23, C.d); if (gem) { D.ell(16, 15, 2, 2.5, D.T(gem)); D.set(16, 11, Gd.l); } }
-      if (v === 1) { for (let y = 3; y <= 22; y++) { const w = Math.round((y - 3) * 9 / 19); D.rect(16 - w, y, 16 + w, y, y < 8 ? [255, 255, 250] : C); } D.rect(5, 22, 27, 25, Gd); if (gem) D.ell(16, 23.5, 1.8, 1.5, D.T(gem)); }
+      if (v === 1) { D.ell(16, 18, 11.5, 10, C, (x, y, dx, dy) => dy > .3 ? null : D.sh(C, dx, dy)); D.rect(4, 19, 27, 22, Gd); D.rect(15, 5, 17, 9, Gd); D.ell(16, 5, 2.5, 2.2, D.T("#d63031")); if (gem) D.ell(16, 20.5, 1.8, 1.5, D.T(gem)); }   // หมวกขุนศึกทรงโดม
       if (v === 2) {
         D.line(14, 20, 11, 29, C.m, 2); D.line(18, 20, 21, 29, C.d, 2);   // ชายมงคลห้อยลงสองข้าง
         D.rect(9, 27, 13, 30, [240, 225, 170]); D.set(11, 28, [176, 42, 42]); D.rect(19, 27, 23, 30, [240, 225, 170]); D.set(21, 28, [176, 42, 42]);
@@ -4479,7 +4839,7 @@ function cleanItemUrl(id) {
   const eit = ITEMS[base];
   if (eit && EQ_ART_TYPES.has(eit.type) && !(eit.imgEl && eit.imgEl.complete && eit.imgEl.naturalWidth)) {   // เครื่องแต่งกายพิกเซล: ขยาย 2 เท่าแบบคม
     const c = document.createElement("canvas"); c.width = c.height = 64; const g = c.getContext("2d");
-    g.imageSmoothingEnabled = false; g.drawImage(eqPix(base), 0, 0, 64, 64);
+    g.imageSmoothingEnabled = false; g.drawImage(eqPix(base), 0, 0, 64, 64); if (eit.gild) gildIcon(g, eit.gild);
     return (cleanIcoCache[base] = c.toDataURL());
   }
   const saved = iconCache[base], ib = iconBase, ifr = iconFrame, igr = iconGrade;
@@ -4494,7 +4854,7 @@ function cleanItemUrl(id) {
     const i = y * N + x; if (on[i]) continue;
     if ((x > 0 && on[i - 1]) || (x < N - 1 && on[i + 1]) || (y > 0 && on[i - N]) || (y < N - 1 && on[i + N])) { d[i * 4] = 40; d[i * 4 + 1] = 34; d[i * 4 + 2] = 48; d[i * 4 + 3] = 255; }
   }
-  g.putImageData(img, 0, 0);
+  g.putImageData(img, 0, 0); if (eit && eit.gild) gildIcon(g, eit.gild);
   return (cleanIcoCache[base] = c.toDataURL());
 }
 const cleanIco = (id, px = 40) => `<img class="cleanIco" src="${cleanItemUrl(id)}" style="width:${px}px;height:${px}px" alt="">`;
@@ -5509,6 +5869,7 @@ function drawEffects() {
   for (const e of effects) {
     const { x, y } = iso(e.x, e.y, e.h || 0), p = 1 - e.life / e.max, fa = e.soft ? 0.4 : 1;
     ctx.globalAlpha = e.life / e.max * fa;
+    if (e.kind === "mfx") { if (e.follow) { e.x = P.x; e.y = P.y; } drawMageFx(e); continue; }
     if (e.kind === "arrow") {   // ลูกธนูพุ่งไปหาเป้า
       const e2 = iso(e.x2, e.y2, e.h2 || 0), x2 = e2.x, y2 = e2.y, hx = x + (x2 - x) * p, hy = y + (y2 - y) * p;
       const tx = x + (x2 - x) * Math.max(0, p - .3), ty = y + (y2 - y) * Math.max(0, p - .3);
@@ -5674,6 +6035,452 @@ function drawEffects() {
     ctx.globalAlpha = 1;
   }
 }
+// ===== บัพ/ติดตัวสายเวท: สีประจำวิชา + ออร่าค้างรอบตัวตลอดเวลาที่บัพยังอยู่ =====
+const MAGE_AURA = { safetywall: "#e8d8a8", energycoat: "#5ab8ff", mystical: "#c58bff", summon: "#ffb347", insight: "#ffd23f", quicken: "#57e389",
+  endure: "#9fd3ff", thq: "#57e389", aurablade: "#ffd23f", parry: "#c9c2b8", enchantblade: "#5cd6ff",
+  concentrate: "#ffe38a", windwalk: "#57e389", truesight: "#5cd6ff", fearbreeze: "#bfefff", unlimit: "#ff4a1a", falconeye: "#ffd23f",
+  blessing: "#fff2a8", agiup: "#57e389", guard: "#ffd23f", steelbody: "#c9c2b8", fury: "#ff4a1a",
+  cloaking: "#8a8fa0", enchantpoison: "#8be04f", edp: "#b05cff", hallucination: "#c9c2b8",
+  loudex: "#ffb347", adrenaline: "#ff4d6d", overthrust: "#ff6a1f", weaponperfect: "#5cd6ff", maximize: "#ff4a1a", mado: "#8a8fa0" };
+// ===== ภูตธาตุ (วิชาเรียกภูตธาตุ): ลอยวนรอบตัว ยิงเป้าที่เราตี หรือมอนที่กำลังไล่เรา =====
+const SPIRIT_EL = [["fire", "#ff6a1f", "#ffd23f"], ["water", "#4aa8f0", "#e6f9ff"], ["thunder", "#e6c21e", "#ffffff"]];
+function summonSpirits(lv) {
+  const n = 1 + Math.floor(lv / 5); P.summons = [];
+  for (let i = 0; i < n; i++) P.summons.push({ el: i % 3, lv, x: P.x, y: P.y, cd: .6 + i * .4, ang: i * 6.283 / n });
+}
+function tickSummons(dt, d) {
+  if (!P.summons || !P.summons.length) return;
+  if (!(P.buffs && P.buffs.summon && P.buffs.summon.until > now)) {   // หมดเวลา → หายวับเป็นควัน
+    for (const s of P.summons) effect("poof", s.x, { y: s.y, h: 40 }, SPIRIT_EL[s.el][1], .5);
+    P.summons = []; return;
+  }
+  for (const s of P.summons) {
+    s.ang += dt * 1.6;
+    const tx = P.x + Math.cos(s.ang) * 34, ty = P.y + Math.sin(s.ang) * 24;
+    s.x += (tx - s.x) * Math.min(1, dt * 5); s.y += (ty - s.y) * Math.min(1, dt * 5);
+    if ((s.cd -= dt) > 0) continue;
+    const mine = P.target && P.target.kind === "mob" && !P.target.ref.dead && dist(P.target.ref, s) < 260 ? P.target.ref : null;
+    const tg = mine || mobs.filter(m => !m.dead && m.aggro && dist(m, P) < 240).sort((a, b) => dist(a, s) - dist(b, s))[0];
+    if (!tg) { s.cd = .3; continue; }
+    s.cd = 1.5; s.shot = now;
+    const c = SPIRIT_EL[s.el][1], dmg = Math.round(magicDmg(20 + s.lv * 10, 1 + s.lv * .2, d) * (1 + skillLv("mastery") * 0.04));
+    effects.push({ kind: "arrow", orb: true, x: s.x, y: s.y, h: 40, x2: tg.x, y2: tg.y, h2: tg.r, life: .22, max: .22, color: c });
+    setTimeout(() => { if (tg.dead) return; magicHit(tg, dmg, c); if (s.el === 1 && !tg.dead) slowMob(tg, 2); }, 220);
+  }
+}
+function drawSpirit(s) {   // ภูตตัวกลม ๆ มีหน้า: ไฟ = เปลวสะบัด · น้ำแข็ง = หยดน้ำมีผลึก · สายฟ้า = ลูกไฟฟ้ามีประกาย
+  const p = iso(s.x, s.y, 0), [kind, c, c2] = SPIRIT_EL[s.el], y = p.y - 40 + Math.sin(now * 4 + s.ang) * 3, x = p.x, atk = now - (s.shot || -9) < .25;
+  ctx.save();
+  ctx.globalAlpha = .25; ctx.fillStyle = "#000"; pEll(x, p.y, 7, 3); ctx.fill(); ctx.globalAlpha = 1;
+  const g = ctx.createRadialGradient(x, y, 0, x, y, 20); g.addColorStop(0, c + "aa"); g.addColorStop(1, c + "00"); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, 20, 0, 7); ctx.fill();
+  ctx.fillStyle = c; ctx.strokeStyle = "#1f120a"; ctx.lineWidth = 1.5; ctx.beginPath();
+  if (kind === "fire") { const f = Math.sin(now * 14) * 2; ctx.moveTo(x - 8, y + 2); ctx.quadraticCurveTo(x - 8, y - 8, x - 2 + f, y - 18); ctx.quadraticCurveTo(x + 1, y - 9, x + 5 - f, y - 13); ctx.quadraticCurveTo(x + 9, y - 5, x + 8, y + 2); ctx.arc(x, y + 2, 8, 0, Math.PI); }
+  else if (kind === "water") { ctx.moveTo(x, y - 15); ctx.quadraticCurveTo(x + 9, y - 3, x + 8, y + 3); ctx.arc(x, y + 3, 8, 0, Math.PI); ctx.quadraticCurveTo(x - 9, y - 3, x, y - 15); }
+  else ctx.arc(x, y, 9, 0, 7);
+  ctx.closePath(); ctx.fill(); ctx.stroke();
+  ctx.fillStyle = c2; ctx.beginPath(); ctx.ellipse(x - 2, y - 2, 4, 5, 0, 0, 7); ctx.fill();   // แกนสว่าง
+  if (kind === "thunder") { ctx.strokeStyle = "#fff"; ctx.lineWidth = 1.2; for (let i = 0; i < 3; i++) { const a = now * 9 + i * 2.1; ctx.beginPath(); ctx.moveTo(x + Math.cos(a) * 9, y + Math.sin(a) * 9); ctx.lineTo(x + Math.cos(a + .3) * 14, y + Math.sin(a + .3) * 14); ctx.stroke(); } }
+  if (kind === "water") { ctx.fillStyle = "#ffffff"; ctx.fillRect(x + 3, y - 5, 2, 2); }
+  ctx.fillStyle = "#1f120a"; ctx.fillRect(x - 4, y + 1, 2, atk ? 1 : 3); ctx.fillRect(x + 2, y + 1, 2, atk ? 1 : 3);   // ตา (หรี่ตอนยิง)
+  ctx.fillStyle = "#ffffff"; ctx.fillRect(x - 4, y + 1, 1, 1); ctx.fillRect(x + 2, y + 1, 1, 1);
+  ctx.restore();
+}
+function drawMageAura(x, y) {   // x, y = ตำแหน่งบนจอของเท้าผู้เล่น
+  const lv = id => P.buffs && P.buffs[id] && P.buffs[id].until > now;
+  ctx.save();
+  if (lv("energycoat")) {   // ฟองพลังสีฟ้าบาง ๆ ห่อตัว + แสงไหลวน
+    const pu = .5 + Math.sin(now * 4) * .5;
+    ctx.globalAlpha = .18 + pu * .1; ctx.fillStyle = "#5ab8ff"; pEll(x, y - 30, 22, 36); ctx.fill();
+    ctx.globalAlpha = .55 + pu * .3; ctx.strokeStyle = "#bfe6ff"; ctx.lineWidth = 1.5; pEll(x, y - 30, 22, 36); ctx.stroke();
+    ctx.globalAlpha = .9; ctx.strokeStyle = "#ffffff"; ctx.lineWidth = 1.2; ctx.beginPath(); ctx.ellipse(x, y - 30, 22, 36, 0, now * 2, now * 2 + .8); ctx.stroke();
+  }
+  if (lv("safetywall") && P.shield > 0) {   // กำแพงหินเรืองแสง 6 เสาล้อมรอบเท้า
+    for (let i = 0; i < 6; i++) { const a = i / 6 * 6.283 + now * .3, px = x + Math.cos(a) * 24, py = y + Math.sin(a) * 24 * TD_V, back = Math.sin(a) < 0;
+      ctx.globalAlpha = back ? .45 : .85; ctx.fillStyle = "#b8a77a"; ctx.fillRect(px - 3, py - 16, 6, 16); ctx.fillStyle = "#e8d8a8"; ctx.fillRect(px - 3, py - 16, 2, 16);
+      ctx.fillStyle = "#fff3c4"; ctx.fillRect(px - 1, py - 12 + Math.sin(now * 3 + i) * 2, 2, 3); }
+    ctx.globalAlpha = .35; ctx.strokeStyle = "#fff3c4"; ctx.lineWidth = 2; pEll(x, y, 24, 24 * TD_V); ctx.stroke();
+  }
+  if (lv("insight")) { const by = y - 70 + Math.sin(now * 2) * 2; ctx.globalAlpha = .9; ctx.fillStyle = "#fff3c4"; ctx.fillRect(x - 7, by - 4, 6, 8); ctx.fillRect(x + 1, by - 4, 6, 8);
+    ctx.fillStyle = "#c9a26b"; ctx.fillRect(x - 1, by - 4, 2, 8); ctx.globalAlpha = .35; ctx.fillStyle = "#ffd23f"; ctx.beginPath(); ctx.arc(x, by, 12, 0, 7); ctx.fill(); }
+  if (lv("quicken")) for (let i = 0; i < 3; i++) { const k = (now * 1.6 + i / 3) % 1; ctx.globalAlpha = (1 - k) * .8; ctx.strokeStyle = "#57e389"; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(x - 14 + i * 14, y - 6 - k * 50); ctx.lineTo(x - 14 + i * 14, y - 16 - k * 50); ctx.stroke(); }
+  // บัพสายอื่น (ไม่มีออร่าเฉพาะ): วงสีประจำบัพใต้เท้า + ประกายลอยขึ้น (หลายบัพ = หลายวงซ้อน)
+  let k = 0;
+  for (const id in (P.buffs || {})) { if (!lv(id) || !MAGE_AURA[id] || ["energycoat", "safetywall", "mystical", "insight", "quicken", "summon"].includes(id)) continue;
+    const c = MAGE_AURA[id], R = 16 + k * 4, ph = now * 2 + k;
+    ctx.globalAlpha = .45; ctx.strokeStyle = c; ctx.lineWidth = 1.5; pEll(x, y, R, R * TD_V); ctx.stroke();
+    for (let i = 0; i < 2; i++) { const q = (ph * .5 + i * .5) % 1, a = ph * 2 + i * 3.14; ctx.globalAlpha = (1 - q) * .9; ctx.fillStyle = c; ctx.fillRect(x + Math.cos(a) * R - 1, y - q * 40 + Math.sin(a) * R * TD_V - 1, 2.5, 2.5); }
+    k++; }
+  if (lv("mystical")) {   // อักขระเวทสีม่วงลอยวนรอบหัว + วงเวทใต้เท้า
+    ctx.globalAlpha = .5; ctx.strokeStyle = "#c58bff"; ctx.lineWidth = 1.5; pEll(x, y, 20, 20 * TD_V); ctx.stroke();
+    for (let i = 0; i < 5; i++) { const a = now * 2 + i * 1.257, px = x + Math.cos(a) * 18, py = y - 58 + Math.sin(a) * 6;
+      ctx.globalAlpha = Math.sin(a) > 0 ? 1 : .5; ctx.fillStyle = "#e0b3ff"; ctx.font = "bold 9px serif"; ctx.textAlign = "center"; ctx.fillText("✦◇✧◆✶"[i], px, py); }
+  }
+  ctx.restore();
+}
+// ===== แอนิเมชันวิชาเวท (ชุดใหม่) แยกทุกวิชา · t = วินาทีที่ผ่านไป · พิกัดโลก → จอด้วย iso =====
+function drawMageFx(e) {
+  const t = e.max - e.life, n = e.n || 1, C = iso(e.x, e.y, 0), RX = e.r * TD_S, RY = RX * TD_V;
+  const rn = k => { const v = Math.sin(e.seed * 977 + k * 12.9898) * 43758.5453; return v - Math.floor(v); };
+  const q01 = (s, d) => Math.max(0, Math.min(1, (t - s) / d));
+  const glow = (x, y, r, c, a = 1) => { if (r <= .5 || a <= 0) return; ctx.save(); ctx.globalAlpha = Math.min(1, a);   // วาดทับปกติ = เห็นสีจริง (ไม่ซีดเป็นเหลืองบนพื้นหญ้า)
+    const g = ctx.createRadialGradient(x, y, 0, x, y, r); g.addColorStop(0, "#ffffff"); g.addColorStop(.25, c); g.addColorStop(.6, c + "99"); g.addColorStop(1, c + "00"); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, r, 0, 7); ctx.fill(); ctx.restore(); };
+  // เปลวไฟ: ลูกไฟ 3 ชั้น (แดง→ส้ม→เหลืองขาว) + ลิ้นไฟสะบัดไปทางหาง (ux, uy = ทิศพุ่ง)
+  const flame = (x, y, s, ux, uy, rock) => {
+    ctx.save();
+    for (let i = 0; i < 5; i++) { const f = Math.sin(t * 30 + i * 2.1) * .25, bx = x - ux * s * (1 + i * .55), by = y - uy * s * (1 + i * .55) + f * s;
+      ctx.globalAlpha = .75 - i * .13; ctx.fillStyle = i < 2 ? "#ff8a1f" : "#d8361a"; ctx.beginPath(); ctx.arc(bx, by, s * (.85 - i * .13), 0, 7); ctx.fill(); }
+    ctx.globalAlpha = 1;
+    for (const [k, c] of [[1.15, "#d8361a"], [.9, "#ff7a1f"], [.6, "#ffd23f"], [.3, "#fffbe8"]]) { ctx.fillStyle = c; ctx.beginPath(); ctx.arc(x, y, s * k, 0, 7); ctx.fill(); }
+    if (rock) { ctx.fillStyle = "#4a2a1a"; ctx.beginPath(); for (let i = 0; i < 7; i++) { const a = i * .9 + t * 3, r = s * (.55 + rn(i) * .15); ctx.lineTo(x + Math.cos(a) * r, y + Math.sin(a) * r); } ctx.closePath(); ctx.fill();
+      ctx.fillStyle = "#ff9a3d"; ctx.fillRect(x - s * .2, y - s * .25, s * .25, s * .12); }
+    ctx.restore(); glow(x, y, s * 2.2, "#ff6a1f", .5);
+  };
+  // ผลึกน้ำแข็งแหลม (ux, uy = ทิศปลายแหลม)
+  const shard = (x, y, s, ux, uy) => { const px = -uy, py = ux; ctx.save(); ctx.fillStyle = "#aee9ff"; ctx.strokeStyle = "#ffffff"; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(x + ux * s * 1.6, y + uy * s * 1.6); ctx.lineTo(x + px * s * .45, y + py * s * .45); ctx.lineTo(x - ux * s * 1.2, y - uy * s * 1.2); ctx.lineTo(x - px * s * .45, y - py * s * .45); ctx.closePath(); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = "#5fb8e8"; ctx.beginPath(); ctx.moveTo(x + ux * s * 1.6, y + uy * s * 1.6); ctx.lineTo(x - px * s * .45, y - py * s * .45); ctx.lineTo(x - ux * s * 1.2, y - uy * s * 1.2); ctx.closePath(); ctx.fill(); ctx.restore(); glow(x, y, s * 1.8, "#8fdcff", .45); };
+  const seg = (x1, y1, x2, y2, c, w, a = 1) => { ctx.save(); ctx.globalAlpha = a; vGlow(() => { ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); }, c, w); ctx.restore(); };
+  const ring = (R, c, w, a = 1, cx = C.x, cy = C.y) => { ctx.save(); ctx.globalAlpha = a; vGlow(() => pEll(cx, cy, R, R * TD_V), c, w); ctx.restore(); };
+  const blob = (x, y, rx, ry, c, a) => { ctx.save(); ctx.globalAlpha = a; ctx.fillStyle = c; pEll(x, y, rx, ry); ctx.fill(); ctx.restore(); };
+  const bolt = (x, y, c, w, k) => {   // สายฟ้าหยัก ๆ จากฟ้าลงพื้น
+    const pts = [[x + (rn(k) - .5) * 40, y - 240]]; for (let i = 1; i <= 9; i++) pts.push([x + (rn(k + i) - .5) * 26 * (1 - i / 10), y - 240 + i * 240 / 9]);
+    vGlow(() => { ctx.beginPath(); pts.forEach(([a, b], i) => i ? ctx.lineTo(a, b) : ctx.moveTo(a, b)); }, c, w);
+    const b = pts[3 + (k % 4)]; vGlow(() => { ctx.beginPath(); ctx.moveTo(b[0], b[1]); ctx.lineTo(b[0] + 20 * (rn(k + 30) > .5 ? 1 : -1), b[1] + 26); }, c, w * .5);
+    glow(x, y, 30, c, .9);
+  };
+  // ของตกจากฟ้า (ลูกไฟ/ศรน้ำแข็ง/อุกกาบาต): หัวเรืองแสง + หาง แล้วระเบิดตอนถึงพื้น
+  const fall = (k, s, d, wx, wy, h0, dx, c, size, imp, head) => {
+    const q = (t - s) / d; if (q < 0) return;
+    const A = iso(wx + dx, wy, h0), B = iso(wx, wy, 0), L = Math.hypot(B.x - A.x, B.y - A.y) || 1, ux = (B.x - A.x) / L, uy = (B.y - A.y) / L;
+    if (q < 1) { const hx = A.x + (B.x - A.x) * q, hy = A.y + (B.y - A.y) * q, tq = Math.max(0, q - .35);
+      seg(A.x + (B.x - A.x) * tq, A.y + (B.y - A.y) * tq, hx, hy, c, size * .35);
+      if (head === "fire" || head === "rock") flame(hx, hy, size, ux, uy, head === "rock"); else if (head === "ice") shard(hx, hy, size, ux, uy); else glow(hx, hy, size * 1.8, c); }
+    else if (q < 1 + imp) { const u = (q - 1) / imp; glow(B.x, B.y - size * .5, size * (2 + u * 3), c, 1 - u); ring(size * (1 + u * 3), c, 2 * (1 - u) + .5, 1 - u, B.x, B.y);
+      if (head === "fire" || head === "rock") for (let i = 0; i < 4; i++) flame(B.x + (rn(k * 5 + i) - .5) * size * 3, B.y - u * size * 2.5 * (.5 + rn(i + k)), size * .5 * (1 - u) + .5, 0, -1, false);
+      if (head === "ice") for (let i = 0; i < 5; i++) { const a = -Math.PI * (.1 + .8 * rn(k * 3 + i)); shard(B.x + Math.cos(a) * size * (1 + u * 2), B.y + Math.sin(a) * size * (.6 + u * 1.5), size * .45 * (1 - u * .6), Math.cos(a), Math.sin(a)); }
+      for (let i = 0; i < 5; i++) { const a = -Math.PI * (.1 + .8 * rn(k * 7 + i)); vStar(B.x + Math.cos(a) * u * size * 3, B.y + Math.sin(a) * u * size * 2.4, 2.5 * (1 - u) + .5, i % 2 ? c : "#ffffff"); } }
+  };
+  ctx.globalAlpha = 1;
+  switch (e.a) {
+    // ---- บัพ / ติดตัว (ตามตัวผู้เล่น) ----
+    case "safetywall": { const u = q01(0, .45), f = 1 - q01(.75, .35);   // เสาหิน 6 ต้นผุดขึ้นล้อมตัว + แสงทองพุ่ง
+      for (let i = 0; i < 6; i++) { const a = i / 6 * 6.283, px = C.x + Math.cos(a) * 26, py = C.y + Math.sin(a) * 26 * TD_V, hh = 30 * Math.min(1, u * 1.4 - i * .05);
+        if (hh <= 0) continue; ctx.save(); ctx.globalAlpha = f; ctx.fillStyle = "#9a8a62"; ctx.fillRect(px - 4, py - hh, 8, hh); ctx.fillStyle = "#e8d8a8"; ctx.fillRect(px - 4, py - hh, 3, hh);
+        ctx.fillStyle = "#5a4c30"; ctx.fillRect(px - 4, py - hh, 8, 2); ctx.restore(); blob(px, py, 9 * u, 3, "#b89870", (1 - u) * .7); }
+      ring(26, "#fff3c4", 2.5 * f, f); glow(C.x, C.y - 20, 34, "#ffe9a8", .5 * f * (1 - u * .5)); break; }
+    case "energycoat": { const u = q01(0, .6), f = 1 - q01(.8, .3);   // ฟองพลังขยายห่อตัว + ประกายไฟฟ้าวิ่งบนผิว
+      ctx.save(); ctx.globalAlpha = .35 * f; ctx.fillStyle = "#5ab8ff"; pEll(C.x, C.y - 30, 30 * u + 2, 44 * u + 2); ctx.fill(); ctx.restore();
+      ring(30 * u + 2, "#bfe6ff", 2.5 * f, f, C.x, C.y - 30);
+      for (let i = 0; i < 6; i++) { const a = i * 1.05 + t * 6; vStar(C.x + Math.cos(a) * 30 * u, C.y - 30 + Math.sin(a) * 44 * u, 2.5 * f, "#ffffff"); }
+      break; }
+    case "mystical": { const u = q01(0, .8), f = 1 - q01(.8, .3);   // วงเวทม่วงใต้เท้า + ลูกพลัง 6 ลูกหมุนเกลียวเข้าตัว
+      ctx.save(); ctx.globalAlpha = f; ctx.strokeStyle = "#c58bff"; ctx.lineWidth = 2; pEll(C.x, C.y, 34, 34 * TD_V); ctx.stroke(); pEll(C.x, C.y, 24, 24 * TD_V); ctx.stroke();
+      for (let i = 0; i < 6; i++) { const a = i * 1.047 + t * 2; ctx.beginPath(); ctx.moveTo(C.x + Math.cos(a) * 24, C.y + Math.sin(a) * 24 * TD_V); ctx.lineTo(C.x + Math.cos(a + 2.09) * 24, C.y + Math.sin(a + 2.09) * 24 * TD_V); ctx.stroke(); }
+      ctx.restore();
+      for (let i = 0; i < 6; i++) { const a = i * 1.047 + u * 9, r = 46 * (1 - u) + 4; glow(C.x + Math.cos(a) * r, C.y - 30 - u * 10 + Math.sin(a) * r * .5, 9, "#b05cff", f); }
+      if (u >= 1) glow(C.x, C.y - 36, 30, "#e0b3ff", f); break; }
+    case "insight": case "quicken": case "endure": case "thq": case "aurablade": case "parry": case "enchantblade": case "concentrate": case "windwalk": case "truesight": case "fearbreeze": case "unlimit": case "falconeye": case "blessing": case "agiup": case "guard": case "steelbody": case "fury": case "cloaking": case "enchantpoison": case "edp": case "hallucination": case "loudex": case "adrenaline": case "overthrust": case "weaponperfect": case "maximize": case "mado": { const u = q01(0, .8), f = 1 - q01(.75, .35);   // วงแสงไต่ขึ้นตามตัว + ประกาย (ทอง = ปัญญา · เขียว = เร่ง)
+      for (let i = 0; i < 3; i++) { const q = (u * 1.4 - i * .2); if (q <= 0 || q >= 1) continue; ring(16 + i * 2, e.color, 2.4, f * (1 - q), C.x, C.y - q * 60); }
+      for (let i = 0; i < 8; i++) { const a = i * .785 + t * (e.a === "quicken" ? 9 : 3), r = 22 - u * 8; vStar(C.x + Math.cos(a) * r, C.y - 20 - u * 30 + Math.sin(a) * r * .4, 2.2 * f, e.a === "quicken" ? "#c8ffd8" : "#fff3c4"); }
+      if (e.a === "quicken") for (let i = 0; i < 4; i++) seg(C.x - 20 + i * 13, C.y - 10 - ((t * 120 + i * 20) % 60), C.x - 20 + i * 13, C.y - 22 - ((t * 120 + i * 20) % 60), "#57e389", 1.6, f);
+      else glow(C.x, C.y - 66, 14, "#ffd23f", f);
+      break; }
+    // ---- ⚔️ สายดาบ ----
+    case "provoke": { const u = q01(0, .6); ring(10 + u * RX, "#ff4d4d", 3 * (1 - u) + .5, 1 - u); glow(C.x, C.y - 30, 22, "#ff4d4d", 1 - u);
+      for (let i = 0; i < 3; i++) { ctx.save(); ctx.globalAlpha = 1 - u; ctx.fillStyle = "#ff4d4d"; ctx.font = "bold 14px sans-serif"; ctx.fillText("!", C.x - 12 + i * 12, C.y - 64 - u * 14 - (i % 2) * 6); ctx.restore(); }
+      break; }
+    case "slash": { const u = q01(0, .18), v = q01(.12, .35), cy = C.y - 18;
+      if (v < 1) { ctx.save(); ctx.globalAlpha = 1 - v; vGlow(() => { ctx.beginPath(); ctx.arc(C.x, cy, 24, -2.4, -2.4 + 2.6 * u); }, "#ffa94d", 3.5); ctx.restore(); }
+      if (v > 0) { glow(C.x, cy, 18 + v * 22, "#ffb347", 1 - v); ring(8 + v * 30, "#ffd23f", 3 * (1 - v) + .4, 1 - v, C.x, C.y);
+        for (let i = 0; i < 6; i++) { const a = i * 1.047 + rn(i); vStar(C.x + Math.cos(a) * v * 30, cy + Math.sin(a) * v * 20, 3 * (1 - v) + .5, "#ffffff"); } }
+      break; }
+    case "magnum": { const u = q01(0, .5); ring(8 + u * RX, "#ff6a1f", 4 * (1 - u) + .5, 1 - u); glow(C.x, C.y - 10, 30 + u * 20, "#ff6a1f", 1 - u);
+      if (u < 1) for (let i = 0; i < 12; i++) { const a = i / 12 * 6.283, r = u * RX * .9; flame(C.x + Math.cos(a) * r, C.y + Math.sin(a) * r * TD_V - 6, 7 * (1 - u) + 1, Math.cos(a) * .3, -1, false); }
+      break; }
+    case "pierce": { const A = iso(e.sx, e.sy, 22), B = iso(e.x, e.y, 18);
+      for (let k = 0; k < 2; k++) { const u = q01(k * .14, .12), v = q01(k * .14 + .1, .25), o = k ? 4 : -4; if (u <= 0 || v >= 1) continue;
+        seg(A.x + (B.x - A.x) * .3, A.y + (B.y - A.y) * .3 + o, A.x + (B.x - A.x) * (.4 + .6 * u), A.y + (B.y - A.y) * (.4 + .6 * u) + o, "#9fd3ff", 2.5, 1 - v);
+        if (u >= 1) { glow(B.x, B.y, 14 + v * 14, "#bfe6ff", 1 - v); for (let i = 0; i < 4; i++) vStar(B.x + (rn(i + k) - .5) * 24, B.y + (rn(i + 5) - .5) * 16, 2.5 * (1 - v) + .3, "#ffffff"); } }
+      break; }
+    case "whirl": { const f = 1 - q01(.55, .3);
+      for (let k = 0; k < 3; k++) { const a0 = t * 14 + k * 2.09; ctx.save(); ctx.globalAlpha = f; vGlow(() => { ctx.beginPath(); ctx.ellipse(C.x, C.y - 14, RX * .8, RY * .8 + 8, 0, a0, a0 + 1.4); }, "#dfe8ff", 2.6); ctx.restore(); }
+      blob(C.x, C.y, RX * .9, RY * .9, "#dfe8ff", .15 * f);
+      for (let i = 0; i < 6; i++) blob(C.x + Math.cos(t * 10 + i) * RX * .7, C.y - 10 - (t * 60 + i * 10) % 40, 2, 2, "#ffffff", f);
+      break; }
+    case "spiral": { const A = iso(e.sx, e.sy, 22), B = iso(e.x, e.y, 18), u = q01(0, .3), f = 1 - q01(.55, .35), dx = B.x - A.x, dy = B.y - A.y, L = Math.hypot(dx, dy) || 1, px = -dy / L, py = dx / L;
+      for (let s = 0; s < 2; s++) { ctx.save(); ctx.globalAlpha = f; vGlow(() => { ctx.beginPath(); for (let i = 0; i <= 24; i++) { const q = i / 24 * u, w = Math.sin(q * 26 + s * Math.PI + t * 20) * 9 * (1 - q * .5);
+          i ? ctx.lineTo(A.x + dx * q + px * w, A.y + dy * q + py * w) : ctx.moveTo(A.x + dx * q + px * w, A.y + dy * q + py * w); } }, s ? "#ffd23f" : "#fff3c4", 2.2); ctx.restore(); }
+      if (u >= 1) { glow(B.x, B.y, 26, "#ffd23f", f); ring(10 + (1 - f) * 30, "#ffd23f", 3 * f, f, B.x, B.y + 18); }
+      break; }
+    case "sonicwave": { const A = iso(e.sx, e.sy, 24), B = iso(e.x, e.y, 20), u = q01(0, .3), f = 1 - q01(.35, .3), ang = Math.atan2(B.y - A.y, B.x - A.x);
+      for (let j = 0; j < 4; j++) { const q = Math.max(0, u - j * .08), x = A.x + (B.x - A.x) * q, y = A.y + (B.y - A.y) * q;
+        ctx.save(); ctx.globalAlpha = (u < 1 ? 1 : f) * (1 - j * .22); vGlow(() => { ctx.beginPath(); ctx.arc(x, y, 18, ang - 1.1, ang + 1.1); }, "#5cd6ff", 3.2 - j * .6); ctx.restore(); }
+      if (u >= 1) glow(B.x, B.y, 20 + (1 - f) * 20, "#5cd6ff", f);
+      break; }
+    case "ignition": { const u = q01(0, .25), v = q01(.2, .7);
+      for (let i = 0; i < 8; i++) { const a = i * .785 + rn(i) * .3;
+        seg(C.x, C.y, C.x + Math.cos(a) * RX * u, C.y + Math.sin(a) * RY * u, "#ff4a1a", 2, 1 - v);
+        if (v > 0 && v < 1) flame(C.x + Math.cos(a) * RX * .75, C.y + Math.sin(a) * RY * .75 - v * 30, 9 * (1 - v) + 2, 0, -1, false); }
+      if (v > 0) { ring(RX * (.3 + v * .8), "#ffb347", 4 * (1 - v) + .5, 1 - v); glow(C.x, C.y - 20, 50, "#ff6a1f", (1 - v) * .8); }
+      break; }
+    case "dragonbreath": { const A = iso(e.sx, e.sy, 36), f = 1 - q01(e.max - .3, .3), dx = C.x - A.x, dy = C.y - 16 - A.y, L = Math.hypot(dx, dy) || 1;
+      for (let i = 0; i < 22; i++) { const q = (t * 2.2 + i / 22) % 1; if (t < q / 2.2 || f <= 0) continue; const sp = q * 26 * (rn(i) - .5);
+        flame(A.x + dx * q + sp, A.y + dy * q + sp * .5, 4 + q * 9, dx / L, dy / L, false); }
+      blob(C.x, C.y, RX * .9, RY * .9, "#ff4a1a", .25 * f); glow(A.x, A.y, 16, "#ffd23f", f);
+      break; }
+    // ---- 🏹 สายธนู ----
+    case "double": case "charge": case "aimedbolt": { const A = iso(e.sx, e.sy, 26), B = iso(e.x, e.y, 18), n2 = e.a === "charge" ? 1 : n, big = e.a === "charge";
+      if (e.a === "aimedbolt") { const u = q01(0, .4), f = 1 - q01(e.max - .25, .25), R2 = 26 - u * 12;   // เป้าเล็งหมุนหดเข้า
+        ctx.save(); ctx.globalAlpha = f; ctx.strokeStyle = "#ff4d4d"; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(B.x, B.y, R2, t * 4, t * 4 + 5.5); ctx.stroke();
+        for (let i = 0; i < 4; i++) { const a = i * 1.571 + t * 4; ctx.beginPath(); ctx.moveTo(B.x + Math.cos(a) * (R2 - 6), B.y + Math.sin(a) * (R2 - 6)); ctx.lineTo(B.x + Math.cos(a) * (R2 + 6), B.y + Math.sin(a) * (R2 + 6)); ctx.stroke(); } ctx.restore(); }
+      const s0 = e.a === "aimedbolt" ? .3 : 0, dur = big ? .2 : .13, gap = e.a === "aimedbolt" ? .12 : .12;
+      for (let k = 0; k < n2; k++) { const q = (t - s0 - k * gap) / dur; if (q < 0) continue;
+        if (q < 1) { const x = A.x + (B.x - A.x) * q, y = A.y + (B.y - A.y) * q + (k % 2 ? 3 : -3), tx = A.x + (B.x - A.x) * Math.max(0, q - .35), ty = A.y + (B.y - A.y) * Math.max(0, q - .35) + (k % 2 ? 3 : -3);
+          seg(tx, ty, x, y, e.color, big ? 3.2 : 1.6); glow(x, y, big ? 14 : 6, e.color); }
+        else if (q < 1 + .35 / dur * .3) { const v = (q - 1) / (.35 / dur * .3); glow(B.x, B.y, (big ? 26 : 12) * (1 + v), e.color, 1 - v); if (big) ring(10 + v * 40, "#bfe6ff", 3 * (1 - v), 1 - v, B.x, B.y + 18);
+          for (let i = 0; i < 3; i++) vStar(B.x + (rn(i + k) - .5) * 20, B.y + (rn(i + k + 4) - .5) * 14, 2.5 * (1 - v) + .3, "#ffffff"); } }
+      break; }
+    case "rain": case "arrowstorm": { const storm = e.a === "arrowstorm", cnt = storm ? 40 : 18, f = 1 - q01(e.max - .3, .3);
+      if (storm) { blob(C.x, C.y, RX, RY, "#ffe38a", .12 * f); for (let i = 0; i < 3; i++) { const a = t * 5 + i * 2.09; seg(C.x + Math.cos(a) * RX * .4, C.y + Math.sin(a) * RY * .4 - 30, C.x + Math.cos(a + .8) * RX * .9, C.y + Math.sin(a + .8) * RY * .9 - 40, "#ffffff", 1.4, .5 * f); } }
+      for (let i = 0; i < cnt; i++) { const st = rn(i) * (e.max - .45), q = (t - st) / .22; if (q < 0 || q > 1.6) continue;
+        const a = rn(i + 50) * 6.283, r = Math.sqrt(rn(i + 90)) * e.r, x = e.x + Math.cos(a) * r, y = e.y + Math.sin(a) * r, Bp = iso(x, y, 0);
+        if (q < 1) { const top = iso(x - 20, y, 150), hx = top.x + (Bp.x - top.x) * q, hy = top.y + (Bp.y - top.y) * q; seg(hx - (Bp.x - top.x) * .12, hy - (Bp.y - top.y) * .12, hx, hy, "#ffe38a", 1.3); }
+        else { ctx.save(); ctx.globalAlpha = 1.6 - q; ctx.strokeStyle = "#6b4a2a"; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(Bp.x - 3, Bp.y - 8); ctx.lineTo(Bp.x, Bp.y); ctx.stroke(); ctx.restore(); blob(Bp.x, Bp.y, 4, 2, "#d8c8a0", 1.6 - q); } }
+      ring(e.r * TD_S, "#ffe38a", 1.2, .5 * f); break; }
+    case "blitz": { const B = iso(e.x, e.y, 0);   // เหยี่ยวโฉบจากฟ้าลงหาเป้าแล้วบินขึ้น
+      for (let k = 0; k < n; k++) { const q = (t - k * .15) / .45; if (q < 0 || q > 1) continue; const dive = q < .5 ? q * 2 : 2 - q * 2, x = B.x - 70 + q * 140, y = B.y - 20 - (1 - dive) * 110;
+        ctx.save(); ctx.translate(x, y); ctx.fillStyle = "#6b4a2a"; ctx.strokeStyle = "#1f120a"; ctx.lineWidth = 1.2; const fl = Math.sin(t * 30) * 6;
+        ctx.beginPath(); ctx.moveTo(-14, -fl); ctx.quadraticCurveTo(-6, -4, 0, 0); ctx.quadraticCurveTo(6, -4, 14, -fl); ctx.quadraticCurveTo(6, 2, 0, 3); ctx.quadraticCurveTo(-6, 2, -14, -fl); ctx.fill(); ctx.stroke();
+        ctx.fillStyle = "#f2e6c8"; ctx.beginPath(); ctx.arc(4, -1, 3, 0, 7); ctx.fill(); ctx.fillStyle = "#ffd23f"; ctx.fillRect(7, -1, 3, 2); ctx.restore();
+        if (q > .45 && q < .65) { glow(B.x, B.y - 16, 18, "#c9a26b", 1); for (let i = 0; i < 5; i++) blob(B.x + (rn(i + k) - .5) * 30, B.y - 16 - (q - .45) * 80 * rn(i + 3), 2, 4, "#f2e6c8", 1); } }
+      break; }
+    case "claymore": { const u = q01(0, .4), v = q01(.4, .6);   // กับระเบิดวางบนพื้น กะพริบแดง แล้วระเบิด
+      if (u < 1 || v <= 0) { ctx.save(); ctx.fillStyle = "#4a4a4a"; ctx.strokeStyle = "#1f120a"; ctx.fillRect(C.x - 8, C.y - 6, 16, 8); ctx.strokeRect(C.x - 8, C.y - 6, 16, 8); ctx.fillStyle = Math.sin(t * 40) > 0 ? "#ff3a3a" : "#5a1a1a"; ctx.fillRect(C.x - 2, C.y - 9, 4, 3); ctx.restore(); }
+      if (v > 0) { glow(C.x, C.y - 14, 30 + v * RX, "#ff6a1f", 1 - v); ring(8 + v * RX, "#ffb347", 4 * (1 - v) + .5, 1 - v);
+        for (let i = 0; i < 10; i++) { const a = rn(i) * 6.283, r = v * RX * (.4 + rn(i + 3) * .6); flame(C.x + Math.cos(a) * r, C.y + Math.sin(a) * r * TD_V - v * 20, 6 * (1 - v) + 1, 0, -1, false); }
+        blob(C.x, C.y - 30 - v * 30, 20 + v * 20, 12 + v * 8, "#3a2a22", (1 - v) * .4); }
+      break; }
+    case "sharp": { const A = iso(e.sx, e.sy, 26), B = iso(e.x, e.y, 18), dx = B.x - A.x, dy = B.y - A.y, L = Math.hypot(dx, dy) || 1, ext = (L + 220 * TD_S) / L, u = q01(0, .3), f = 1 - q01(.3, .4);
+      const hx = A.x + dx * ext * u, hy = A.y + dy * ext * u; seg(A.x, A.y, hx, hy, "#ffe38a", 4 * f + .5, f); glow(hx, hy, 16, "#ffffff", f);
+      for (let i = 0; i < 6; i++) { const q = rn(i) * u; ring(6 + (1 - f) * 10, "#ffe38a", 1.5 * f, f, A.x + dx * ext * q, A.y + dy * ext * q); }
+      break; }
+    // ---- 🪷 สายพระ ----
+    case "holylight": { const A = iso(e.sx, e.sy, 30), B = iso(e.x, e.y, 18), q = q01(0, .25), f = 1 - q01(.3, .4);
+      if (q < 1) { const x = A.x + (B.x - A.x) * q, y = A.y + (B.y - A.y) * q; glow(x, y, 14, "#fff2a8"); seg(A.x + (B.x - A.x) * Math.max(0, q - .3), A.y + (B.y - A.y) * Math.max(0, q - .3), x, y, "#fff2a8", 2.5); }
+      else { glow(B.x, B.y, 26, "#fff2a8", f); seg(B.x, B.y - 26 * f - 6, B.x, B.y + 26 * f + 6, "#ffffff", 3, f); seg(B.x - 18 * f - 4, B.y - 6, B.x + 18 * f + 4, B.y - 6, "#ffffff", 3, f); }
+      break; }
+    case "fingeroff": { const A = iso(e.sx, e.sy, 34), B = iso(e.x, e.y, 18);
+      for (let k = 0; k < n; k++) { const q = (t - k * .12) / .2; if (q < 0) continue; if (q < 1) { const x = A.x + (B.x - A.x) * q, y = A.y + (B.y - A.y) * q - Math.sin(q * Math.PI) * 14; glow(x, y, 9, "#ffd23f"); }
+        else if (q < 2) { const v = q - 1; glow(B.x, B.y, 10 + v * 12, "#ffd23f", 1 - v); vStar(B.x, B.y - v * 10, 2.5 * (1 - v) + .3, "#ffffff"); } }
+      for (let k = 0; k < n; k++) { const a = t * 5 + k * 6.283 / n, f = 1 - q01(k * .12, .05); if (f > 0) glow(A.x + Math.cos(a) * 16, A.y - 10 + Math.sin(a) * 6, 6, "#ffd23f", f); }   // ลูกจิตลอยรอบตัวก่อนดีด
+      break; }
+    case "investigate": { const B = iso(e.x, e.y, 20), u = q01(0, .15), v = q01(.12, .45);   // ฝ่ามือแสงกระแทก
+      ctx.save(); ctx.globalAlpha = (1 - v) * .85; ctx.fillStyle = "#fff2a8"; const s = 10 + u * 6;
+      ctx.beginPath(); ctx.ellipse(B.x, B.y, s, s * 1.1, 0, 0, 7); ctx.fill(); for (let i = 0; i < 5; i++) { const a = -2.4 + i * .45; ctx.beginPath(); ctx.ellipse(B.x + Math.cos(a) * s * 1.5, B.y + Math.sin(a) * s * 1.5, s * .28, s * .55, a + 1.57, 0, 7); ctx.fill(); }
+      ctx.restore(); if (v > 0) { ring(10 + v * 34, "#fff2a8", 3 * (1 - v) + .4, 1 - v, B.x, B.y + 20); glow(B.x, B.y, 20 + v * 20, "#ffd23f", (1 - v) * .8); }
+      break; }
+    case "chaincombo": { const B = iso(e.x, e.y, 20); for (let k = 0; k < 6; k++) { const v = q01(k * .08, .22); if (v <= 0 || v >= 1) continue;
+        const x = B.x + (rn(k) - .5) * 26, y = B.y + (rn(k + 7) - .5) * 22; glow(x, y, 8 + v * 10, "#ffb347", 1 - v); for (let i = 0; i < 4; i++) { const a = i * 1.571 + rn(k); seg(x + Math.cos(a) * 4, y + Math.sin(a) * 4, x + Math.cos(a) * (8 + v * 10), y + Math.sin(a) * (8 + v * 10), "#ffffff", 1.2, 1 - v); } }
+      const A = iso(e.sx, e.sy, 20); for (let i = 0; i < 4; i++) seg(A.x, A.y - 8 + i * 5, A.x + (B.x - A.x) * .5, A.y + (B.y - A.y) * .5 - 8 + i * 5, "#ffe9c8", 1, .4 * (1 - q01(.4, .3)));
+      break; }
+    case "knucklearrow": { const A = iso(e.sx, e.sy, 22), B = iso(e.x, e.y, 18), q = q01(0, .25), v = q01(.25, .4);
+      if (q < 1) { const x = A.x + (B.x - A.x) * q, y = A.y + (B.y - A.y) * q; for (let j = 0; j < 5; j++) { const qq = Math.max(0, q - j * .06); glow(A.x + (B.x - A.x) * qq, A.y + (B.y - A.y) * qq, 14 - j * 2, "#ff8a3d", 1 - j * .18); } glow(x, y, 10, "#ffe9c8"); }
+      if (v > 0) { glow(B.x, B.y, 20 + v * 20, "#ff8a3d", 1 - v); ring(8 + v * 36, "#ffb347", 3 * (1 - v) + .4, 1 - v, B.x, B.y + 18); }
+      break; }
+    case "tigercannon": { const u = q01(0, .45), v = q01(.45, .6);   // เสาพลังทองตกจากฟ้า + รอยกรงเล็บ 3 เส้น + คลื่นกระแทก
+      if (u < 1) { seg(C.x, C.y - 220 * (1 - u) - 40, C.x, C.y - 220 * (1 - u) + 10, "#ffb347", 8); glow(C.x, C.y - 220 * (1 - u), 24, "#ffd23f"); }
+      if (v > 0) { glow(C.x, C.y - 20, 40 + v * RX, "#ffb347", 1 - v); ring(10 + v * RX * 1.1, "#ffd23f", 4 * (1 - v) + .5, 1 - v);
+        for (let i = 0; i < 3; i++) seg(C.x - 22 + i * 16, C.y - 30, C.x - 30 + i * 16, C.y + 8, "#ff6a1f", 3, 1 - v); }
+      break; }
+    case "asura": { const A = iso(e.sx, e.sy, 30), B = iso(e.x, e.y, 18), u = q01(0, .5), v = q01(.55, .7);   // รวมพลังสีฟ้ารอบตัว → หมัดเดียวระเบิด + จอวาบ
+      if (u < 1) { glow(A.x, A.y - 10, 20 + u * 26, "#5cd6ff", .9); for (let i = 0; i < 10; i++) { const a = i * .628 + t * 4, r = 40 * (1 - u); glow(A.x + Math.cos(a) * r, A.y - 10 + Math.sin(a) * r * .5, 5, "#bfe6ff", 1); } }
+      else { if (v < .2) { ctx.save(); ctx.globalAlpha = (1 - v * 5) * .55; ctx.fillStyle = "#e6f9ff"; ctx.fillRect(cam.x - 50, cam.y - 50, VW + 100, VH + 100); ctx.restore(); }
+        seg(A.x, A.y, B.x, B.y, "#5cd6ff", 6 * (1 - v) + .5, 1 - v); glow(B.x, B.y, 40 + v * 40, "#5cd6ff", 1 - v); ring(10 + v * 70, "#ffffff", 4 * (1 - v) + .5, 1 - v, B.x, B.y + 18);
+        for (let i = 0; i < 12; i++) { const a = i * .524; seg(B.x + Math.cos(a) * 20 * v, B.y + Math.sin(a) * 20 * v, B.x + Math.cos(a) * (30 + 50 * v), B.y + Math.sin(a) * (30 + 50 * v), "#bfe6ff", 1.5, 1 - v); } }
+      break; }
+    case "rampage": for (let k = 0; k < 2; k++) { const v = q01(k * .3, .6); if (v <= 0 || v >= 1) continue;   // วงจักราทองระเบิด 2 ระลอก
+        ring(10 + v * RX, "#ffd23f", 5 * (1 - v) + .5, 1 - v); ring(v * RX * .7, "#ffffff", 2 * (1 - v), 1 - v); glow(C.x, C.y - 24, 40 * (1 - v) + 10, "#ffd23f", 1 - v);
+        for (let i = 0; i < 10; i++) { const a = i * .628 + k; vStar(C.x + Math.cos(a) * v * RX, C.y + Math.sin(a) * v * RY - 10, 3 * (1 - v) + .5, "#fff3c4"); } }
+      break;
+    // ---- 🗡️ สายโจร ----
+    case "envenom": { const B = iso(e.x, e.y, 18), u = q01(0, .15), f = 1 - q01(.5, .4);   // รอยฟันสีเขียว + ฟองพิษลอยขึ้น
+      if (u < 1 || f > .6) { ctx.save(); ctx.globalAlpha = f; vGlow(() => { ctx.beginPath(); ctx.moveTo(B.x - 16, B.y - 14); ctx.lineTo(B.x - 16 + 32 * u, B.y - 14 + 28 * u); }, "#8be04f", 2.6); ctx.restore(); }
+      for (let i = 0; i < 7; i++) { const q = q01(.1 + i * .06, .5); if (q <= 0 || q >= 1) continue; blob(B.x + (rn(i) - .5) * 24, B.y - q * 40, 3 + rn(i + 3) * 3, 3 + rn(i + 3) * 3, i % 2 ? "#8be04f" : "#5aa82a", (1 - q) * .9); }
+      break; }
+    case "stab": case "crossimpact": { const B = iso(e.x, e.y, 18), x = e.a === "crossimpact";   // รอยฟันรัว (มีดหมอรัวสังหาร) / กากบาทใหญ่ (กรีดยมทูต)
+      for (let k = 0; k < n; k++) { const v = q01(k * (x ? .1 : .06), x ? .3 : .2); if (v <= 0 || v >= 1) continue;
+        const a = x ? (k % 2 ? .785 : -.785) : rn(k) * 3.14, L = x ? 34 + k * 2 : 20; ctx.save(); ctx.globalAlpha = 1 - v;
+        vGlow(() => { ctx.beginPath(); ctx.moveTo(B.x - Math.cos(a) * L, B.y - Math.sin(a) * L); ctx.lineTo(B.x + Math.cos(a) * L, B.y + Math.sin(a) * L); }, e.color, x ? 3.4 : 2); ctx.restore(); }
+      if (x) { const v = q01(e.max - .35, .35); if (v > 0) { glow(B.x, B.y, 30 + v * 30, "#ff4a6a", 1 - v); ring(10 + v * 50, "#ffffff", 3 * (1 - v), 1 - v, B.x, B.y + 18); } }
+      break; }
+    case "grimtooth": for (let i = 0; i < 9; i++) { const u = q01(i * .03, .4); if (u <= 0 || u >= 1) continue;   // หนามเงาแทงขึ้นจากพื้น
+        const a = rn(i) * 6.283, r = Math.sqrt(rn(i + 9)) * RX, x = C.x + Math.cos(a) * r, y = C.y + Math.sin(a) * r * TD_V, h = Math.sin(u * Math.PI) * (18 + rn(i + 3) * 14);
+        ctx.save(); ctx.fillStyle = "#2a2238"; ctx.strokeStyle = "#b45cff"; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(x - 4, y); ctx.lineTo(x + (rn(i + 5) - .5) * 6, y - h); ctx.lineTo(x + 4, y); ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.restore(); }
+      blob(C.x, C.y, RX, RY, "#2a2238", .25 * (1 - q01(.4, .3))); break;
+    case "soulbreaker": { const A = iso(e.sx, e.sy, 24), B = iso(e.x, e.y, 18), q = q01(0, .28), v = q01(.28, .45);   // คลื่นวิญญาณม่วงพุ่ง + หัวกะโหลกจาง ๆ
+      if (q < 1) { for (let j = 0; j < 6; j++) { const qq = Math.max(0, q - j * .05); glow(A.x + (B.x - A.x) * qq, A.y + (B.y - A.y) * qq + Math.sin(qq * 20) * 6, 13 - j * 1.8, "#b05cff", 1 - j * .15); } }
+      if (v > 0) { glow(B.x, B.y, 22 + v * 22, "#b05cff", 1 - v); ctx.save(); ctx.globalAlpha = (1 - v) * .8; ctx.fillStyle = "#e0d0ff"; ctx.beginPath(); ctx.arc(B.x, B.y - 24 - v * 20, 8, 0, 7); ctx.fill();
+        ctx.fillStyle = "#2a1a40"; ctx.fillRect(B.x - 5, B.y - 27 - v * 20, 3, 3); ctx.fillRect(B.x + 2, B.y - 27 - v * 20, 3, 3); ctx.restore(); }
+      break; }
+    case "meteorassault": { const v = q01(0, .55); ring(8 + v * RX, "#ff4a6a", 4 * (1 - v) + .5, 1 - v); glow(C.x, C.y - 20, 34 * (1 - v) + 10, "#ff4a6a", 1 - v);
+      for (let i = 0; i < 12; i++) { const a = i * .524 + rn(i), r = v * RX; blob(C.x + Math.cos(a) * r, C.y + Math.sin(a) * r * TD_V - Math.sin(v * Math.PI) * 20, 3, 6, i % 2 ? "#6b2a4a" : "#ff8aa0", 1 - v); }
+      break; }
+    case "rollingcutter": { const f = 1 - q01(e.max - .3, .3);   // ใบมีดจันทร์เสี้ยว 3 ใบหมุนรอบตัว
+      for (let k = 0; k < 3; k++) { const a = t * 16 + k * 2.09, x = C.x + Math.cos(a) * RX * .7, y = C.y - 14 + Math.sin(a) * RY * .7; ctx.save(); ctx.globalAlpha = f;
+        vGlow(() => { ctx.beginPath(); ctx.arc(x, y, 9, a, a + 2.2); }, "#e6e6f0", 2.4); ctx.restore(); }
+      ring(RX * .7, "#c9c2b8", 1.2, .4 * f, C.x, C.y); break; }
+    case "shadow": { const B = iso(e.x, e.y, 0);   // เงาร่างซ้อน 3 ร่าง + รอยแทงม่วง
+      for (let i = 0; i < 3; i++) { const v = q01(i * .1, .5); if (v <= 0 || v >= 1) continue; ctx.save(); ctx.globalAlpha = (1 - v) * .6; ctx.fillStyle = "#2a2238";
+        const x = B.x + (i - 1) * 16; ctx.beginPath(); ctx.ellipse(x, B.y - 20, 7, 18, 0, 0, 7); ctx.fill(); ctx.beginPath(); ctx.arc(x, B.y - 42, 7, 0, 7); ctx.fill(); ctx.restore(); }
+      for (let k = 0; k < n; k++) { const v = q01(.15 + k * .14, .25); if (v <= 0 || v >= 1) continue; seg(B.x - 14, B.y - 30 + k * 6, B.x + 14, B.y - 12 + k * 6, "#b45cff", 2.2, 1 - v); glow(B.x, B.y - 20, 14, "#e0b3ff", 1 - v); }
+      break; }
+    // ---- 💰 สายพ่อค้า ----
+    case "mammonite": case "tycoon": { const B = iso(e.x, e.y, 18), big = e.a === "tycoon", cnt = big ? 26 : 10;   // เหรียญทองกระจาย (+ ฝนเหรียญ)
+      for (let i = 0; i < cnt; i++) { const s = big ? rn(i) * .4 : 0, v = q01(s, .6); if (v <= 0 || v >= 1) continue;
+        const a = rn(i + 9) * 6.283, r = (big ? RX : 24) * v * (.4 + rn(i + 3) * .6), x = (big ? C.x : B.x) + Math.cos(a) * r, y = (big ? C.y - 10 : B.y) + Math.sin(a) * r * .6 - Math.sin(v * Math.PI) * (big ? 50 : 26);
+        ctx.save(); ctx.globalAlpha = 1 - v * .5; ctx.fillStyle = "#ffd23f"; ctx.strokeStyle = "#a8761e"; ctx.lineWidth = 1; ctx.beginPath(); ctx.ellipse(x, y, 4, 4 * Math.abs(Math.cos(t * 12 + i)) + 1, 0, 0, 7); ctx.fill(); ctx.stroke(); ctx.restore(); }
+      const v = q01(big ? .3 : .1, .5); if (v > 0 && v < 1) { glow(big ? C.x : B.x, big ? C.y - 10 : B.y, (big ? 40 : 20) + v * 20, "#ffd23f", 1 - v); if (big) ring(10 + v * RX, "#ffe38a", 4 * (1 - v), 1 - v); }
+      break; }
+    case "cartattack": case "cartrevo": { const A = iso(e.sx, e.sy, 0), rev = e.a === "cartrevo", q = q01(0, rev ? .5 : .25), f = 1 - q01(e.max - .25, .25);   // ไม้คานฟาดพุ่ง / เหวี่ยงวน
+      const x = rev ? C.x + Math.cos(t * 10) * RX * .7 : A.x + (C.x - 14 - A.x) * q, y = rev ? C.y + Math.sin(t * 10) * RY * .7 : A.y + (C.y - A.y) * q;
+      ctx.save(); ctx.globalAlpha = f; ctx.translate(x, y - 22); ctx.rotate(rev ? t * 12 : Math.sin(q * Math.PI) * .5);   // ไม้คานหาบ 2 กระจาด เหวี่ยงฟาด / หมุนวน
+      ctx.fillStyle = "#8a5a2a"; ctx.strokeStyle = "#1f120a"; ctx.lineWidth = 1.2; ctx.fillRect(-22, -2, 44, 4); ctx.strokeRect(-22, -2, 44, 4);
+      for (const s of [-1, 1]) { ctx.beginPath(); ctx.moveTo(s * 18, 0); ctx.lineTo(s * 18 - 5, 10); ctx.moveTo(s * 18, 0); ctx.lineTo(s * 18 + 5, 10); ctx.stroke();
+        ctx.fillStyle = "#c9a26b"; ctx.beginPath(); ctx.ellipse(s * 18, 13, 8, 5, 0, 0, 7); ctx.fill(); ctx.stroke(); ctx.fillStyle = s < 0 ? "#ff8a3d" : "#7dd35a"; ctx.beginPath(); ctx.arc(s * 18, 10, 3.5, 0, 7); ctx.fill(); }
+      ctx.restore();
+      if (q >= 1 || rev) { const v = q01(rev ? .1 : .25, .45); ring(8 + v * (rev ? RX : 30), "#d8c8a0", 3 * (1 - v) + .4, 1 - v); for (let i = 0; i < 6; i++) blob(C.x + (rn(i) - .5) * 40 * v, C.y - v * 14 * rn(i + 4), 4, 3, "#b89870", (1 - v) * .7); }
+      break; }
+    case "hammerfall": { const q = q01(0, .4), v = q01(.4, .55), hy = C.y - 90 * (1 - q) - 20;   // ค้อนยักษ์ตกทุบ + ดาวมึน
+      if (v < .5) { ctx.save(); ctx.fillStyle = "#6a6a72"; ctx.strokeStyle = "#1f120a"; ctx.lineWidth = 1.5; ctx.fillRect(C.x - 16, hy - 12, 32, 16); ctx.strokeRect(C.x - 16, hy - 12, 32, 16); ctx.fillStyle = "#8a5a2a"; ctx.fillRect(C.x - 2, hy - 40, 4, 28); ctx.restore(); }
+      if (v > 0) { ring(8 + v * RX, "#ffb347", 4 * (1 - v) + .5, 1 - v); for (let i = 0; i < 6; i++) { const a = i * 1.047 + rn(i); seg(C.x, C.y, C.x + Math.cos(a) * RX * .6 * v, C.y + Math.sin(a) * RY * .6 * v, "#7a5a3a", 1.5, 1 - v); }
+        for (let i = 0; i < 3; i++) { const a = t * 6 + i * 2.09; vStar(C.x + Math.cos(a) * 12, C.y - 46 + Math.sin(a) * 4, 3 * (1 - v) + .5, "#ffe45c"); } }
+      break; }
+    case "axetornado": { const f = 1 - q01(e.max - .3, .3);   // ขวาน 4 เล่มหมุนเป็นพายุ + ฝุ่นวน
+      for (let k = 0; k < 4; k++) { const a = t * 13 + k * 1.571, x = C.x + Math.cos(a) * RX * .65, y = C.y - 16 + Math.sin(a) * RY * .65;
+        ctx.save(); ctx.globalAlpha = f; ctx.translate(x, y); ctx.rotate(a * 2); ctx.fillStyle = "#8a5a2a"; ctx.fillRect(-1.5, -10, 3, 20); ctx.fillStyle = "#c9c2b8"; ctx.strokeStyle = "#1f120a"; ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(1, -10); ctx.quadraticCurveTo(12, -6, 1, 0); ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.restore(); }
+      for (let i = 0; i < 3; i++) { ctx.save(); ctx.globalAlpha = .35 * f; vGlow(() => { ctx.beginPath(); ctx.ellipse(C.x, C.y - 10 - i * 12, RX * (.5 + i * .12), RY * (.5 + i * .12), 0, t * 8 + i, t * 8 + i + 2); }, "#d8c8a0", 1.6); ctx.restore(); }
+      break; }
+    case "vulcanarm": { const A = iso(e.sx, e.sy, 26), B = iso(e.x, e.y, 18);   // กระสุนรัว + ไฟปากกระบอก
+      for (let k = 0; k < n; k++) { const q = (t - k * .07) / .1; if (q < 0) continue; if (q < 1) { const x = A.x + (B.x - A.x) * q, y = A.y + (B.y - A.y) * q + (rn(k) - .5) * 6; seg(x - (B.x - A.x) * .08, y - (B.y - A.y) * .08, x, y, "#ffe45c", 1.5); }
+        else if (q < 2.5) { const v = (q - 1) / 1.5; vStar(B.x + (rn(k + 3) - .5) * 14, B.y + (rn(k + 6) - .5) * 10, 2.5 * (1 - v) + .3, "#ffe45c"); } }
+      if (t < n * .07 + .05) glow(A.x + (B.x - A.x) * .08, A.y + (B.y - A.y) * .08, 9 + Math.sin(t * 60) * 3, "#ffb347", 1);
+      break; }
+    case "armcannon": { const A = iso(e.sx, e.sy, 26), q = q01(0, .45), v = q01(.45, .7);   // ลูกปืนใหญ่ + ระเบิดใหญ่ + ควัน
+      if (q < 1) { const x = A.x + (C.x - A.x) * q, y = A.y + (C.y - 12 - A.y) * q - Math.sin(q * Math.PI) * 40; ctx.save(); ctx.fillStyle = "#2a2a2a"; ctx.beginPath(); ctx.arc(x, y, 7, 0, 7); ctx.fill(); ctx.restore(); glow(x, y, 12, "#ff8a3d", .6);
+        if (q < .2) glow(A.x, A.y, 18, "#ffb347", 1 - q * 5); }
+      if (v > 0) { glow(C.x, C.y - 16, 40 + v * RX, "#ff6a1f", 1 - v); ring(10 + v * RX * 1.1, "#ffb347", 5 * (1 - v) + .5, 1 - v);
+        for (let i = 0; i < 12; i++) { const a = rn(i) * 6.283, r = v * RX * (.4 + rn(i + 3) * .6); flame(C.x + Math.cos(a) * r, C.y + Math.sin(a) * r * TD_V - v * 26, 7 * (1 - v) + 1, 0, -1, false); }
+        blob(C.x, C.y - 40 - v * 40, 26 + v * 20, 16 + v * 10, "#3a3a3a", (1 - v) * .4); }
+      break; }
+    case "souldrain": { const A = iso(e.sx, e.sy, 20); for (let i = 0; i < 3; i++) { const u = q01(i * .08, .55); if (u <= 0 || u >= 1) continue;
+        const x = A.x + (C.x - A.x) * u + Math.sin(u * 9 + i) * 8, y = A.y + (C.y - 34 - A.y) * u - Math.sin(u * Math.PI) * 30; glow(x, y, 9 - i * 2, "#b05cff", 1); vStar(x, y, 1.8, "#ffffff"); }
+      break; }
+    case "summon": { const u = q01(0, .5), f = 1 - q01(.7, .4);   // วงอัญเชิญ (ดาวห้าแฉก) บนพื้น + เสาแสง 3 สีตามธาตุ
+      ctx.save(); ctx.globalAlpha = f; ctx.strokeStyle = "#ffb347"; ctx.lineWidth = 2; const R = 36 * u;
+      pEll(C.x, C.y, R, R * TD_V); ctx.stroke(); ctx.beginPath();
+      for (let i = 0; i <= 5; i++) { const a = -1.571 + i * 2.513 + t; i ? ctx.lineTo(C.x + Math.cos(a) * R, C.y + Math.sin(a) * R * TD_V) : ctx.moveTo(C.x + Math.cos(a) * R, C.y + Math.sin(a) * R * TD_V); }
+      ctx.stroke(); ctx.restore();
+      SPIRIT_EL.forEach(([, c], i) => { const a = i * 2.09 + t * 2, px = C.x + Math.cos(a) * 26, py = C.y + Math.sin(a) * 26 * TD_V; seg(px, py, px, py - 60 * u, c, 3, f); glow(px, py - 60 * u, 10, c, f); });
+      break; }
+    case "sprecov": for (let i = 0; i < 8; i++) {   // ละอองพลังสีฟ้าลอยขึ้นจากพื้นเข้าตัว (ติดตัว)
+        const u = q01(i * .06, .55); if (u <= 0 || u >= 1) continue; const a = rn(i) * 6.283, r = 24 * (1 - u);
+        glow(C.x + Math.cos(a) * r, C.y - u * 44 + Math.sin(a) * r * .4, 7, "#5ab8ff", 1 - u); vStar(C.x + Math.cos(a) * r, C.y - u * 44 + Math.sin(a) * r * .4, 1.6, "#ffffff"); }
+      break;
+    case "firebolt": for (let k = 0; k < n; k++) fall(k, k * .12, .22, e.x + (rn(k) - .5) * 24, e.y + (rn(k + 9) - .5) * 14, 220, -50, "#ff7a1f", 11, .4, "fire"); break;
+    case "coldbolt": for (let k = 0; k < n; k++) { fall(k, k * .12, .2, e.x + (rn(k) - .5) * 24, e.y + (rn(k + 9) - .5) * 14, 220, -30, "#8fdcff", 9, .45, "ice");
+        const u = q01(k * .12 + .2, .4); if (u > 0 && u < 1) for (let i = 0; i < 5; i++) { const a = i * 1.256 + rn(k), r = 6 + u * 14, B = iso(e.x, e.y, 0); seg(B.x, B.y - 4, B.x + Math.cos(a) * r, B.y - 4 + Math.sin(a) * r * .7, "#bfefff", 1.4, 1 - u); } } break;
+    case "lightbolt": for (let k = 0; k < n; k++) { const u = q01(k * .12, .16); if (u > 0 && u < 1) { ctx.save(); ctx.globalAlpha = 1 - u; bolt(C.x + (rn(k) - .5) * 14, C.y, "#ffe45c", 3, k); ctx.restore(); } } break;
+    case "soulstrike": {
+      const A = iso(e.sx, e.sy, 34), B = iso(e.x, e.y, 18), dx = B.x - A.x, dy = B.y - A.y, L = Math.hypot(dx, dy) || 1;
+      for (let k = 0; k < n; k++) { const q = (t - k * .1) / .3; if (q < 0) continue;
+        if (q < 1) { for (let j = 0; j < 4; j++) { const qq = Math.max(0, q - j * .07), w = Math.sin(qq * Math.PI) * 26 * (k % 2 ? 1 : -1);
+            glow(A.x + dx * qq - dy / L * w, A.y + dy * qq + dx / L * w, 10 - j * 2, "#c58bff", 1 - j * .22); } }
+        else if (q < 1.8) { const u = (q - 1) / .8; glow(B.x, B.y, 14 + u * 16, "#c58bff", 1 - u); vStar(B.x, B.y - u * 20, 3 * (1 - u) + .5, "#ffffff"); } }
+      break; }
+    case "napalm": { const u = q01(0, .5);
+      glow(C.x, C.y - 10, 26 + u * 20, "#9b4dff", 1 - u * .8); ring(8 + u * RX, "#c58bff", 3 * (1 - u) + .5, 1 - u); ring(4 + u * RX * .6, "#ffffff", 1.5 * (1 - u), 1 - u);
+      for (let i = 0; i < 7; i++) { const a = i / 7 * 6.283 + rn(i), r = u * RX * .8; blob(C.x + Math.cos(a) * r, C.y + Math.sin(a) * r * TD_V - u * 30, 5, 8, "#d9b8ff", (1 - u) * .7); }
+      break; }
+    case "fireball": { const A = iso(e.sx, e.sy, 30), q = q01(0, .35);
+      if (q < 1) { const hx = A.x + (C.x - A.x) * q, hy = A.y + (C.y - A.y) * q - Math.sin(q * Math.PI) * 50, L2 = Math.hypot(C.x - A.x, C.y - A.y) || 1; flame(hx, hy, 18, (C.x - A.x) / L2, (C.y - A.y) / L2 - Math.cos(q * Math.PI) * .6, false);
+        for (let j = 1; j < 5; j++) { const qq = Math.max(0, q - j * .06); glow(A.x + (C.x - A.x) * qq, A.y + (C.y - A.y) * qq - Math.sin(qq * Math.PI) * 50, 14 - j * 2.5, "#ff4a1a", .7 - j * .14); } }
+      else { const u = q01(.35, .6); glow(C.x, C.y - 12, 30 + u * RX, "#ff6a1f", 1 - u); ring(10 + u * RX, "#ffb347", 3.5 * (1 - u) + .5, 1 - u);
+        for (let i = 0; i < 10; i++) { const a = rn(i) * 6.283, r = u * RX * (.4 + rn(i + 20) * .6); glow(C.x + Math.cos(a) * r, C.y + Math.sin(a) * r * TD_V - u * 30 * rn(i + 40), 9 * (1 - u) + 2, i % 3 ? "#ff8a3d" : "#ffe45c", 1 - u); }
+        blob(C.x, C.y - 20 - u * 30, 20 + u * 20, 12 + u * 10, "#3a2a22", (1 - u) * .35); }
+      break; }
+    case "frostdiver": { const A = iso(e.sx, e.sy, 0), q = q01(0, .4);
+      for (let i = 0; i < 9; i++) { const f = (i + 1) / 10; if (f > q) break; const x = A.x + (C.x - A.x) * f, y = A.y + (C.y - A.y) * f, hgt = 12 + rn(i) * 10, a = 1 - q01(.5 + f * .2, .4);
+        ctx.save(); ctx.globalAlpha = a; ctx.fillStyle = "#cdf3ff"; ctx.strokeStyle = "#5fb8e8"; ctx.lineWidth = 1.2; ctx.beginPath(); ctx.moveTo(x - 4, y); ctx.lineTo(x + (rn(i + 5) - .5) * 4, y - hgt); ctx.lineTo(x + 4, y); ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.restore(); }
+      const u = q01(.35, .55); if (u > 0) { ctx.save(); ctx.globalAlpha = (1 - u) * .75; ctx.fillStyle = "#bfefff"; ctx.strokeStyle = "#ffffff"; ctx.lineWidth = 1.5;
+        ctx.beginPath(); ctx.moveTo(C.x - 16, C.y); ctx.lineTo(C.x - 18, C.y - 34); ctx.lineTo(C.x - 4, C.y - 44); ctx.lineTo(C.x + 16, C.y - 36); ctx.lineTo(C.x + 17, C.y); ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.restore();
+        vStar(C.x - 8, C.y - 34, 3, "#ffffff"); }
+      break; }
+    case "thunderstorm": for (let k = 0; k < n * 2; k++) { const u = q01(k * .06, .15); if (u > 0 && u < 1) { const a = rn(k) * 6.283, r = Math.sqrt(rn(k + 50)) * RX; ctx.save(); ctx.globalAlpha = 1 - u; bolt(C.x + Math.cos(a) * r, C.y + Math.sin(a) * r * TD_V, "#9fe8ff", 2.4, k); ctx.restore(); } }
+      ring(RX, "#9fe8ff", 1.2, .5 * (1 - q01(0, e.max))); break;
+    case "stonecurse": { const q = q01(0, .45);
+      if (q < 1) for (let i = 0; i < 10; i++) { const a = i / 10 * 6.283, r = (1 - q) * 46; blob(C.x + Math.cos(a) * r, C.y - 14 + Math.sin(a) * r * .5, 3, 3, "#a9a092", 1); }
+      else { const u = q01(.45, .45); ring(16, "#c9c2b8", 3 * (1 - u) + .5, 1 - u); blob(C.x, C.y - 14, 15, 18, "#8f877a", (1 - u) * .55);
+        for (let i = 0; i < 4; i++) seg(C.x, C.y - 14, C.x + Math.cos(i * 1.7) * 14, C.y - 14 + Math.sin(i * 1.7) * 14, "#5a544c", 1, 1 - u); }
+      break; }
+    case "meteor": for (let k = 0; k < n; k++) { const a = rn(k) * 6.283, r = Math.sqrt(rn(k + 20)) * e.r * .8;
+        fall(k, k * .16, .35, e.x + Math.cos(a) * r, e.y + Math.sin(a) * r, 320, -160, "#ff5a1f", 18, .55, "rock");
+        const q = (t - k * .16) / .35; if (q > 0 && q < 1) { const A = iso(e.x + Math.cos(a) * r - 160, e.y + Math.sin(a) * r, 320), B = iso(e.x + Math.cos(a) * r, e.y + Math.sin(a) * r, 0);
+          blob(A.x + (B.x - A.x) * q, A.y + (B.y - A.y) * q, 8, 8, "#5a3a26", 1); } }
+      break;
+    case "stormgust": { const fade = Math.min(1, t / .2, e.life / .3);
+      blob(C.x, C.y, RX, RY, "#bfefff", .18 * fade); ring(RX, "#ffffff", 1.5, .6 * fade);
+      for (let i = 0; i < 46; i++) { const r = (.15 + .85 * rn(i)) * RX, a = rn(i + 99) * 6.283 + t * (3.2 - r / RX * 1.6), hh = 6 + rn(i + 7) * 40;
+        const x = C.x + Math.cos(a) * r, y = C.y + Math.sin(a) * r * TD_V - hh; i % 4 ? blob(x, y, 1.6, 1.6, "#ffffff", fade) : vStar(x, y, 2.2, "#bfefff"); }
+      for (let i = 0; i < 3; i++) { const a = t * 3 + i * 2.09; seg(C.x + Math.cos(a) * RX * .3, C.y + Math.sin(a) * RY * .3 - 20, C.x + Math.cos(a + .9) * RX * .8, C.y + Math.sin(a + .9) * RY * .8 - 30, "#e6f9ff", 1.4, .5 * fade); }
+      break; }
+    case "jupitel": { const A = iso(e.sx, e.sy, 30), B = iso(e.x, e.y, 20), q = q01(0, .22);
+      const x = A.x + (B.x - A.x) * q, y = A.y + (B.y - A.y) * q, pulse = q >= 1 ? Math.sin(t * 40) * 3 : 0, end = q01(e.max - .25, .25);
+      glow(x, y, 20 + pulse, "#3d8bff", 1 - end); glow(x, y, 9, "#bfe6ff", 1 - end);
+      for (let i = 0; i < 4; i++) { const a = rn(Math.floor(t * 30) + i * 13) * 6.283; seg(x, y, x + Math.cos(a) * 22, y + Math.sin(a) * 22, "#9fd3ff", 1, (1 - end) * .9); }
+      if (q >= 1) for (let k = 0; k < n; k++) { const u = q01(.22 + k * .1, .18); if (u > 0 && u < 1) ring(6 + u * 22, "#5cd6ff", 2 * (1 - u) + .4, 1 - u, B.x, B.y + 18); }
+      break; }
+    case "lov": { const fade = Math.min(1, t / .15, e.life / .3);
+      blob(C.x, C.y, RX * 1.05, RY * 1.05, "#1a1240", .35 * fade); ring(RX, "#ffe45c", 1.6, .7 * fade);
+      for (let k = 0; k < 16; k++) { const u = q01(k * .07, .14); if (u > 0 && u < 1) { const a = rn(k) * 6.283, r = Math.sqrt(rn(k + 50)) * RX; ctx.save(); ctx.globalAlpha = 1 - u; bolt(C.x + Math.cos(a) * r, C.y + Math.sin(a) * r * TD_V, k % 3 ? "#ffe45c" : "#ffffff", 2.6, k); ctx.restore(); } }
+      break; }
+    case "heavensdrive": for (let k = 0; k < n; k++) for (let i = 0; i < 9; i++) { const u = q01(k * .15 + i * .015, .4); if (u <= 0 || u >= 1) continue;
+        const a = rn(k * 9 + i) * 6.283, r = Math.sqrt(rn(k * 9 + i + 70)) * RX, x = C.x + Math.cos(a) * r, y = C.y + Math.sin(a) * r * TD_V, hgt = Math.sin(u * Math.PI) * (14 + rn(i) * 16);
+        ctx.save(); ctx.fillStyle = "#9a6a3a"; ctx.strokeStyle = "#3a2410"; ctx.lineWidth = 1.2; ctx.beginPath(); ctx.moveTo(x - 6, y); ctx.lineTo(x + (rn(i + 3) - .5) * 5, y - hgt); ctx.lineTo(x + 6, y); ctx.closePath(); ctx.fill(); ctx.stroke();
+        ctx.fillStyle = "#c9955a"; ctx.beginPath(); ctx.moveTo(x - 6, y); ctx.lineTo(x + (rn(i + 3) - .5) * 5, y - hgt); ctx.lineTo(x - 1, y); ctx.closePath(); ctx.fill(); ctx.restore();
+        blob(x, y - 2, 8 * u, 3, "#b89870", (1 - u) * .6); }
+      break;
+    case "comet": { const q = q01(0, .6), A = iso(e.x + 260, e.y - 120, 520);
+      if (q < 1) { const hx = A.x + (C.x - A.x) * q, hy = A.y + (C.y - A.y) * q;
+        for (let j = 0; j < 7; j++) { const qq = Math.max(0, q - j * .06); glow(A.x + (C.x - A.x) * qq, A.y + (C.y - A.y) * qq, 34 - j * 4, j < 2 ? "#ffe45c" : "#ff6a1f", 1 - j * .12); }
+        flame(hx, hy, 30, (C.x - A.x) / Math.hypot(C.x - A.x, C.y - A.y), (C.y - A.y) / Math.hypot(C.x - A.x, C.y - A.y), true); blob(C.x, C.y, RX * q, RY * q, "#ff4a1a", .2); }
+      else { const u = q01(.6, 1); if (u < .25) { ctx.save(); ctx.globalAlpha = (1 - u * 4) * .6; ctx.fillStyle = "#fff6d8"; ctx.fillRect(cam.x - 50, cam.y - 50, VW + 100, VH + 100); ctx.restore(); }
+        glow(C.x, C.y - 20, 60 + u * RX, "#ff6a1f", 1 - u); ring(10 + u * RX * 1.2, "#ffd23f", 5 * (1 - u) + .5, 1 - u); ring(u * RX * .8, "#ffffff", 2 * (1 - u), 1 - u);
+        for (let i = 0; i < 16; i++) { const a = rn(i) * 6.283, r = u * RX * (.5 + rn(i + 9) * .7); blob(C.x + Math.cos(a) * r, C.y + Math.sin(a) * r * TD_V - Math.sin(u * Math.PI) * 40 * rn(i + 4), 3, 3, "#5a3a26", 1 - u); } }
+      break; }
+    case "tetra": { const cols = ["#ff4a2a", "#3d8bff", "#3fbf6a", "#e6c21e"], q = q01(0, .9);
+      if (q < 1) for (let i = 0; i < 4; i++) { const a = i * 1.571 + t * 6, r = 60 * (1 - q) + 6; const x = C.x + Math.cos(a) * r, y = C.y - 20 + Math.sin(a) * r * .55;
+        glow(x, y, 14, cols[i]); for (let j = 1; j < 4; j++) { const aa = a - j * .25; glow(C.x + Math.cos(aa) * (r + j * 3), C.y - 20 + Math.sin(aa) * (r + j * 3) * .55, 9 - j * 2, cols[i], .6 - j * .15); } }
+      else { const u = q01(.9, .4); cols.forEach((c, i) => { ring(8 + u * 50 + i * 6, c, 3 * (1 - u) + .4, 1 - u); }); glow(C.x, C.y - 20, 30 + u * 30, "#ffffff", 1 - u); }
+      break; }
+    case "crimson": { const q = q01(0, .5), A = iso(e.x - 60, e.y, 420);
+      if (q < 1) { const x = A.x + (C.x - A.x) * q, y = A.y + (C.y - A.y) * q; flame(x, y - 10, 30, .14, .99, false);
+        ctx.save(); ctx.fillStyle = "#6a1e12"; ctx.strokeStyle = "#ffb347"; ctx.lineWidth = 2; ctx.beginPath();
+        for (let i = 0; i < 8; i++) { const a = i * .785 + q * 2, r = 20 + rn(i) * 6; ctx.lineTo(x + Math.cos(a) * r, y - 10 + Math.sin(a) * r); } ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.restore(); }
+      else { const u = q01(.5, .7); blob(C.x, C.y, RX * .9, RY * .9, "#ff3a10", (1 - u) * .35); ring(10 + u * RX, "#ff4a2a", 4 * (1 - u) + .5, 1 - u); glow(C.x, C.y - 10, 40 + u * 30, "#ff6a1f", 1 - u);
+        for (let i = 0; i < 12; i++) { const a = rn(i) * 6.283, r = u * RX * (.4 + rn(i + 3) * .6); glow(C.x + Math.cos(a) * r, C.y + Math.sin(a) * r * TD_V - Math.sin(u * Math.PI) * 50 * rn(i + 7), 6, "#ff8a3d", 1 - u); }
+        for (let i = 0; i < 6; i++) seg(C.x, C.y, C.x + Math.cos(i * 1.05 + rn(i)) * RX * .7, C.y + Math.sin(i * 1.05 + rn(i)) * RY * .7, "#ff5a1f", 1.4, (1 - u) * .8); }
+      break; }
+    case "jackfrost": { const q = q01(0, .45), sh = q01(.85, .35);
+      blob(C.x, C.y, RX, RY, "#bfefff", .2 * (1 - sh)); ring(RX * q, "#e6f9ff", 2, 1 - sh);
+      for (let i = 0; i < 14; i++) { const a = i / 14 * 6.283 + rn(i) * .3, r = RX * q * (.6 + rn(i + 5) * .4), x = C.x + Math.cos(a) * r, y = C.y + Math.sin(a) * r * TD_V, hgt = 16 + rn(i + 9) * 18;
+        if (sh <= 0) { ctx.save(); ctx.fillStyle = "#d8f6ff"; ctx.strokeStyle = "#5fb8e8"; ctx.lineWidth = 1.2; ctx.beginPath(); ctx.moveTo(x - 5, y); ctx.lineTo(x, y - hgt * q); ctx.lineTo(x + 5, y); ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.restore(); }
+        else for (let j = 0; j < 3; j++) vStar(x + (rn(i * 3 + j) - .5) * 20 * sh, y - hgt * .5 - sh * 20 * rn(j + i), 2.5 * (1 - sh) + .3, "#ffffff"); }
+      glow(C.x, C.y - 10, 30, "#bfefff", .6 * (1 - sh)); break; }
+  }
+  ctx.globalAlpha = 1;
+}
 function drawAim() {   // วงเล็งตอนลากวิชาบนจอ
   const sk = SKILLS[aimPt.id], r = aimRadius(aimPt.id), col = (sk && sk.color) || "#ffe38a";
   const tgtSkill = sk && (sk.kind === "target" || sk.basic);
@@ -5817,6 +6624,7 @@ function render(dt) {
   for (const n of NPCS) list.push({ y: n.y, f: () => drawNpc(n) });
   for (const m of mobs) list.push({ y: m.y, f: () => drawMob(m) });
   if (mode === "play") list.push({ y: P.y, f: drawPlayer });
+  if (mode === "play") for (const s of P.summons || []) list.push({ y: s.y, f: () => drawSpirit(s) });
   if (mode === "play") for (const o of others.values()) if (o.map === currentMap) list.push({ y: o.y, f: () => drawOther(o) });
   list.sort((a, b) => a.y - b.y);
   OCC = null;
@@ -5863,7 +6671,7 @@ function netJoin() {
     const o = others.get(p.k);
     if (!o) return;
     if (p.mp && p.mp !== o.map) { o.map = p.mp; o.x = p.x; o.y = p.y; }   // ย้ายแผนที่ = วาร์ปไปเลย
-    o.rx = p.x; o.ry = p.y; o.dir = p.dir; o.moving = !!p.m; o.hp = p.hp; o.maxHp = p.mh || 1; o.dead = !!p.d; o.mic = !!p.mic;
+    o.rx = p.x; o.ry = p.y; o.dir = p.dir; o.moving = !!p.m; o.hp = p.hp; o.maxHp = p.mh || 1; o.dead = !!p.d; o.mic = !!p.mic; o.guard = !!p.g;
     if (p.s) o.swing = 0.25;
   });
   ch.on("broadcast", { event: "rtc" }, ({ payload: m }) => { if (m && m.to === netKey) handleRtc(m); });   // สัญญาณต่อเสียง
@@ -5879,6 +6687,10 @@ function netJoin() {
     if (p.to !== netKey || P.dead || mode !== "play") return;
     const a = others.get(p.k);
     if (!a || a.map !== currentMap || inTown(P.x, P.y) || inTown(a.x, a.y)) return;   // เมือง = เขตปลอดภัย
+    if (guardOn()) {   // ทหารองครักษ์รับแทน: ไม่โดนดาเมจจากผู้เล่น
+      floatText(P.x, { y: P.y, h: 70 }, "🛡 ทหารคุ้มกัน!", "#9fd8ff", 16);
+      ch.send({ type: "broadcast", event: "hitres", payload: { k: netKey, to: p.k, dmg: "guard" } }); return;
+    }
     const d = D(), atk = clamp(p.atk | 0, 1, 5000);
     let res;
     if (AUTO.on && !P.dead && !(P.target && P.target.kind === "pvp")) { P.target = { kind: "pvp", ref: a }; P.tx = null; log(`⚔ ${a.name} โจมตีท่าน · ออโต้ตีสวนกลับ!`, "#ffb38a"); }   // ออโต้: ผู้เล่นตีเรา → ตีสวน
@@ -5895,7 +6707,8 @@ function netJoin() {
     if (p.to !== netKey) return;
     const o = others.get(p.k);
     if (!o) return;
-    if (p.dmg === "miss") floatText(o.x, { y: o.y, h: 60 }, "พลาด", "#9ee7ff", 17);
+    if (p.dmg === "guard") { floatText(o.x, { y: o.y, h: 60 }, "🛡 มีทหารคุ้มกัน", "#9fd8ff", 16); if (P.target && P.target.ref === o) P.target = null; }
+    else if (p.dmg === "miss") floatText(o.x, { y: o.y, h: 60 }, "พลาด", "#9ee7ff", 17);
     else { floatText(o.x, { y: o.y, h: 60 }, p.dmg, p.cr ? "#ffd23f" : "#ffb070", p.cr ? 28 : 22, !!p.cr); effect("slash", o.x, { y: o.y, h: 30 }, "#ffb070", 0.2); }
   });
   ch.on("broadcast", { event: "pvpkill" }, ({ payload: p }) => {
@@ -6012,7 +6825,7 @@ function netTick(dt) {
   if ((netSendT -= dt) > 0) return;
   netSendT = 0.12;
   const d = D();
-  const p = { k: netKey, mp: currentMap, x: Math.round(P.x), y: Math.round(P.y), dir: P.dir, m: P.moving ? 1 : 0, hp: P.hp, mh: d.maxHp, d: P.dead ? 1 : 0, s: P.swing > 0.15 ? 1 : 0, mic: micOn ? 1 : 0 };
+  const p = { k: netKey, mp: currentMap, x: Math.round(P.x), y: Math.round(P.y), dir: P.dir, m: P.moving ? 1 : 0, hp: P.hp, mh: d.maxHp, d: P.dead ? 1 : 0, s: P.swing > 0.15 ? 1 : 0, mic: micOn ? 1 : 0, g: guardOn() ? 1 : 0 };
   const sig = JSON.stringify(p);
   netBeatT -= 0.12;
   if (sig !== netLastPos || netBeatT <= 0) { net.send({ type: "broadcast", event: "pos", payload: p }); netLastPos = sig; netBeatT = 2; }
@@ -6137,6 +6950,7 @@ function updateHUD() {
   $("hudLv").textContent = "Lv " + P.lvl;
   $("hpFill").style.width = (100 * P.hp / d.maxHp) + "%";
   $("hpText").textContent = `HP ${Math.ceil(P.hp)} / ${d.maxHp}`;
+  if (!(P._picT > now)) { P._picT = now + 1; const hp = $("hudPic"); if (hp) drawBust(hp, playerLook()); }   // รูปโปรไฟล์มุมซ้ายบน
   $("spFill").style.width = (100 * P.sp / d.maxSp) + "%";
   $("spText").textContent = `SP ${Math.ceil(P.sp)} / ${d.maxSp}`;
   $("hpOrbFill").style.height = (100 * P.hp / d.maxHp) + "%";
@@ -6149,6 +6963,12 @@ function updateHUD() {
   const jn = jobNeed(P.jobLvl || 1), jmax = P.jobLvl >= MAX_JOB;
   $("jobFill").style.width = (jmax ? 100 : 100 * (P.jobExp || 0) / jn) + "%";
   $("jobText").textContent = `Job Lv ${P.jobLvl || 1}${jmax ? " (MAX)" : ` · ${(100 * (P.jobExp || 0) / jn).toFixed(1)}%`}${P.skillPts ? ` · แต้มวิชา ${P.skillPts}` : ""}`;
+  { const ep = P.lvl >= SETTINGS.maxLevel ? 100 : 100 * P.exp / need, jp = jmax ? 100 : 100 * (P.jobExp || 0) / jn;   // ลูกแก้ว EXP / JOB ในโปรไฟล์ซ้ายบน
+    if ($("expOrbFill")) { $("expOrbFill").style.height = ep + "%"; $("expOrbText").textContent = ep >= 100 ? "MAX" : ep.toFixed(1) + "%"; }
+    if ($("jobOrbFill")) { $("jobOrbFill").style.height = jp + "%"; $("jobOrbText").textContent = "Lv " + (P.jobLvl || 1); }
+    const lb = $("hudLvBadge"); if (lb) lb.textContent = "Lv " + P.lvl;
+    const hp = document.querySelector("#hud .hudPic"); if (hp) hp.dataset.tip = `${P.name} · Lv ${P.lvl} · ${P.zeny.toLocaleString()} เบี้ย`;
+    if ($("orbs") && $("orbs").parentElement !== $("hud")) $("hud").appendChild($("orbs")); }
   $("zenyText").textContent = P.zeny.toLocaleString();
   $("zoneText").textContent = ZONES[zoneAt(P.x, P.y)].name;
   const wt = D().wtype;
@@ -6158,7 +6978,7 @@ function updateHUD() {
     if (h.type === "item") el.querySelector(".c").textContent = P.inv[h.id] || 0;
     else if (SKILLS[h.id]) {
       const cdEl = el.querySelector(".cd");
-      if (cdEl) cdEl.style.transform = `scaleY(${P.skillCd > 0 && SKILLS[h.id].cd ? Math.min(1, P.skillCd / SKILLS[h.id].cd) : 0})`;
+      if (cdEl) cdEl.style.transform = `scaleY(${cdLeft(h.id) > 0 ? Math.min(1, cdLeft(h.id) / Math.max(.01, skCd(SKILLS[h.id]))) : 0})`;
       const ok = weaponOk(h.id, wt);
       el.style.opacity = !ok || P.sp < skillCost(h.id) ? .45 : 1;
       el.style.filter = ok ? "" : "grayscale(1)";
@@ -6209,7 +7029,7 @@ function aimRadius(id) {
   const sk = SKILLS[id];
   if (!sk) return 30;
   if (sk.radius) return sk.radius;
-  return { pierce: 55, whirl: 70, nova: 75, fire: 85, thunder: 55, storm: 130, rain: 85, tycoon: 80, magnum: 75, magnus: 150, provoke: 150 }[id] || 30;
+  return { pierce: 55, whirl: 70, napalm: 60, fireball: 75, thunderstorm: 85, meteor: 110, stormgust: 125, lov: 130, heavensdrive: 80, comet: 160, crimson: 100, jackfrost: 140, rain: 85, tycoon: 80, magnum: 75, magnus: 150, provoke: 150 }[id] || 30;
 }
 function aimMobAt(g, r) {   // ศัตรูที่ใกล้จุดเล็งที่สุด
   let best = null, bd = Math.max(48, r * 0.6);
@@ -6285,16 +7105,18 @@ const ELEMENTS = {
   earth: { n: "ดิน", c: "#b07a3a" }, holy: { n: "แสง", c: "#f0d060" }, dark: { n: "มืด", c: "#8a4fd0" }, neutral: { n: "กายภาพ", c: "#8c96a8" },
 };
 const SKILL_ELEM = {
-  magnum: "fire", firebolt: "fire", fire: "fire", coldbolt: "water", storm: "water", lightbolt: "thunder", thunder: "thunder",
+  magnum: "fire", firebolt: "fire", fireball: "fire", meteor: "fire", comet: "fire", crimson: "fire", coldbolt: "water", frostdiver: "water", stormgust: "water", jackfrost: "water",
+  lightbolt: "thunder", thunderstorm: "thunder", jupitel: "thunder", lov: "thunder", heavensdrive: "earth", safetywall: "earth", tetra: "wind", summon: "wind", slash: "neutral", hprecov: "holy", spearmast: "neutral", thq: "wind", whirl: "wind", spiral: "wind", sonicwave: "water", aurablade: "holy", parry: "earth", runemast: "water", ignition: "fire", dragonbreath: "fire", enchantblade: "water", dragontrain: "fire", beastbane: "wind", windwalk: "wind", blitz: "wind", truesight: "water", aimedbolt: "water", claymore: "fire", autoblitz: "wind", steelcrow: "earth", fearbreeze: "wind", trapresearch: "earth", arrowstorm: "wind", unlimit: "fire", falconeye: "holy", divineprot: "holy", ironfist: "neutral", fingeroff: "holy", investigate: "holy", meditatio: "holy", triple: "neutral", chaincombo: "fire", knucklearrow: "fire", steelbody: "earth", monkflee: "wind", gentletouch: "holy", tigercannon: "fire", asura: "water", rampage: "holy", fury: "fire", grimtooth: "dark", katarmast: "dark", enchantpoison: "dark", cloaking: "dark", soulbreaker: "dark", meteorassault: "dark", righthand: "dark", poisonresearch: "dark", shadowcrit: "dark", edp: "dark", crossimpact: "dark", rollingcutter: "wind", hallucination: "dark", cartattack: "earth", loudex: "fire", cartrevo: "earth", hammerfall: "earth", adrenaline: "fire", axetornado: "wind", vulcanarm: "fire", weaponresearch: "earth", overthrust: "fire", weaponperfect: "water", armcannon: "fire", maximize: "fire", mado: "earth", wisdom: "holy", insight: "holy", quicken: "wind", magiccrit: "fire", souldrain: "dark", radius: "wind", mastery: "holy", sprecov: "holy", energycoat: "holy", mystical: "holy",
   stonecurse: "earth", iron: "earth", endure: "earth", provoke: "earth", mammonite: "earth", tycoon: "earth", craft: "earth",
-  heal: "holy", blessing: "holy", holylight: "holy", agiup: "holy", guard: "holy", regen: "holy", magnus: "holy", focus: "holy",
-  envenom: "dark", hide: "dark", stab: "dark", shadow: "dark", steal: "dark", dodge: "dark", doubleatk: "dark", nova: "dark",
+  heal: "holy", blessing: "holy", holylight: "holy", agiup: "holy", guard: "holy", regen: "holy", magnus: "holy",
+  envenom: "dark", hide: "dark", stab: "dark", shadow: "dark", steal: "dark", dodge: "dark", doubleatk: "dark", soulstrike: "dark", napalm: "dark",
   owleye: "wind", double: "wind", vulture: "wind", charge: "wind", concentrate: "wind", rain: "wind", sharp: "wind",
 };
 // เอฟเฟกต์ประจำวิชาเดิม (แอดมินเปลี่ยนทับได้ในหลังบ้าน) · สีตามธาตุ
 const SKILL_VFX = {
   slash: "crescent", provoke: "ring", pierce: "zap", magnum: "burst", whirl: "vortex", endure: "pillar",
-  firebolt: "burst", coldbolt: "sparkle", lightbolt: "zap", nova: "runes", fire: "pillar", stonecurse: "runes", thunder: "zap", storm: "vortex",
+  firebolt: "burst", coldbolt: "sparkle", lightbolt: "zap", soulstrike: "runes", napalm: "runes", fireball: "burst", frostdiver: "sparkle", thunderstorm: "zap", stonecurse: "runes",
+  safetywall: "pillar", energycoat: "pillar", meteor: "pillar", stormgust: "vortex", jupitel: "zap", lov: "zap", heavensdrive: "burst", mystical: "runes", comet: "pillar", tetra: "vortex", crimson: "burst", jackfrost: "vortex",
   double: "crescent", charge: "zap", concentrate: "sparkle", rain: "ring", sharp: "zap",
   heal: "lotus", blessing: "pillar", holylight: "burst", agiup: "sparkle", guard: "pillar", regen: "lotus", magnus: "pillar",
   steal: "coins", envenom: "burst", hide: "vortex", stab: "xslash", shadow: "xslash", mammonite: "coins", tycoon: "coins",
@@ -6414,6 +7236,65 @@ Object.assign(PIX_ART, {
   greed: [{ r: PT.bag, m: { A: "N", a: "n", H: "Y" }, y: 1 }],
   tycoon: [{ r: PT.coin, x: -2, y: 7 }, { r: PT.coin, x: 2, y: 4 }, { r: PT.coin, x: 0, y: 0 }],
 });
+// ไอคอนวิชาเวทชุดใหม่ (ประกอบจากลายเดิม + เปลี่ยนสี)
+Object.assign(PIX_ART, {
+  sprecov: PIX_ART.focus, napalm: PIX_ART.nova, fireball: PIX_ART.fire, thunderstorm: PIX_ART.thunder, stormgust: PIX_ART.storm,
+  crimson: PIX_ART.magnum,
+  souldrain: [{ r: PT.orb, m: { A: "P", a: "p", H: "W" } }, { r: PT.star, x: 9, y: 9 }],
+  hprecov: [{ r: PIX_ART.iron, m: { R: "F", r: "r", W: "W" } }], spearmast: [{ r: PIX_ART.swordmast, m: { S: "Y", W: "W" } }],
+  thq: [{ r: PIX_ART.whirl, m: { B: "G", W: "W" } }], spiral: [{ r: PIX_ART.whirl, m: { B: "Y", W: "W" } }, { r: PT.star, x: 9, y: 0 }],
+  sonicwave: [{ r: PIX_ART.whirl, m: { B: "C", W: "W" } }], aurablade: [{ r: PIX_ART.swordmast, m: { S: "Y", W: "W" } }, { r: PT.star, x: 9, y: 0 }],
+  parry: [{ r: PIX_ART.iron, m: { R: "S", r: "X", W: "W" } }, { r: PT.star, x: 9, y: 0 }], runemast: [{ r: PT.eye, m: { A: "C", a: "B" } }],
+  ignition: [{ r: PIX_ART.magnum }, { r: PT.star, x: 9, y: 0 }], dragonbreath: [{ r: PIX_ART.magnum, m: { F: "r", f: "F" } }, { r: PT.star, x: 0, y: 9 }],
+  enchantblade: [{ r: PIX_ART.swordmast, m: { S: "P", W: "W" } }, { r: PT.star, x: 9, y: 0 }], dragontrain: [{ r: PT.eye, m: { A: "F", a: "r" } }],
+  beastbane: [{ r: PT.arrow, m: { S: "F" } }], windwalk: [{ r: PT.arrow, m: { S: "G", N: "G", R: "W" } }, { r: PT.star, x: 9, y: 9 }],
+  blitz: [{ r: PT.eye, m: { A: "N", a: "n" } }, { r: PT.arrow, x: 0, y: 6 }], truesight: [{ r: PT.eye, m: { A: "G", a: "C" } }, { r: PT.star, x: 9, y: 0 }],
+  aimedbolt: [{ r: PT.arrow, m: { S: "C", N: "B", R: "W" } }, { r: PT.star, x: 9, y: 0 }], claymore: [{ r: PT.bag, m: { A: "N", a: "n", H: "F" } }, { r: PT.star, x: 9, y: 0 }],
+  autoblitz: [{ r: PT.eye, m: { A: "N", a: "n" } }, { r: PT.star, x: 9, y: 9 }], steelcrow: [{ r: PT.eye, m: { A: "S", a: "X" } }],
+  fearbreeze: [{ r: PT.arrow, m: { S: "G" } }, { r: PT.arrow, m: { S: "G" }, x: 3, y: 4 }], trapresearch: [{ r: PT.bag, m: { A: "S", a: "X", H: "Y" } }],
+  arrowstorm: [{ r: PT.arrow, m: { S: "Y", N: "G", R: "f" } }, { r: PT.arrow, x: 4, y: 4 }, { r: PT.star, x: 9, y: 0 }],
+  unlimit: [{ r: PT.arrow, m: { S: "F", N: "r", R: "Y" } }, { r: PT.star, x: 0, y: 9 }, { r: PT.star, x: 9, y: 0 }], falconeye: [{ r: PT.eye, m: { A: "Y", a: "N" } }, { r: PT.star, x: 9, y: 9 }],
+  divineprot: [{ r: PT.eye, m: { A: "W", a: "Y" } }], ironfist: [{ r: PIX_ART.iron, m: { R: "N", r: "n", W: "W" } }],
+  fingeroff: [{ r: PT.orb, m: { A: "Y", a: "f", H: "W" }, x: -3, y: 3 }, { r: PT.orb, m: { A: "Y", a: "f", H: "W" }, x: 3, y: -2 }],
+  investigate: [{ r: PIX_ART.iron, m: { R: "Y", r: "f", W: "W" } }, { r: PT.star, x: 9, y: 0 }], meditatio: [{ r: PT.eye, m: { A: "Y", a: "f" } }, { r: PT.star, x: 9, y: 0 }],
+  triple: [{ r: PIX_ART.iron, m: { R: "Y", r: "f" } }, { r: PT.star, x: 9, y: 9 }], chaincombo: [{ r: PIX_ART.iron, m: { R: "F", r: "r", W: "W" } }, { r: PT.star, x: 9, y: 0 }, { r: PT.star, x: 0, y: 9 }],
+  knucklearrow: [{ r: PT.arrow, m: { S: "F", N: "Y", R: "W" } }], steelbody: [{ r: PIX_ART.iron, m: { R: "S", r: "X", W: "W" } }],
+  monkflee: [{ r: PT.arrow, m: { S: "W", N: "C", R: "W" } }], gentletouch: [{ r: PT.orb, m: { A: "G", a: "C", H: "W" } }],
+  tigercannon: [{ r: PIX_ART.magnum, m: { F: "Y", f: "f" } }], asura: [{ r: PT.orb, m: { A: "C", a: "B", H: "W" } }, { r: PT.star, x: 9, y: 0 }, { r: PT.star, x: 0, y: 9 }],
+  rampage: [{ r: PIX_ART.magnum, m: { F: "Y" } }, { r: PT.star, x: 9, y: 9 }], fury: [{ r: PIX_ART.iron, m: { R: "F", r: "r", W: "Y" } }],
+  grimtooth: [{ r: PT.hood, m: { a: "p", A: "P", H: "W" } }, { r: PT.star, x: 9, y: 9 }], katarmast: [{ r: PIX_ART.swordmast, m: { S: "X", W: "W" } }],
+  enchantpoison: [{ r: PT.orb, m: { A: "G", a: "C", H: "W" } }, { r: PT.star, x: 9, y: 0 }], cloaking: [{ r: PT.hood, m: { a: "X", A: "S", H: "W" } }],
+  soulbreaker: [{ r: PT.orb, m: { A: "P", a: "p", H: "W" } }, { r: PT.arrow, x: 0, y: 6 }], meteorassault: [{ r: PIX_ART.magnum, m: { F: "P", f: "p", Y: "W" } }],
+  righthand: [{ r: PIX_ART.swordmast, m: { S: "F", W: "W" } }], poisonresearch: [{ r: PT.bag, m: { A: "G", a: "C", H: "W" } }],
+  shadowcrit: [{ r: PT.eye, m: { A: "P", a: "p" } }, { r: PT.star, x: 9, y: 9 }], edp: [{ r: PT.orb, m: { A: "P", a: "p", H: "G" } }, { r: PT.star, x: 9, y: 0 }, { r: PT.star, x: 0, y: 9 }],
+  crossimpact: [{ r: PIX_ART.swordmast, m: { S: "F", W: "W" } }, { r: PT.star, x: 9, y: 0 }, { r: PT.star, x: 0, y: 9 }], rollingcutter: [{ r: PIX_ART.whirl, m: { B: "S", W: "W" } }],
+  hallucination: [{ r: PT.hood, m: { a: "X", A: "W", H: "P" } }, { r: PT.star, x: 9, y: 0 }],
+  cartattack: [{ r: PT.bag, m: { A: "N", a: "n", H: "S" } }, { r: PT.arrow, x: 0, y: 6 }], loudex: [{ r: PT.eye, m: { A: "F", a: "Y" } }, { r: PT.star, x: 9, y: 0 }],
+  cartrevo: [{ r: PIX_ART.whirl, m: { B: "N", W: "W" } }], hammerfall: [{ r: PIX_ART.iron, m: { R: "S", r: "X", W: "Y" } }, { r: PT.star, x: 9, y: 0 }],
+  adrenaline: [{ r: PT.orb, m: { A: "F", a: "r", H: "W" } }, { r: PT.star, x: 9, y: 9 }], axetornado: [{ r: PIX_ART.whirl, m: { B: "S", W: "Y" } }, { r: PT.star, x: 9, y: 0 }],
+  vulcanarm: [{ r: PT.arrow, m: { S: "S", N: "Y", R: "Y" } }, { r: PT.arrow, m: { S: "S", N: "Y", R: "Y" }, x: 3, y: 4 }], weaponresearch: [{ r: PIX_ART.swordmast, m: { S: "C", W: "W" } }],
+  overthrust: [{ r: PIX_ART.iron, m: { R: "F", r: "r", W: "W" } }], weaponperfect: [{ r: PIX_ART.swordmast, m: { S: "Y", W: "W" } }, { r: PT.star, x: 0, y: 9 }],
+  armcannon: [{ r: PT.orb, m: { A: "S", a: "X", H: "F" } }, { r: PT.star, x: 9, y: 0 }, { r: PT.star, x: 0, y: 9 }], maximize: [{ r: PIX_ART.magnum }, { r: PT.star, x: 9, y: 9 }],
+  mado: [{ r: PIX_ART.iron, m: { R: "S", r: "X", W: "C" } }, { r: PT.star, x: 9, y: 0 }],
+  wisdom: [{ r: PT.eye, m: { A: "Y", a: "f" } }, { r: PT.star, x: 0, y: 9 }],
+  summon: [{ r: PT.orb, m: { A: "F", a: "r", H: "Y" }, x: -4, y: 3 }, { r: PT.orb, m: { A: "C", a: "c", H: "W" }, x: 4, y: 3 }, { r: PT.orb, m: { A: "Y", a: "f", H: "W" }, x: 0, y: -3 }],
+  insight: [{ r: PT.orb, m: { A: "Y", a: "f", H: "W" } }, { r: PT.star, x: 9, y: 0 }],
+  quicken: [{ r: PT.bolt, m: { A: "G", H: "W" }, x: 1, y: 1 }],
+  magiccrit: [{ r: PT.star, x: 3, y: 3 }, { r: PT.star, x: 9, y: 0 }, { r: PT.star, x: 0, y: 9 }],
+  radius: [{ r: PT.eye, m: { A: "C", a: "c" } }],
+  mastery: [{ r: PT.eye, m: { A: "F", a: "r" } }, { r: PT.star, x: 9, y: 0 }],
+  soulstrike: [{ r: PT.orb, m: { A: "P", a: "p", H: "W" } }],
+  frostdiver: [{ r: PIX_ART.stonecurse[0].r, m: { S: "C", X: "c", x: "c" } }],
+  safetywall: [{ r: PIX_ART.iron, m: { R: "S", r: "X", W: "W" } }],
+  energycoat: [{ r: PIX_ART.iron, m: { R: "P", r: "p", W: "W" } }],
+  mystical: [{ r: PT.eye, m: { A: "Y", a: "f" } }],
+  jupitel: [{ r: PT.orb, m: { A: "C", a: "B", H: "W" } }, { r: PT.star, x: 9, y: 0 }],
+  lov: [...PIX_ART.thunder, { r: PT.star, x: 9, y: 0 }],
+  meteor: [...PIX_ART.fire, { r: PT.star, x: 9, y: 0 }],
+  comet: [{ r: PT.orb, m: { A: "F", a: "r", H: "Y" } }, { r: PT.star, x: 9, y: 0 }, { r: PT.star, x: 0, y: 9 }],
+  tetra: [{ r: PT.orb, m: { A: "P", a: "p", H: "C" } }, { r: PT.star, x: 9, y: 0 }, { r: PT.star, x: 0, y: 9 }],
+  jackfrost: [{ r: PT.orb, m: { A: "C", a: "c", H: "W" } }, { r: PT.star, x: 9, y: 0 }, { r: PT.star, x: 0, y: 9 }],
+});
 function pixArtIcon(art) {
   const c = document.createElement("canvas"); c.width = c.height = 32;
   const g = c.getContext("2d");
@@ -6461,8 +7342,8 @@ function renderSkills() {
     return `<button class="${l.id === skillLineTab ? "on" : ""}" onclick="skillLineTab='${l.id}';skSel=null;renderSkills()">${l.icon} ${l.name}${used ? ` <small>(${used})</small>` : ""}</button>`;
   }).join("");
   let h = `<div class="skHead"><span>🔷 Job Lv <b>${P.jobLvl}</b>/${MAX_JOB}</span><span>แต้มวิชาคงเหลือ <b class="pts">${P.skillPts}</b></span></div>
-    <div class="tabs ageTabs">${tabs}</div><div class="skTree2" id="skTree">`;
-  h += AGES.map((a, t) => `<div class="skAge" style="grid-column:${t + 1}">${a.icon} ${a.name}</div>`).join("");
+    <div class="tabs ageTabs">${tabs}</div><div class="skScroll" id="skScroll"><div class="skTree2" id="skTree">`;
+  h += AGES.map((a, t) => `<div class="skAge ${P.jobLvl >= TIER_JOB[t] ? "" : "off"}" style="grid-column:${t + 1}">${a.icon} ${a.name}${t ? ` <small>${P.jobLvl >= TIER_JOB[t] ? "" : "🔒 "}Job ${TIER_JOB[t]}+</small>` : ""}</div>`).join("");
   const list = Object.entries(SKILLS).filter(([, s]) => s.line === skillLineTab && !s.basic);
   for (const [id, sk] of list) {
     const lv = skillLv(id), reqOk = skillReqOk(id), can = reqOk && P.skillPts > 0 && lv < sk.max;
@@ -6473,10 +7354,10 @@ function renderSkills() {
       <div class="pName">${sk.ult ? "⭐ " : ""}${sk.name}${st === "locked" ? ' <i>🔒</i>' : ""}</div>
       <button class="pPlus" ${can ? "" : "disabled"} onclick="event.stopPropagation();learnSkill('${id}')">+</button></div>`;
   }
-  h += `<svg class="skLines" id="skLines"></svg></div>`;
+  h += `<svg class="skLines" id="skLines"></svg></div></div>`;
   if (skSel && SKILLS[skSel]) {   // กล่องรายละเอียดวิชาที่เลือก
     const id = skSel, sk = SKILLS[id], lv = skillLv(id), reqOk = skillReqOk(id);
-    const reqTxt = Object.entries(sk.req || {}).map(([r, l]) => `${SKILLS[r].name} Lv${l}${skillLv(r) >= l ? " ✔" : ""}`).join(", ");
+    const reqTxt = [...(sk.tier ? [`Job Lv ${TIER_JOB[Math.min(3, sk.tier)]}${P.jobLvl >= TIER_JOB[Math.min(3, sk.tier)] ? " ✔" : ""}`] : []), ...Object.entries(sk.req || {}).map(([r, l]) => `${SKILLS[r].name} Lv${l}${skillLv(r) >= l ? " ✔" : ""}`)].join(", ");
     const slotIdx = P.hotbar.findIndex(x => x && x.type === "skill" && x.id === id);
     h += `<div class="skPop"><div class="spHead">${skillIcon(id)}<div><b>${sk.name}</b><small>${KIND_NAME[sk.kind]} · <span style="color:${ELEMENTS[elemOf(id)].c};text-shadow:0 1px 0 #000">■ ธาตุ${ELEMENTS[elemOf(id)].n}</span> · Lv ${lv}/${sk.max}</small></div><span class="x" onclick="skSel=null;renderSkills()">✕</span></div>
       <div class="spBody"><div class="spLv">${[lv || null, lv < sk.max ? lv + 1 : null].filter(Boolean).map(L => skillLvCol(sk, L, L === lv)).join("")}</div>
@@ -6492,8 +7373,19 @@ function renderSkills() {
       <span>👊 โจมตีปกติ</span>${HOTKEYS.map((k, i) => `<button class="btn ${bi === i ? "on" : ""}" onclick="setSlot(${i},'skill','${BASIC_ID}');renderSkills()">${k}</button>`).join("")}
       ${bi >= 0 ? `<button class="btn red" onclick="clearSlot(${bi});renderSkills()">เอาออก</button>` : ""}
       <small>${bi >= 0 ? "ใส่อยู่: ตีธรรมดา" : "ไม่ได้ใส่: ใช้แต่วิชาโจมตีในช่องปุ่มลัด"}</small></div>`; }
+  const sx = $("skScroll") && skillLineTab === renderSkills.tab ? $("skScroll").scrollLeft : 0;   // จำตำแหน่งเลื่อนแนวนอน (เปลี่ยนสาย = กลับซ้ายสุด)
   $("skillBody").innerHTML = h;
+  renderSkills.tab = skillLineTab;
   drawSkillLines(list);
+  const sc = $("skScroll"); sc.scrollLeft = sx; dragScroll(sc);
+}
+// ผังวิชากว้างแบบแผนผังกว้าง: ลากพื้นหลังเพื่อเลื่อนซ้าย-ขวา (ล้อเมาส์ก็เลื่อนแนวนอนได้)
+function dragScroll(el) {
+  let x0 = null, s0 = 0;
+  el.onpointerdown = e => { if (e.target.closest(".skPill, button") || e.pointerType === "touch") return; x0 = e.clientX; s0 = el.scrollLeft; el.classList.add("drag"); };
+  el.onpointermove = e => { if (x0 !== null) el.scrollLeft = s0 - (e.clientX - x0); };
+  el.onpointerup = el.onpointerleave = () => { x0 = null; el.classList.remove("drag"); };
+  el.onwheel = e => { if (el.scrollWidth > el.clientWidth && Math.abs(e.deltaY) > Math.abs(e.deltaX) && !e.shiftKey) { el.scrollLeft += e.deltaY; e.preventDefault(); } };
 }
 // เส้นคอมโบ: จากวิชาที่ต้องมีก่อน → วิชาถัดไป (สีเขียว = ครบเงื่อนไขแล้ว) พร้อมเลขเลเวลที่ต้องมี
 function drawSkillLines(list) {
@@ -6522,7 +7414,7 @@ function renderStatus() {
   let h = `<div style="margin-bottom:8px"><span style="font-family:Mitr;color:var(--gold-l);font-size:16px">${P.name}</span> · ${P.title} · Lv ${P.lvl}<br>
            แต้มสถานะคงเหลือ: <b style="color:#ffb347;font-size:16px">${P.points}</b></div>`;
   for (const k of STAT_ORDER) {
-    const b = d.bonus[k], cap = SETTINGS.statMax[k], room = cap - P.stats[k];
+    const b = d.bonus[k], cap = statCap(k), room = cap - P.stats[k];
     h += `<div class="row stat" data-tip="${STAT_INFO[k][1]} · +1 แต้ม = ${statRateText(k)} · สูงสุด ${cap}"><span><b>${k.toUpperCase()}</b>${P.stats[k]}${b ? ` <span style="color:#7dffb2">+${b}</span>` : ""} <small>${room <= 0 ? `<span style="color:#ffb347">MAX</span>` : STAT_INFO[k][0]}</small></span>
           <span><button class="btn" ${P.points > 0 && room > 0 ? "" : "disabled"} onclick="addStat('${k}',1)">+1</button>
           <button class="btn" ${P.points >= 5 && room > 0 ? "" : "disabled"} onclick="addStat('${k}',5)">+5</button></span></div>`;
@@ -6692,14 +7584,14 @@ function autoStats() {   // แจกแต้มที่เหลือที�
   let n = 0;
   while (P.points > 0) {
     const used = plan.reduce((t, [k]) => t + P.stats[k] - base[k], 0) + 1;
-    const pick = plan.filter(([k]) => P.stats[k] < SETTINGS.statMax[k]).sort((a, b) => (b[1] * used - (P.stats[b[0]] - base[b[0]])) - (a[1] * used - (P.stats[a[0]] - base[a[0]])))[0];
+    const pick = plan.filter(([k]) => P.stats[k] < statCap(k)).sort((a, b) => (b[1] * used - (P.stats[b[0]] - base[b[0]])) - (a[1] * used - (P.stats[a[0]] - base[a[0]])))[0];
     if (!pick) break;
     P.stats[pick[0]]++; P.points--; n++;
   }
   if (n) { log(`🎯 แจกแต้มตามสาย${LINES.find(l => l.id === (P.build || "sword")).name} ${n} แต้ม`, "#7dffb2"); saveGame(); refreshWindows(); }
 }
 function addStat(k, n) {
-  n = Math.min(n, P.points, SETTINGS.statMax[k] - P.stats[k]);
+  n = Math.min(n, P.points, statCap(k) - P.stats[k]);
   if (n <= 0) return;
   P.stats[k] += n; P.points -= n;
   saveGame(); refreshWindows();
@@ -6731,14 +7623,14 @@ function showItemDetail(id, slot) {   // slot = ชื่อช่องสว�
     if (it.set) {   // ข้อมูลเซ็ต: ใส่อยู่กี่ชิ้น + โบนัสแต่ละขั้น (ขั้นที่ทำงานอยู่ = สีเขียว)
       const S = SET_BY[it.set], n = setCounts()[it.set] || 0;
       lines.push(`<b style="color:#c9a0ff">🧩 ชุด${S.name} (${n}/6)</b>`);
-      S.bonus.forEach((b, i) => lines.push(`<span style="color:${n >= (i + 1) * 2 ? "#7dffb2" : "var(--muted)"}">${(i + 1) * 2} ชิ้น: ${setBonusText(b)}</span>`));
+      S.bonus.forEach((b, i) => lines.push(`<span style="color:${n >= (i + 1) * 2 ? "#7dffb2" : "var(--muted)"}">${(i + 1) * 2} ชิ้น: ${setBonusText(b)}${i === 2 ? ` · ✨ ${SET_FX[S.key]}` : ""}</span>`));
     }
     if (cur) lines.push(`<span style="color:var(--muted)">สวมอยู่: ${esc(cur.name)}</span>`);
     if (slot) btn = `<button class="btn" onclick="detailAct('unequip')">ถอดออก</button>`;
     else if (it.type === "shield" && twoHanded(P.equip.weapon)) { warn = `⚠ ${esc(ITEMS[P.equip.weapon].name)} ใช้สองมือ ถือโล่ไม่ได้`; btn = `<button class="btn" disabled>สวมใส่</button>`; }
     else btn = `<button class="btn" onclick="detailAct('use')">สวมใส่</button>`;
   } else if (it.type === "use") {
-    sub = "ของใช้"; if (it.hp) lines.push(`ฟื้น HP <b>+${it.hp}</b>`); if (it.sp) lines.push(`ฟื้น SP <b>+${it.sp}</b>`);
+    sub = "ของใช้"; if (it.hp) lines.push(`ฟื้น HP <b>+${it.hp}</b>${it.hpPct ? ` + ${it.hpPct}%` : ""}`); if (it.sp) lines.push(`ฟื้น SP <b>+${it.sp}</b>${it.spPct ? ` + ${it.spPct}%` : ""}`);
     btn = `<button class="btn" onclick="detailAct('use')">ใช้</button>`;
   } else if (it.type === "book") {
     sub = "คัมภีร์"; btn = `<button class="btn" onclick="detailAct('use')">อ่าน</button>`;
@@ -6760,15 +7652,15 @@ function detailAct(act) {
   // ยา: ถ้ายังเหลือ เปิดหน้ารายละเอียดต่อ จะได้กดใช้ซ้ำได้
   if (ITEMS[st.id] && ITEMS[st.id].type === "use" && P.inv[st.id]) showItemDetail(st.id);
 }
+let invTab = "all";   // หมวดที่เปิดอยู่ในย่าม
 function renderInv() {
   const ids = Object.keys(P.inv);
   // ช่องสวมใส่แบบตุ๊กตากระดาษ (คลิกเพื่อถอด)
-  const LAYOUT = [
-    ["ring1", 1, 1, "big"],   ["head", 2, 1, "big"],   ["ring2", 3, 1, "big"],
-    ["weapon", 1, 2, "tall"], ["armor", 2, 2, "tall"], ["shield", 3, 2, "tall"],
-    ["cape", 1, 3, "big"],    ["pants", 2, 3, "big"],  ["boots", 3, 3, "big"],
+  const LAYOUT = [   // 2 คอลัมน์แนวตั้ง (แบบหน้าต่างตัวละครธีมกระดาษ)
+    ["head", 1, 1, "big"], ["cape", 2, 1, "big"], ["weapon", 1, 2, "big"], ["armor", 2, 2, "big"],
+    ["ring1", 1, 3, "big"], ["ring2", 2, 3, "big"], ["pants", 1, 4, "big"], ["boots", 2, 4, "big"],
   ];
-  let h = `<div class="doll">`;
+  let h = `<div class="invLayout"><div class="doll">`;
   for (const [slot, c, r, size] of LAYOUT) {
     const id = P.equip[slot], it = id && ITEMS[id], n = refineOf(id);
     const rc = it ? RARITY[it.rare || 1].color : null;
@@ -6782,18 +7674,30 @@ function renderInv() {
           </div>`;
   }
   const d = D();
-  h += `</div><div style="display:flex;justify-content:space-around;font-size:12px;margin:6px 0 2px;color:var(--muted)">
-          <span>ATK <b style="color:#fff">${d.atk}</b></span><span>DEF <b style="color:#fff">${d.def}</b></span>
-          <span>HP <b style="color:#fff">${d.maxHp}</b></span><span>SP <b style="color:#fff">${d.maxSp}</b></span></div>
+  // การ์ดตัวละคร (คอลัมน์ซ้าย): ภาพ · ชื่อ · เลเวล · ค่าหลัก
+  const cc = $("charCard");
+  if (cc) cc.innerHTML = `<div class="ccPic"><canvas id="invPreview" width="120" height="132"></canvas></div><div class="ccName">${esc(P.name)}</div><div class="ccLv">Lv.${P.lvl}</div>
+    <div class="ccStats"><div><i>❤️</i>HP<b>${Math.round(P.hp)} / ${d.maxHp}</b></div><div><i>💧</i>SP<b>${Math.round(P.sp)} / ${d.maxSp}</b></div>
+    <div><i>⚔️</i>ATK<b class="r">${d.atk}</b></div><div><i>🛡️</i>DEF<b class="g">${d.def}</b></div><div><i>👟</i>SPD<b>${Math.round(d.speed)}</b></div></div>
+    <button class="ccMore" onclick="toggleStatPanel()">📊 ดูรายละเอียด / แจกแต้ม${P.points ? ` <b>+${P.points}</b>` : ""}</button>`;
+  h += `</div><div class="bagCol">
         <div class="sec">ของในย่าม <small style="color:${bagUsed() >= bagMax() ? "#ff8a7a" : "var(--muted)"}">(${bagUsed()}/${bagMax()} ช่อง)</small>${bagMax() < SETTINGS.bagLimit ? ` <button class="btn bagBtn" onclick="buyBag()" data-tip="ขยายย่าม +${SETTINGS.bagStep} ช่อง">➕ ${bagCost().toLocaleString()}</button>` : ""}</div>`;
-  h += ids.length ? `<div class="grid">` + ids.map(id => {
+  // แยกหมวดในย่าม: อุปกรณ์ / ของใช้ / วัตถุดิบ / อื่นๆ
+  const cat = id => { const it = ITEMS[id]; return isEquip(it) ? "equip" : it.type === "use" ? "use" : it.type === "etc" ? "mat" : "other"; };
+  const INV_TABS = [["all", "ทั้งหมด"], ["equip", "อุปกรณ์"], ["use", "ของใช้"], ["mat", "วัตถุดิบ"], ["other", "อื่นๆ"]];
+  h += `<div class="invTabs">${INV_TABS.map(([k, l]) => { const n = k === "all" ? ids.length : ids.filter(id => cat(id) === k).length;
+    return `<button class="${invTab === k ? "on" : ""}" onclick="invTab='${k}';renderInv()">${l}${n ? ` <small>${n}</small>` : ""}</button>`; }).join("")}</div>`;
+  const shown = invTab === "all" ? ids : ids.filter(id => cat(id) === invTab);
+  h += shown.length ? `<div class="grid">` + shown.map(id => {
     const it = ITEMS[id], rc = it.rare ? RARITY[it.rare].color : null, n = refineOf(id);
     return `<div class="cell" style="${rc ? `border-color:${rc};box-shadow:inset 0 0 8px ${rc}55` : ""}" data-tip="${itemTip(id)} (คลิกดูรายละเอียด)"
       onclick="showItemDetail('${id}')" ${it.type === "use" ? `onpointerdown="dragStart(event,'item','${id}')"` : ""}>${cleanIco(id, 44)}${gradeTag(id)}${n ? `<span style="position:absolute;left:3px;top:0;font-size:11px;font-weight:700;color:#ffd23f;text-shadow:0 0 3px #000">+${n}</span>` : ""}<span class="c" style="text-shadow:0 0 3px #000">${P.inv[id]}</span></div>`;
   }).join("") + `<div class="cell emptyCell"></div>`.repeat(Math.max(0, bagMax() - ids.length)) + `</div>`
     : `<div class="grid">` + `<div class="cell emptyCell"></div>`.repeat(bagMax()) + `</div>`;
-  h += `<div style="margin-top:10px">🪙 ${P.zeny.toLocaleString()} เบี้ย</div>`;
+  h += `</div></div><div style="margin-top:10px">🪙 ${P.zeny.toLocaleString()} เบี้ย</div>`;
   $("invBody").innerHTML = h;
+  { const dl = $("invBody").querySelector(".doll"), cc = $("charCard"); if (dl && cc) cc.appendChild(dl); }   // ช่องสวมใส่ย้ายไปใต้การ์ดตัวละคร (ซ้าย) · ย่ามเต็มความกว้าง
+  const pv = $("invPreview"); if (pv) drawLookTo(pv, playerLook());   // ตัวละครข้างช่องสวมใส่
 }
 // ร้านค้าแบ่งเป็นแท็บ
 const SHOP_TABS = [
@@ -6838,6 +7742,7 @@ function renderShop() {   // วาดร้านใหม่โดยคงต
   const nb = $("shopBody").querySelector(".tabBody");
   if (nb) nb.scrollTop = shopScroll.top;
 }
+let shopWType = "all";   // ชิปกรองประเภทอาวุธในร้าน
 function renderShopInner() {
   $("shopWin").style.width = shopTab === "market" ? "600px" : "";
   if (shopTab === "market") return renderMarket();   // ตลาดผู้เล่นอยู่ในร้านนายมั่น
@@ -6852,9 +7757,11 @@ function renderShopInner() {
       for (const id of list) h += shopBuyRow(id);
     }
   } else if (shopTab === "weapon") {
-    for (const [wt, info] of Object.entries(WTYPES)) {   // แยกย่อยตามประเภทอาวุธ
+    const wts = Object.entries(WTYPES).filter(([wt]) => SHOP_LIST.some(id => ITEMS[id].wtype === wt));
+    h += `<div class="wtChips"><button class="${shopWType === "all" ? "on" : ""}" onclick="shopWType='all';renderShop()">ทั้งหมด</button>${wts.map(([wt, info]) => `<button class="${shopWType === wt ? "on" : ""}" onclick="shopWType='${wt}';renderShop()">${info.name}</button>`).join("")}</div>`;
+    for (const [wt, info] of wts) {   // แยกย่อยตามประเภทอาวุธ (กดชิปเพื่อดูเฉพาะประเภท)
+      if (shopWType !== "all" && shopWType !== wt) continue;
       const list = SHOP_LIST.filter(id => ITEMS[id].wtype === wt);
-      if (!list.length) continue;
       h += `<div class="sec">${info.name} <small style="color:var(--muted);font-family:Sarabun">— ${info.desc}</small></div>`;
       for (const id of list) h += shopBuyRow(id);
     }
@@ -6912,7 +7819,9 @@ function sellEtc() {
 const isOpen = id => $(id).style.display === "block";
 const BOOK_WINS = ["charWin", "skillWin", "codexWin", "adminWin"];   // ตัวละคร / วิชา / สมุด = หน้าต่างเดียวกัน สลับแท็บ
 function openWin(id) {
-  if (BOOK_WINS.includes(id)) for (const w of BOOK_WINS) if (w !== id) $(w).style.display = "none";
+  // เปิดหน้าต่างหลักอันหนึ่ง = ปิดอันอื่น (ตัวละคร/วิชา/สมุด/แอดมิน/อันดับ/ตั้งค่า/ออโต้)
+  const TOP_WINS = [...BOOK_WINS, "rankWin", "setWin", "autoWin", "guardWin"];
+  if (TOP_WINS.includes(id)) for (const w of TOP_WINS) if (w !== id && $(w)) $(w).style.display = "none";
   $(id).style.display = "block"; refreshWindows();
 }
 function openBook(id) { if (id === "adminWin" && !isAdmin) return; if (!isOpen(id)) openWin(id); }
@@ -6938,7 +7847,15 @@ async function renderAdmin() {
   if (!isAdmin) return;
   const el = $("adminBody");
   el.innerHTML = `<div class="admBox"><div class="admStats" id="admStats"><div><b>…</b>ผู้เล่น</div><div><b>…</b>แอดมิน</div><div><b>…</b>ถูกแบน</div><div><b>…</b>ไม่มีตัวละคร</div></div></div>
-  <div class="admBox">🛡️ เข้าสู่ระบบในชื่อ <b>${currentUser}</b><br><div style="margin-top:8px"><a class="btn" href="admin.html" onclick="openAdmin(event)" style="display:inline-block;text-decoration:none;padding:6px 14px">เปิดหน้าหลังบ้านเต็ม ↗</a> <button class="btn" onclick="admStats=null;renderAdmin()">🔄 รีเฟรช</button></div></div>`;
+  <div class="admBox">🛡️ เข้าสู่ระบบในชื่อ <b>${currentUser}</b><br><div style="margin-top:8px"><a class="btn" href="admin.html" onclick="openAdmin(event)" style="display:inline-block;text-decoration:none;padding:6px 14px">เปิดหน้าหลังบ้านเต็ม ↗</a> <button class="btn" onclick="admStats=null;renderAdmin()">🔄 รีเฟรช</button></div></div>
+  <div class="admBox"><b>✨ เสกของใส่ตัวเอง</b> <small style="color:var(--muted)">(แอดมินเท่านั้น · ช่องย่ามขยายให้อัตโนมัติ)</small>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px">
+      <select id="admGive" style="flex:1;min-width:180px">${Object.entries(ITEMS).filter(([id, it]) => !/\+\d+$/.test(id) && it.type !== "book").sort((a, b) => (b[1].rare || 1) - (a[1].rare || 1)).map(([id, it]) => `<option value="${id}">[${"DCBAS"[(it.rare || 1) - 1]}] ${esc(it.name)}</option>`).join("")}</select>
+      <input id="admGiveN" type="number" min="1" max="999" value="1" style="width:64px">
+      <button class="btn" onclick="admGive($('admGive').value, +$('admGiveN').value)">เสก</button>
+      <button class="btn" onclick="admGiveS()">🌟 เสกของเกรด S ทั้งหมด</button>
+      <button class="btn" onclick="P.zeny += 1000000; saveGame(); refreshWindows(); log('✨ เสกเบี้ย +1,000,000', '#ffd23f')">💰 +1 ล้านเบี้ย</button>
+    </div></div>`;
   try {
     if (!admStats) { const { data, error } = await sb.rpc("admin_list_users"); if (error) throw error; admStats = data || []; }
     const u = admStats;
@@ -7310,7 +8227,8 @@ cv.addEventListener("pointerdown", e => {
   mouseDown = true;
   const sx = e.clientX / ZOOM, sy = e.clientY / ZOOM;
   const hit = pickAt(sx, sy);
-  if (AUTO.on && (!hit || hit.kind === "mob" || hit.kind === "pvp")) toggleAuto();   // กดเดิน/ตีเองระหว่างออโต้ = ยกเลิกออโต้
+  if (AUTO.on && (!hit || hit.kind === "mob" || hit.kind === "pvp")) toggleAuto();
+  if (!hit || hit.kind !== "npc") for (const w of ["shopWin", "smithWin", "craftWin", "guardWin"]) if ($(w) && isOpen(w)) $(w).style.display = "none";   // เดินออก = ปิดหน้าต่างร้าน/NPC
   if (hit) {
     if (!(P.target && P.target.ref === hit.ref)) P.queued = null;
     P.target = hit; P.tx = null;
@@ -7598,6 +8516,20 @@ function showCreate(slot) {
   if (!CS || CS.slot !== slot) CS = { slot, name: "", look: { ...DEFAULT_LOOK }, bg: "novice" };
   renderCreate();
 }
+// ชุดประจำสาย (ตามภาพคอนเซปต์): กดแล้วได้ลุคเริ่มต้นของสายนั้น · แต่งต่อเองได้ทุกอย่าง (ไม่ผูกกับสายที่เล่นจริง)
+const LOOK_PRESETS = {
+  sword:    { label: "⚔️ ขุนศึก",  skin: "#e2a878", hair: "topknot", hairColor: "#2a1a10", band: "#d63031", pants: "#9b2226" },
+  mage:     { label: "🔮 ฤๅษี",    skin: "#f7d6b8", hair: "long",    hairColor: "#c9c2b8", band: "#8e44ad", pants: "#6b3fa0" },
+  archer:   { label: "🏹 พราน",    skin: "#c98a5a", hair: "short",   hairColor: "#5a3218", band: "#d63031", pants: "#2e7d32" },
+  priest:   { label: "🪷 นักบวช",  skin: "#e2a878", hair: "bald",    hairColor: "#2a1a10", band: "#f2b93b", pants: "#b8651a" },
+  thief:    { label: "🗡️ จอมโจร", skin: "#c98a5a", hair: "short",   hairColor: "#2a1a10", band: "#8e44ad", pants: "#3a3a3a" },
+  merchant: { label: "💰 พ่อค้า",  skin: "#e2a878", hair: "short",   hairColor: "#5a3218", band: "#f2b93b", pants: "#1f4e8a" },
+};
+function ccPreset(line) {
+  const { label, ...look } = LOOK_PRESETS[line], g = CS.look.gender;
+  if (!LOOK_OPTS.hair[g].some(([h]) => h === look.hair)) look.hair = LOOK_OPTS.hair[g][0][0];   // ผู้หญิงไม่มีทรงโกนหัว → ใช้ทรงแรกของเพศนั้น
+  Object.assign(CS.look, look); renderCreate();
+}
 function setCS(key, val) {
   if (key === "gender") { CS.look.gender = val; CS.look.hair = LOOK_OPTS.hair[val][0][0]; }
   else if (key === "bg") CS.bg = val;
@@ -7679,6 +8611,8 @@ function ccShell() {
           </div>
           <div class="cc-hint" id="ccHint"></div>
         </div>
+        <div class="cc-sec"><div class="cc-h"><span class="t">ชุดประจำสาย</span><span class="v">กดแล้วแต่งต่อได้</span></div>
+          <div class="cc-row" role="group" aria-label="ชุดประจำสาย">${Object.entries(LOOK_PRESETS).map(([k, p]) => `<button type="button" class="cc-opt" onclick="ccPreset('${k}')">${p.label}</button>`).join("")}</div></div>
         <div class="cc-two">
           <div class="cc-sec"><div class="cc-h"><span class="t">เพศ</span></div>
             <div class="cc-row" role="group" aria-label="เพศ">
@@ -7927,3 +8861,130 @@ requestAnimationFrame(loop);
     w.onmessage = bgTick;
   } catch (e) { setInterval(bgTick, 100); }   // ไม่มี Worker: ใช้ตัวจับเวลาปกติ (อาจช้าลงตอนอยู่เบื้องหลัง)
 }
+
+// วิชาที่ต้องจ่ายเบี้ย (ตาเงินตาทอง / มหาเศรษฐี): เบี้ยไม่พอ = ออโต้ข้าม ไม่ขึ้นข้อความรัว
+function zenyOk(id) { const g = SKILLS[id] && SKILLS[id].ph; return !(g && g.zeny) || P.zeny >= g.zeny(Math.max(1, skillLv(id))); }
+// ===== ผู้เล่นอันดับสูงสุด 10 คน (เลเวล > EXP) · ดึงจากเซิร์ฟเวอร์ทุก 60 วิ =====
+let rankOpen = (() => { try { return localStorage.getItem("siam-rank") !== "0"; } catch (e) { return true; } })();
+function toggleRank() { rankOpen = !rankOpen; try { localStorage.setItem("siam-rank", rankOpen ? "1" : "0"); } catch (e) {} paintRank(); }
+let rankRows = [];
+function paintRank() {
+  const b = $("rankBody"), ar = $("rankArrow"); if (!b) return;
+  b.style.display = rankOpen ? "" : "none"; if (ar) ar.textContent = rankOpen ? "▾" : "▸";
+  const medal = ["🥇", "🥈", "🥉"];
+  b.innerHTML = rankRows.length ? rankRows.map((r, i) => `<div class="rk${P && r.name === P.name ? " me" : ""}"><i>${medal[i] || i + 1}</i><span>${esc(r.name)}</span><b>Lv ${r.lvl}</b><small>J${r.job}</small></div>`).join("") : "ยังไม่มีข้อมูล";
+}
+async function loadRank() {
+  if (mode !== "play" || typeof sb === "undefined" || !sb) return;
+  try { const { data } = await sb.rpc("top_players"); if (Array.isArray(data)) { rankRows = data; paintRank(); } } catch (e) {}
+}
+setInterval(loadRank, 60000); setTimeout(function rk() { if (mode === "play") loadRank(); else setTimeout(rk, 3000); }, 3000);
+// ยาในช่องปุ่มลัด: HP หรือ SP ต่ำกว่า 70% = กินเองอัตโนมัติ (ห่างกันอย่างน้อย 1 วิ)
+function autoPot(d) {
+  if (P.dead || P.potCd > 0 || (P.autoPotT || 0) > now) return;
+  const hot = (P.hotbar || []).filter(h => h && h.type === "item" && P.inv[h.id] && ITEMS[h.id] && ITEMS[h.id].type === "use" && !ITEMS[h.id].key);
+  const pick = k => hot.find(h => ITEMS[h.id][k]);
+  const h = (P.hp < d.maxHp * .7 && pick("hp")) || (P.sp < d.maxSp * .7 && pick("sp"));
+  if (h) { P.autoPotT = now + 1; useItem(h.id); }
+}
+// ไอคอนลงทอง/แดงทอง: ไล่สีตามความสว่าง + ขอบทองเรืองแสง + ประกาย (ใช้กับไอเท็มที่แอดมินตั้ง gild)
+function gildIcon(g, kind) {
+  const N = 64, img = g.getImageData(0, 0, N, N), d = img.data, on = new Uint8Array(N * N);
+  const R = kind === "red" ? [[60, 8, 8], [168, 32, 26], [255, 96, 58], [255, 214, 120]] : [[96, 52, 8], [200, 134, 42], [255, 210, 63], [255, 248, 200]];
+  const lerp = (a, b, k) => a.map((v, i) => v + (b[i] - v) * k);
+  for (let i = 0; i < N * N; i++) {
+    if (d[i * 4 + 3] < 128) continue; on[i] = 1;
+    const L = (d[i * 4] * .3 + d[i * 4 + 1] * .59 + d[i * 4 + 2] * .11) / 255, s = Math.min(2.999, L * 3.2), j = Math.floor(s), c = lerp(R[j], R[j + 1], s - j);
+    d[i * 4] = c[0]; d[i * 4 + 1] = c[1]; d[i * 4 + 2] = c[2];
+  }
+  for (let y = 1; y < N - 1; y++) for (let x = 1; x < N - 1; x++) {   // ขอบนอกสีทองสว่าง
+    const i = y * N + x; if (on[i]) continue;
+    if (on[i - 1] || on[i + 1] || on[i - N] || on[i + N]) { d[i * 4] = 255; d[i * 4 + 1] = 224; d[i * 4 + 2] = 102; d[i * 4 + 3] = 255; }
+  }
+  g.putImageData(img, 0, 0);
+  g.fillStyle = "#ffffff"; for (const [x, y] of [[12, 10], [50, 16], [44, 50]]) { g.fillRect(x, y - 3, 2, 8); g.fillRect(x - 3, y, 8, 2); }   // ประกาย 4 แฉก
+}
+// ===== แอดมิน: เสกของใส่ย่ามตัวเอง (เช็กสิทธิ์ isAdmin ที่ได้จากโปรไฟล์เซิร์ฟเวอร์) =====
+function admGive(id, n = 1, quiet) {
+  if (!isAdmin || !ITEMS[id] || mode !== "play") return;
+  n = Math.max(1, Math.min(999, n | 0));
+  if (!P.inv[id] && bagUsed() >= bagMax()) P.bagMax = (P.bagMax || bagMax()) + 10;   // ย่ามเต็ม → ขยายให้
+  addItem(id, n);
+  if (!quiet) { log(`✨ เสก ${ITEMS[id].name} x${n}`, "#ffd23f"); saveGame(); refreshWindows(); }
+}
+function admGiveS() {
+  if (!isAdmin) return;
+  const ids = Object.keys(ITEMS).filter(id => !/\+\d+$/.test(id) && (ITEMS[id].rare || 1) >= 5 && TYPE_SLOTS[ITEMS[id].type] && ITEMS[id].type !== "shield");
+  for (const id of ids) admGive(id, 1, true);
+  log(`✨ เสกของเกรด S ${ids.length} ชิ้น`, "#ffd23f"); saveGame(); refreshWindows();
+}
+// ปุ่มไอคอนมุมขวาบน: ซ่อน/แสดงกล่องภารกิจ
+function toggleQuestBox() { const q = $("questBox"); if (q) q.classList.toggle("userHide"); }
+// ป๊อปอัปอันดับผู้เล่น (กลางจอ ใหญ่)
+async function openRank() {
+  openWin("rankWin");
+  await loadRank();
+  const medal = ["🥇", "🥈", "🥉"], b = $("rankWinBody"); if (!b) return;
+  const me = r => r.name === P.name ? " me" : "";
+  // แท่นรับรางวัล 3 อันดับแรก (2 · 1 · 3) + รายชื่ออันดับ 4-10
+  const pod = [1, 0, 2].filter(i => rankRows[i]).map(i => { const r = rankRows[i];
+    return `<div class="rkPod p${i + 1}${me(r)}"><div class="rkMedal">${medal[i]}</div><div class="rkName">${esc(r.name)}</div><div class="rkTitle">${esc(r.title || "นักผจญภัย")}</div><div class="rkLv">Lv ${r.lvl}</div><div class="rkJob">Job ${r.job}</div><div class="rkBase">${i + 1}</div></div>`; }).join("");
+  const list = rankRows.slice(3).map((r, k) => `<div class="rkRow${me(r)}"><i>${k + 4}</i><span>${esc(r.name)}<small>${esc(r.title || "นักผจญภัย")}</small></span><b>Lv ${r.lvl}</b><em>Job ${r.job}</em></div>`).join("");
+  b.innerHTML = rankRows.length ? `<div class="rkPodium">${pod}</div><div class="rkList">${list}</div>
+    <div class="rankNote">อัปเดตทุก 60 วินาที · เรียงตามเลเวล แล้วตาม EXP</div>` : "ยังไม่มีข้อมูล";
+}
+// สเตตัสละเอียด + แจกแต้ม: ซ่อนไว้ กดปุ่ม "ดูรายละเอียด" ถึงจะเปิดเป็นแผงลอย
+function toggleStatPanel() { const w = $("charWin"); if (w) w.classList.toggle("statOpen"); }
+// ปุ่มออโต้ด้านล่าง: เปิดป๊อปอัปออโต้ (เลือกมอน + ปุ่มเริ่ม/หยุด)
+// ===== จ้างทหารองครักษ์: กันการโจมตีจากผู้เล่นอื่น 2 ชั่วโมง (หมดแล้วต้องจ้างใหม่) =====
+const GUARD_MS = 2 * 60 * 60 * 1000;
+const guardOn = () => (P.guardUntil || 0) > Date.now();
+const guardCost = () => 2000 + (P.lvl || 1) * 50;
+const GUARD_LOOK = { skin: "#c98f63", top: "#8b1e1e", pants: "#2b2b33", sash: "#d4a93a", hair: "short", hat: "lompok", detail: "gold", weapon: "glaive" };
+function drawGuardSoldier(x, y, o) {   // ทหารยืนเฝ้าข้างหลังเจ้านาย
+  const d = o.dir < 0 ? -1 : 1;
+  drawHumanPix(x - 20 * d, y - 6, { ...GUARD_LOOK, moving: o.moving, walkT: (o.walkT || 0) + .3, dir: o.dir, swing: 0, face: o.face, phase: 3 });
+}
+function guardLeft() { const ms = Math.max(0, (P.guardUntil || 0) - Date.now()), m = Math.ceil(ms / 60000); return Math.floor(m / 60) + " ชม. " + (m % 60) + " นาที"; }
+function openGuardWin() { openWin("guardWin"); renderGuardWin(); }
+function renderGuardWin() {
+  const b = $("guardBody"); if (!b) return;
+  const on = guardOn(), c = guardCost();
+  b.innerHTML = `<div class="gdHero"><canvas id="gdPic" width="96" height="96"></canvas><div><b>ทหารองครักษ์</b><small>คุ้มกันท่านจากการโจมตีของผู้เล่นคนอื่น · ไม่กันมอนสเตอร์</small></div></div>
+    <div class="gdStat ${on ? "on" : ""}">${on ? "🛡 กำลังคุ้มกัน · เหลือ <b>" + guardLeft() + "</b>" : "ยังไม่ได้จ้างทหาร"}</div>
+    <div class="gdRow"><span>⏳ ระยะเวลา</span><b>2 ชั่วโมง</b></div><div class="gdRow"><span>🪙 ค่าจ้าง</span><b>${c.toLocaleString()} เบี้ย</b></div>
+    <button class="gdBtn" ${on ? "disabled" : ""} onclick="hireGuard()">${on ? "ทหารยังคุ้มกันอยู่" : "จ้างทหาร"}</button>
+    <div class="gdNote">หมดเวลาแล้วทหารจะกลับค่าย ต้องมาจ้างใหม่</div>`;
+  const cv = $("gdPic"); if (cv) drawBust(cv, GUARD_LOOK);
+}
+function hireGuard() {
+  if (guardOn()) return;
+  const c = guardCost();
+  if (P.zeny < c) { log("เบี้ยไม่พอจ้างทหาร", "#ff8a8a"); return; }
+  P.zeny -= c; P.guardUntil = Date.now() + GUARD_MS;
+  log(`🛡 จ้างทหารองครักษ์แล้ว คุ้มกัน 2 ชั่วโมง (-${c.toLocaleString()} เบี้ย)`, "#9fd8ff");
+  floatText(P.x, { y: P.y, h: 70 }, "🛡 ทหารมาแล้ว!", "#9fd8ff", 18);
+  saveGame(); renderGuardWin(); $("guardBtn")?.classList.add("on");
+}
+setInterval(() => {   // นับถอยหลัง + แจ้งเตือนตอนหมด
+  if (typeof P === "undefined" || mode !== "play") return;
+  const on = guardOn(); $("guardBtn")?.classList.toggle("on", on);
+  if (P._gWas && !on) log("🛡 ทหารองครักษ์หมดเวลาแล้ว กลับค่าย · จ้างใหม่ได้ที่นายกองทหารรับจ้างในเมือง", "#ffb38a");
+  P._gWas = on;
+  if (isOpen("guardWin")) renderGuardWin();
+}, 5000);
+function openAutoPanel() { openWin("autoWin"); renderAutoWin(); }
+// รูปโปรไฟล์ครึ่งตัว: ตัดเฉพาะหัว-อกจากสไปรต์ แล้วขยายแบบพิกเซลคม
+function drawBust(canvas, look) {
+  const g = canvas.getContext("2d"), spr = humanSprite(look, 0, 0, "down", 0);
+  const sx = 2, sy = 10, sw = 28, sh = 38, s = Math.max(1, Math.floor(Math.min(canvas.width / sw, canvas.height / sh)));
+  g.setTransform(1, 0, 0, 1, 0, 0); g.clearRect(0, 0, canvas.width, canvas.height); g.imageSmoothingEnabled = false;
+  g.drawImage(spr, sx, sy, sw, sh, (canvas.width - sw * s) / 2, canvas.height - sh * s, sw * s, sh * s);
+}
+// สมุดอุปกรณ์: กดดูไอเท็มแล้วไม่เด้งกลับขึ้นบน (คงตำแหน่งเลื่อนของตารางและหน้าต่าง)
+{ const _rc = renderCodex;
+  renderCodex = function () {
+    const w = $("codexWin"), keep = w ? [...w.querySelectorAll(".cxGrid, .cxInfo, .tabBody"), ...w.children].map(el => [el.className, el.scrollTop]) : [];
+    _rc.apply(this, arguments);
+    if (w) for (const [c, top] of keep) { const el = c && w.querySelector("." + String(c).trim().split(/\s+/)[0]); if (el && top) el.scrollTop = top; }
+  }; }
